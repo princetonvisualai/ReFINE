@@ -235,7 +235,9 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         # note that we have to create model in fp32. Otherwise, the optimizer is in bf16, which is incorrect
         # TODO(zhangchi.usc1992): 1. support create from random initialized model. 2. Support init with FSDP directly
         self.tokenizer = hf_tokenizer(local_path, trust_remote_code=trust_remote_code)
-        self.processor = hf_processor(local_path, trust_remote_code=trust_remote_code)
+        #self.processor = hf_processor(local_path, trust_remote_code=trust_remote_code)
+        self.processor = None
+    
 
         if self.config.model.get("custom_chat_template", None) is not None:
             if self.processor is not None:
@@ -250,9 +252,10 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             torch_dtype = PrecisionType.to_dtype(torch_dtype)
 
         # override model kwargs
-        actor_model_config = AutoConfig.from_pretrained(
-            local_path, trust_remote_code=trust_remote_code, attn_implementation="flash_attention_2"
-        )
+        #actor_model_config = AutoConfig.from_pretrained(
+        #    local_path, trust_remote_code=trust_remote_code, attn_implementation="flash_attention_2"
+        #) --> don't remove this comment
+        actor_model_config = AutoConfig.from_pretrained(local_path, trust_remote_code=trust_remote_code)
 
         # patch for kimi-vl
         if getattr(actor_model_config, "model_type", None) == "kimi_vl":
@@ -277,6 +280,15 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
         with init_context(), warnings.catch_warnings():
             warnings.simplefilter("ignore")
+
+            actor_module = AutoModelForCausalLM.from_pretrained(
+                pretrained_model_name_or_path=local_path,
+                torch_dtype=torch_dtype,
+                config=actor_model_config,
+                trust_remote_code=trust_remote_code,
+            )
+
+            '''
             if type(actor_model_config) in AutoModelForVision2Seq._model_mapping.keys():
                 actor_module_class = AutoModelForVision2Seq
             else:
@@ -307,6 +319,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 use_fused_kernels=use_fused_kernels,
                 fused_kernels_backend=fused_kernels_backend,
             )
+            '''
 
             # some parameters may not in torch_dtype. TODO(zhangchi.usc1992) remove this after we switch to fsdp2
             actor_module.to(torch_dtype)
@@ -563,6 +576,12 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     def init_model(self):
         from verl.workers.actor import DataParallelPPOActor
 
+        from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
+        from verl.models.lact_model import LaCTSWIGLUConfig, LaCTModel, LaCTForCausalLM
+        AutoConfig.register("lact_swiglu", LaCTSWIGLUConfig)
+        AutoModel.register(LaCTSWIGLUConfig, LaCTModel)
+        AutoModelForCausalLM.register(LaCTSWIGLUConfig, LaCTForCausalLM)
+
         # This is used to import external_lib into the huggingface systems
         import_external_libs(self.config.model.get("external_lib", None))
 
@@ -673,7 +692,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     @DistProfiler.annotate(color="red", role="actor_update")
     def update_actor(self, data: DataProto):
         # Support all hardwares
-        data = data.to(get_device_id())
+        #data = data.to(get_device_id())
 
         assert self._is_actor
         if self._is_offload_param:
@@ -719,7 +738,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     @DistProfiler.annotate(color="red", role="rollout_generate")
     def generate_sequences(self, prompts: DataProto):
         # Support all hardwares
-        prompts = prompts.to(get_device_id())
+        #prompts = prompts.to(get_device_id())
 
         assert self._is_rollout
 
@@ -769,7 +788,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
         is_lora = data.meta_info.pop("is_lora", False)
         adapter_ctx = self.actor.actor_module.disable_adapter() if is_lora else nullcontext()
-        data = data.to(get_device_id())
+        #data = data.to(get_device_id())
         # we should always recompute old_log_probs when it is HybridEngine
         data.meta_info["micro_batch_size"] = self.config.rollout.log_prob_micro_batch_size_per_gpu
         data.meta_info["max_token_len"] = self.config.rollout.log_prob_max_token_len_per_gpu

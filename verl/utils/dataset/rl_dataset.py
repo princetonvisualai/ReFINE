@@ -336,3 +336,95 @@ class RLHFDataset(Dataset):
             return state
 
         return self.__dict__.copy()
+
+
+class TTTRLHFDataset(RLHFDataset):
+
+    def __init__(
+        self,
+        data_files: str | list[str],
+        tokenizer: PreTrainedTokenizer,
+        config: DictConfig,
+        processor: Optional[ProcessorMixin] = None,
+    ):
+        self.max_response_length = config.get("max_response_length", 32)
+        self.answer_key = config.get("answer_key", "answer")
+        super().__init__(data_files, tokenizer, config, processor)
+
+
+    def _read_files_and_tokenize(self):
+        dataframes = []
+        for parquet_file in self.data_files:
+            # read parquet files and cache
+            dataframe = datasets.load_dataset("parquet", data_files=parquet_file)["train"]
+            dataframes.append(dataframe)
+        self.dataframe: datasets.Dataset = datasets.concatenate_datasets(dataframes)
+
+        print(f"dataset len: {len(self.dataframe)}")
+
+        self.dataframe = self.maybe_filter_out_overlong_prompts(self.dataframe)
+
+    def maybe_filter_out_overlong_prompts(self, dataframe: datasets.Dataset = None):
+        
+        if self.filter_overlong_prompts:
+            tokenizer = self.tokenizer
+            prompt_key = self.prompt_key
+
+            def prompt2len(doc) -> int:
+                return len(tokenizer(doc[prompt_key]))
+        
+            dataframe = dataframe.filter(
+                lambda doc: prompt2len(doc) <= self.max_prompt_length,
+                num_proc=self.num_workers,
+                desc=f"Filtering prompts longer than {self.max_prompt_length} tokens",
+            )
+            print(f"filter dataset len: {len(dataframe)}")
+
+        return dataframe
+
+    def _build_messages(self, example: dict):
+        messages: str = example.pop(self.prompt_key)
+        answers: str = example.pop(self.answer_key)
+        return messages, answers
+
+    def __getitem__(self, item):
+        """
+        Note that we also return the raw_input_ids so that it can be combined with other chat template
+        """
+        row_dict: dict = self.dataframe[item]
+        messages, answers = self._build_messages(row_dict)
+        model_inputs = {}
+
+        
+        model_inputs = self.tokenizer(messages, return_tensors="pt", add_special_tokens=False)
+        input_ids = model_inputs.pop("input_ids")
+        attention_mask = model_inputs.pop("attention_mask")
+
+        ground_truth = self.tokenizer(answers, return_tensors="pt", add_special_tokens=False)
+        ground_truth_ids = ground_truth.pop("input_ids")
+        ground_truth_attention_mask = ground_truth.pop("attention_mask")
+
+        input_ids, attention_mask = verl_F.postprocess_data(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            max_length=self.max_prompt_length,
+            pad_token_id=self.tokenizer.pad_token_id,
+            left_pad=True,
+            truncation=self.truncation,
+        )
+
+        ground_truth_ids, ground_truth_attention_mask = verl_F.postprocess_data(
+            input_ids=ground_truth_ids,
+            attention_mask=ground_truth_attention_mask,
+            max_length=self.max_response_length,
+            pad_token_id=self.tokenizer.pad_token_id,
+            left_pad=False,
+            truncation=self.truncation,
+        )
+
+        row_dict["input_ids"] = input_ids[0]
+        row_dict["attention_mask"] = attention_mask[0]
+        row_dict["ground_truth_ids"] = ground_truth_ids[0]
+        row_dict["ground_truth_attention_mask"] = ground_truth_attention_mask[0]
+
+        return row_dict

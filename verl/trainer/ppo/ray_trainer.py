@@ -1102,7 +1102,7 @@ class RayPPOTrainer:
         self.global_steps = 0
 
         # load checkpoint before doing anything
-        self._load_checkpoint()
+        #self._load_checkpoint()
 
         # perform validation before training
         # currently, we only support validation using the reward_function.
@@ -1138,8 +1138,10 @@ class RayPPOTrainer:
                 batch: DataProto = DataProto.from_single_dict(batch_dict)
 
                 # pop those keys for generation
-                batch_keys_to_pop = ["input_ids", "attention_mask", "position_ids"]
-                non_tensor_batch_keys_to_pop = ["raw_prompt_ids"]
+                #batch_keys_to_pop = ["input_ids", "attention_mask", "position_ids"]
+                batch_keys_to_pop = ["input_ids", "attention_mask"]
+                non_tensor_batch_keys_to_pop = []
+                '''
                 if "multi_modal_data" in batch.non_tensor_batch:
                     non_tensor_batch_keys_to_pop.append("multi_modal_data")
                 if "raw_prompt" in batch.non_tensor_batch:
@@ -1152,6 +1154,7 @@ class RayPPOTrainer:
                     non_tensor_batch_keys_to_pop.append("index")
                 if "agent_name" in batch.non_tensor_batch:
                     non_tensor_batch_keys_to_pop.append("agent_name")
+                '''
 
                 gen_batch = batch.pop(
                     batch_keys=batch_keys_to_pop,
@@ -1174,6 +1177,7 @@ class RayPPOTrainer:
                         timing_raw.update(gen_batch_output.meta_info["timing"])
                         gen_batch_output.meta_info.pop("timing", None)
 
+                    '''
                     if self.config.algorithm.adv_estimator == AdvantageEstimator.REMAX:
                         with marked_timer("gen_max", timing_raw, color="purple"):
                             gen_baseline_batch = deepcopy(gen_batch)
@@ -1191,7 +1195,8 @@ class RayPPOTrainer:
                             batch.batch["reward_baselines"] = reward_baseline_tensor
 
                             del gen_baseline_batch, gen_baseline_output
-
+                    '''
+                    
                     batch.non_tensor_batch["uid"] = np.array(
                         [str(uuid.uuid4()) for _ in range(len(batch.batch))], dtype=object
                     )
@@ -1222,7 +1227,7 @@ class RayPPOTrainer:
                             future_reward = compute_reward_async.remote(data=batch, reward_fn=self.reward_fn)
                         else:
                             reward_tensor, reward_extra_infos_dict = compute_reward(batch, self.reward_fn)
-
+               
                     # recompute old_log_probs
                     with marked_timer("old_log_prob", timing_raw, color="blue"):
                         old_log_prob = self.actor_rollout_wg.compute_log_prob(batch)

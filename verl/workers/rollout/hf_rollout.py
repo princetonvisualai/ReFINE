@@ -28,9 +28,8 @@ from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 from transformers import GenerationConfig
 
 from verl import DataProto
-from verl.utils.device import get_device_name, get_torch_device
+from verl.utils.device import get_device_name, get_torch_device, get_device_id
 from verl.utils.torch_functional import get_response_mask
-
 from .base import BaseRollout
 
 __all__ = ["HFRollout"]
@@ -44,11 +43,17 @@ class HFRollout(BaseRollout):
 
     def generate_sequences(self, prompts: DataProto) -> DataProto:
         batch_size = prompts.batch.batch_size[0]
-        num_chunks = max(batch_size // self.config.get("micro_batch_size", batch_size), 1)
+        num_chunks = max(batch_size // self.config.get("log_prob_micro_batch_size_per_gpu", batch_size), 1)
         batch_prompts = prompts.chunk(chunks=num_chunks)
-        output = [self._generate_minibatch(p) for p in batch_prompts]
-        output = DataProto.concat(output)
-        return output
+        outputs = []
+        for p in batch_prompts:
+            print("generate sequence for micro batch")
+            p = p.to(get_device_id())
+            output = self._generate_minibatch(p)
+            output = output.to("cpu")
+            outputs.append(output)
+        outputs = DataProto.concat(outputs)
+        return outputs
 
     @torch.no_grad()
     def _generate_minibatch(self, prompts: DataProto) -> DataProto:
@@ -85,7 +90,8 @@ class HFRollout(BaseRollout):
                 "top_p": top_p,
                 "top_k": top_k,
                 "temperature": temperature,
-                "num_return_sequences": self.config.n,
+                #"num_return_sequences": self.config.n,
+                "num_return_sequences": 1,
             }
 
         # make config according to generate mode
@@ -94,7 +100,8 @@ class HFRollout(BaseRollout):
         idx = prompts.batch["input_ids"]  # (bs, prompt_length)
         prompt_length = idx.size(1)
         attention_mask = prompts.batch["attention_mask"]  # left-padded attention_mask
-        position_ids = prompts.batch["position_ids"]
+        #position_ids = prompts.batch["position_ids"]
+        position_ids = None
 
         # used to construct attention_mask
         eos_token_id = prompts.meta_info["eos_token_id"]
@@ -139,18 +146,18 @@ class HFRollout(BaseRollout):
         # make necessary reputations if num_return_sequences > 1
         num_return_sequences = kwargs.get("num_return_sequences", 1)
         if num_return_sequences > 1:
-            position_ids = position_ids.repeat_interleave(num_return_sequences, dim=0)
+            #position_ids = position_ids.repeat_interleave(num_return_sequences, dim=0)
             attention_mask = attention_mask.repeat_interleave(num_return_sequences, dim=0)
 
         prompt = seq[:, :prompt_length]  # (generated_batch_size, prompt_length)
         response = seq[:, prompt_length:]  # (generated_batch_size, response_length)
 
-        response_length = response.size(1)
-        delta_position_id = torch.arange(1, response_length + 1, device=position_ids.device)
-        delta_position_id = delta_position_id.unsqueeze(0).repeat(generated_batch_size, 1)
+        #response_length = response.size(1)
+        #delta_position_id = torch.arange(1, response_length + 1, device=position_ids.device)
+        #delta_position_id = delta_position_id.unsqueeze(0).repeat(generated_batch_size, 1)
 
-        response_position_ids = position_ids[:, -1:] + delta_position_id
-        position_ids = torch.cat([position_ids, response_position_ids], dim=-1)
+        #response_position_ids = position_ids[:, -1:] + delta_position_id
+        #position_ids = torch.cat([position_ids, response_position_ids], dim=-1)
 
         response_attention_mask = get_response_mask(
             response_id=response, eos_token=eos_token_id, dtype=attention_mask.dtype
@@ -163,7 +170,7 @@ class HFRollout(BaseRollout):
                 "responses": response,
                 "input_ids": seq,
                 "attention_mask": attention_mask,
-                "position_ids": position_ids,
+                #"position_ids": position_ids,
             },
             batch_size=generated_batch_size,
         )

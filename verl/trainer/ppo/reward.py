@@ -159,6 +159,8 @@ def compute_reward(data: DataProto, reward_fn):
     return reward_tensor, reward_extra_infos_dict
 
 
+
+
 @ray.remote(num_cpus=1)
 def compute_reward_async(data: DataProto, config=None, tokenizer=None, reward_fn=None):
     """
