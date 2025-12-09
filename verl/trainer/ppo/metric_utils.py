@@ -77,7 +77,7 @@ def _compute_response_info(batch: DataProto) -> dict[str, Any]:
     )
 
 
-def compute_data_metrics(batch: DataProto, use_critic: bool = True) -> dict[str, Any]:
+def compute_data_metrics(batch: DataProto, use_critic: bool = True, ttt: bool = True) -> dict[str, Any]:
     """
     Computes various metrics from a batch of data for PPO training.
 
@@ -176,11 +176,17 @@ def compute_data_metrics(batch: DataProto, use_critic: bool = True) -> dict[str,
         metrics["num_turns/min"] = num_turns.min()
         metrics["num_turns/max"] = num_turns.max()
         metrics["num_turns/mean"] = num_turns.mean()
+    
 
+    if ttt:
+        ttt_metrics = {}
+        for key, val in metrics.items():
+            ttt_metrics[key + "_ttt"] = val    
+        metrics = ttt_metrics
+  
     return metrics
 
-
-def compute_timing_metrics(batch: DataProto, timing_raw: dict[str, float]) -> dict[str, Any]:
+def compute_timing_metrics(batch: DataProto, timing_raw: dict[str, float], ttt: bool = True) -> dict[str, Any]:
     """
     Computes timing metrics for different processing stages in PPO training.
 
@@ -213,7 +219,7 @@ def compute_timing_metrics(batch: DataProto, timing_raw: dict[str, float]) -> di
         **{name: num_overall_tokens for name in ["ref", "values", "adv", "update_critic", "update_actor"]},
     }
 
-    return {
+    metrics = {
         **{f"timing_s/{name}": value for name, value in timing_raw.items()},
         **{
             f"timing_per_token_ms/{name}": timing_raw[name] * 1000 / num_tokens_of_section[name]
@@ -221,8 +227,15 @@ def compute_timing_metrics(batch: DataProto, timing_raw: dict[str, float]) -> di
         },
     }
 
+    if ttt:
+        ttt_metrics = {}
+        for key, val in metrics.items():
+            ttt_metrics[key + "_ttt"] = val    
+        metrics = ttt_metrics
+  
+    return metrics
 
-def compute_throughout_metrics(batch: DataProto, timing_raw: dict[str, float], n_gpus: int) -> dict[str, Any]:
+def compute_throughout_metrics(batch: DataProto, timing_raw: dict[str, float], n_gpus: int, ttt: bool = True) -> dict[str, Any]:
     """
     Computes throughput metrics for PPO training.
 
@@ -251,11 +264,19 @@ def compute_throughout_metrics(batch: DataProto, timing_raw: dict[str, float], n
     # estimated_flops, promised_flops = flops_function.estimate_flops(num_tokens, time)
     # f'Actual TFLOPs/s/GPU​': estimated_flops/(n_gpus),
     # f'Theoretical TFLOPs/s/GPU​': promised_flops,
-    return {
+    metrics = {
         "perf/total_num_tokens": total_num_tokens,
         "perf/time_per_step": time,
         "perf/throughput": total_num_tokens / (time * n_gpus),
     }
+
+    if ttt:
+        ttt_metrics = {}
+        for key, val in metrics.items():
+            ttt_metrics[key + "_ttt"] = val    
+        metrics = ttt_metrics
+  
+    return metrics
 
 
 def bootstrap_metric(

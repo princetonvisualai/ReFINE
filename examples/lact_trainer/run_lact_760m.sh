@@ -22,10 +22,26 @@ filter_overlong_prompts=False
 
 # training parameters
 train_batch_size=128 
-mini_batch_size=32
-micro_batch_size_per_gpu=4  
+task_mini_batch_size=32
+task_micro_batch_size_per_gpu=4  
+ttt_mini_batch_size=32
+ttt_micro_batch_size_per_gpu=4
 NGPU=8
-rollout_n=8
+n=8
+
+ttt_training=True
+task_training=False
+
+ttt_sft_update=True # this should be True
+ttt_ppo_update=True # this should be True
+ttt_n_chunks=8
+ttt_k=2
+ttt_n=1
+ttt_reward="cosine_similarity"
+ttt_temperature=1.0
+
+ttt_sft_loss_coef=1.0
+ttt_ppo_loss_coef=1.0
 
 # validation parameters
 val_before_train=False
@@ -38,6 +54,7 @@ total_epochs=1
 project_name='lact_rl'
 experiment_name="lact_760m_muon_ptn_nh2_sftrl_test_task" 
 
+logger='console'
 
 
 python3 -m verl.trainer.main_ppo \
@@ -54,13 +71,25 @@ python3 -m verl.trainer.main_ppo \
     data.max_prompt_length=$max_prompt_length \
     data.max_response_length=$max_response_length \
     actor_rollout_ref.model.path=$model_path \
-    actor_rollout_ref.actor.ppo_mini_batch_size=$mini_batch_size \
-    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=$micro_batch_size_per_gpu \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=$micro_batch_size_per_gpu \
+    +actor_rollout_ref.actor.ttt_sft_update=$ttt_sft_update \
+    +actor_rollout_ref.actor.ttt_ppo_update=$ttt_ppo_update \
+    +actor_rollout_ref.actor.ttt_n_chunks=$ttt_n_chunks \
+    +actor_rollout_ref.actor.ttt_k=$ttt_k \
+    +actor_rollout_ref.actor.ttt_n=$ttt_n \
+    +actor_rollout_ref.actor.ttt_reward=$ttt_reward \
+    +actor_rollout_ref.actor.ttt_temperature=$ttt_temperature \
+    +actor_rollout_ref.actor.ttt_sft_loss_coef=$ttt_sft_loss_coef \
+    +actor_rollout_ref.actor.ttt_ppo_loss_coef=$ttt_ppo_loss_coef \
+    +actor_rollout_ref.actor.ttt_mini_batch_size=$ttt_mini_batch_size \
+    +actor_rollout_ref.actor.ttt_micro_batch_size_per_gpu=$ttt_micro_batch_size_per_gpu \
+    actor_rollout_ref.actor.ppo_mini_batch_size=$task_mini_batch_size \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=$task_micro_batch_size_per_gpu \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=$task_micro_batch_size_per_gpu \
     actor_rollout_ref.rollout.name="hf" \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.9 \
-    actor_rollout_ref.rollout.n=$rollout_n \
+    actor_rollout_ref.rollout.n=$n \
     trainer.balance_batch=False \
+    trainer.logger=$logger \
     trainer.val_before_train=$val_before_train \
     trainer.val_only=$val_only \
     trainer.n_gpus_per_node=$NGPU \

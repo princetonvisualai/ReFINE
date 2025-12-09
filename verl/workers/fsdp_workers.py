@@ -172,18 +172,30 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
         # normalize config
         if self._is_actor:
+            # normalize ttt config
+            self.config.actor.ttt_mini_batch_size *= self.config.actor.ttt_n_chunks 
+            self.config.actor.ttt_mini_batch_size *= self.config.actor.ttt_n 
+            self.config.actor.ttt_mini_batch_size //= self.device_mesh.size() // self.ulysses_sequence_parallel_size
+            assert self.config.actor.ttt_mini_batch_size > 0, (
+                f"ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be larger than 0 after "
+                f"normalization"
+            )
+
+            # normalize task config
             self.config.actor.ppo_mini_batch_size *= self.config.rollout.n
             self.config.actor.ppo_mini_batch_size //= self.device_mesh.size() // self.ulysses_sequence_parallel_size
             assert self.config.actor.ppo_mini_batch_size > 0, (
                 f"ppo_mini_batch_size {self.config.actor.ppo_mini_batch_size} should be larger than 0 after "
                 f"normalization"
             )
+            '''
             # micro bsz
             if self.config.actor.ppo_micro_batch_size is not None:
                 self.config.actor.ppo_micro_batch_size //= (
                     self.device_mesh.size() // self.ulysses_sequence_parallel_size
                 )
                 self.config.actor.ppo_micro_batch_size_per_gpu = self.config.actor.ppo_micro_batch_size
+            '''
 
             if self.config.actor.ppo_micro_batch_size_per_gpu is not None:
                 assert self.config.actor.ppo_mini_batch_size % self.config.actor.ppo_micro_batch_size_per_gpu == 0, (
@@ -195,6 +207,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                     f"ppo_micro_batch_size_per_gpu {self.config.actor.ppo_micro_batch_size_per_gpu}"
                 )
 
+        '''
         # normalize rollout config
         if self._is_rollout and self.config.rollout.log_prob_micro_batch_size is not None:
             self.config.rollout.log_prob_micro_batch_size //= (
@@ -205,6 +218,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         if self._is_ref and self.config.ref.log_prob_micro_batch_size is not None:
             self.config.ref.log_prob_micro_batch_size //= self.device_mesh.size() // self.ulysses_sequence_parallel_size
             self.config.ref.log_prob_micro_batch_size_per_gpu = self.config.ref.log_prob_micro_batch_size
+        '''
 
     def _build_model_optimizer(
         self,
@@ -735,6 +749,64 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="red", role="ttt_actor_update")
+    def update_actor_ttt(self, sft_data: DataProto, ppo_data: DataProto):
+
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+        if self._is_offload_optimizer:
+            load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
+
+        with self.ulysses_sharding_manager:
+            if ppo_data is not None:
+                ppo_data = self.ulysses_sharding_manager.preprocess_data(data=ppo_data)
+            if sft_data is not None:
+                sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
+            # perform training
+            with Timer(name="update_policy_ttt", logger=None) as timer:
+                if ppo_data is not None: 
+                    metrics = self.actor.update_policy_for_ppo_ttt(ppo_data=ppo_data, sft_data=sft_data)
+                elif sft_data is not None:
+                    metrics = self.actor.update_policy_for_sft_ttt(sft_data=sft_data)
+                else:
+                    raise ValueError("ppo_data and sft_data cannot be None at the same time")
+
+            delta_time = timer.last
+            global_num_tokens = [] 
+            if ppo_data is not None: 
+                global_num_tokens += ppo_data.meta_info["ttt_global_token_num"]
+            if sft_data is not None:
+                global_num_tokens += sft_data.meta_info["ttt_global_token_num"]
+            estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
+            metrics["perf/mfu/actor"] = (
+                estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
+            )
+            metrics["perf/max_memory_allocated_gb"] = get_torch_device().max_memory_allocated() / (1024**3)
+            metrics["perf/max_memory_reserved_gb"] = get_torch_device().max_memory_reserved() / (1024**3)
+            metrics["perf/cpu_memory_used_gb"] = psutil.virtual_memory().used / (1024**3)
+
+            lr = self.actor_lr_scheduler.get_last_lr()[0]
+            metrics["actor/lr"] = lr
+            self.actor_lr_scheduler.step()
+
+            # TODO: here, we should return all metrics
+            output = DataProto(meta_info={"metrics": metrics})
+
+            output = self.ulysses_sharding_manager.postprocess_data(data=output)
+            output = output.to("cpu")
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during update_actor", logger=logger)
+        if self._is_offload_optimizer:
+            offload_fsdp_optimizer(optimizer=self.actor_optimizer)
+            log_gpu_memory_usage("After offload actor optimizer during update_actor", logger=logger)
+
+        return output
+
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="red", role="rollout_generate")
     def generate_sequences(self, prompts: DataProto):
         # Support all hardwares
@@ -802,6 +874,141 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             output = DataProto.from_dict(
                 tensors={"old_log_probs": output, "entropys": entropys},
                 meta_info={"temperature": self.config.rollout.temperature},
+            )
+            output = self.ulysses_sharding_manager.postprocess_data(output)
+
+        output = output.to("cpu")
+
+        # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
+        # unshard the root FSDP module
+        if self.world_size > 1 and fsdp_version(self.actor.actor_module) == 1:
+            self.actor.actor_module._handle.reshard(True)
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during compute_log_prob", logger=logger)
+
+        return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="blue", role="actor_process_input_for_ttt")
+    def process_input_for_ttt(self, data: DataProto):
+        # when is_lora is True, we use the actor without lora applied to calculate the log_prob
+        # which is mostly used for ref log_prob calculation
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+
+        # Support all hardwares
+        from contextlib import nullcontext
+        adapter_ctx = nullcontext()
+        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
+
+        # perform recompute log_prob
+        with self.ulysses_sharding_manager:
+            data = self.ulysses_sharding_manager.preprocess_data(data)
+            with adapter_ctx:
+                hidden_states, response_ids, entropys = self.actor.process_input_for_ttt(data=data)
+            output = DataProto.from_dict(
+                tensors={
+                    "hidden_states": hidden_states,
+                    "responses": response_ids,
+                    "entropys": entropys,
+                }
+            )
+            output = self.ulysses_sharding_manager.postprocess_data(output)
+
+        output = output.to("cpu")
+
+        # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
+        # unshard the root FSDP module
+        if self.world_size > 1 and fsdp_version(self.actor.actor_module) == 1:
+            self.actor.actor_module._handle.reshard(True)
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during compute_log_prob", logger=logger)
+
+        return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="blue", role="actor_generate_sequence_for_ttt")
+    def actor_generate_sequences_for_ttt(self, data: DataProto):
+        # when is_lora is True, we use the actor without lora applied to calculate the log_prob
+        # which is mostly used for ref log_prob calculation
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+
+        # Support all hardwares
+        from contextlib import nullcontext
+        adapter_ctx = nullcontext()
+        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
+        temperature = self.config.actor.ttt_temperature
+        data.meta_info["temperature"] = temperature
+
+        # perform recompute log_prob
+        with self.ulysses_sharding_manager:
+            data = self.ulysses_sharding_manager.preprocess_data(data)
+            with adapter_ctx:
+                response_ids, input_ids, attention_mask = self.actor.generate_sequences_for_ttt(data=data)
+            tensors = {
+                "responses": response_ids,
+                "input_ids": input_ids,
+                "attention_mask": attention_mask,
+            }
+            meta_info = {
+                "temperature": temperature,
+            }
+            output = DataProto.from_dict(
+                tensors=tensors,
+                meta_info=meta_info,
+            )
+            output = self.ulysses_sharding_manager.postprocess_data(output)
+        output = output.to("cpu")
+
+        # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
+        # unshard the root FSDP module
+        if self.world_size > 1 and fsdp_version(self.actor.actor_module) == 1:
+            self.actor.actor_module._handle.reshard(True)
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during compute_log_prob", logger=logger)
+
+        return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="blue", role="actor_compute_log_prob_for_ttt")
+    def compute_log_prob_for_ttt(self, data: DataProto):
+        # when is_lora is True, we use the actor without lora applied to calculate the log_prob
+        # which is mostly used for ref log_prob calculation
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+
+        # Support all hardwares
+        from contextlib import nullcontext
+
+        adapter_ctx = nullcontext()
+        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
+        temperature = self.config.actor.ttt_temperature
+        data.meta_info["temperature"] = temperature
+        # perform recompute log_prob
+        with self.ulysses_sharding_manager:
+            data = self.ulysses_sharding_manager.preprocess_data(data)
+            with adapter_ctx:
+                hidden_states, log_probs = self.actor.compute_log_prob_for_ttt(data=data)
+            tensors = {
+                "old_log_probs": log_probs,
+                "hidden_states": hidden_states,
+            }
+            meta_info = {
+                "temperature": temperature,
+            }
+            output = DataProto.from_dict(
+                tensors=tensors,
+                meta_info=meta_info
             )
             output = self.ulysses_sharding_manager.postprocess_data(output)
 

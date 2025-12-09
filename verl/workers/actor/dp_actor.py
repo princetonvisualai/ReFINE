@@ -270,6 +270,116 @@ class DataParallelPPOActor(BasePPOActor):
 
             return entropy, log_probs
 
+    def _forward_micro_batch_for_input_ttt(
+        self, micro_batch, get_hidden_states=True, get_response=True, get_entropy=True, get_loss=True
+    ):
+        """
+        Returns:
+            hidden_states: # (bs, response_len, hidden_size)
+            response_ids: # (bs, response_len)
+            entropys: # (bs, response_len)
+            loss: # (1,)
+        """
+        
+        with torch.autocast(device_type=self.device_name, dtype=torch.bfloat16):
+            input_ids = micro_batch["input_ids"]
+            attention_mask = micro_batch["attention_mask"]
+            #position_ids = micro_batch["position_ids"]
+            position_ids = None
+
+            extra_args = {}
+            if get_loss:
+                extra_args["labels"] = input_ids
+            if get_hidden_states:
+                extra_args["output_hidden_states"] = True
+
+            output = self.actor_module(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                position_ids=position_ids,
+                use_cache=False,
+                **extra_args,
+            )  # prevent model thinks we are generating
+            logits = output.logits
+
+            hidden_states = None
+            if get_hidden_states:
+                hidden_states = output.hidden_states[-1] # (mbsz, seq_len, hidden_size)
+
+            response_ids = None
+            if get_response:
+                response_ids = torch.distributions.Categorical(logits = logits / 1.0).sample() # (mbsz, seq_len)
+
+            entropy = None
+            if get_entropy:
+                entropy = verl_F.entropy_from_logits(logits)  # (mbsz, seq_len)
+
+            loss = None 
+            if get_loss:
+                loss = output.loss   
+
+            return hidden_states, response_ids, entropy, loss
+
+    def _forward_micro_batch_for_generation_ttt(self, micro_batch, temperature):
+        """
+        Returns:
+            response_ids: # (bs, response_len)
+            input_ids: # (bs, seq_len)
+            attention_mask: # (bs, seq_len)
+        """
+        
+        with torch.autocast(device_type=self.device_name, dtype=torch.bfloat16):
+            input_ids = micro_batch["input_ids"]
+            attention_mask = micro_batch["attention_mask"]
+            #position_ids = micro_batch["position_ids"]
+            position_ids = None
+
+            for i in range(self.config.ttt_k):
+                output = self.actor_module(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    use_cache=True,
+                )
+                
+                step_logits = output.logits[:, -1, :]
+                step_response = torch.distributions.Categorical(logits = step_logits / temperature).sample() # (mbsz,)
+                input_ids = torch.cat([input_ids, step_response.unsqueeze(-1)], dim=-1).to(input_ids.dtype).to(input_ids.device)
+                attention_mask = torch.cat([attention_mask, torch.ones_like(step_response).unsqueeze(-1)], dim=-1).to(attention_mask.dtype).to(attention_mask.device)
+
+            response_ids = input_ids[:, -self.config.ttt_k:]
+
+            return response_ids, input_ids, attention_mask
+
+    def _forward_micro_batch_for_ttt(self, micro_batch, temperature, get_hidden_states=True):
+        with torch.autocast(device_type=self.device_name, dtype=torch.bfloat16):
+            input_ids = micro_batch["input_ids"]
+            attention_mask = micro_batch["attention_mask"]
+            response_ids = micro_batch["responses"] 
+            response_length = response_ids.size(-1)
+
+            extra_args = {}
+            if get_hidden_states:
+                extra_args["output_hidden_states"] = True
+
+            output = self.actor_module(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                use_cache=False,
+                **extra_args,
+            )  # prevent model thinks we are generating
+            
+            logits = output.logits    
+            logits.div_(temperature)
+            logits = logits[:, -response_length - 1 : -1, :]  # (bsz, response_length, vocab_size)
+            log_probs = logprobs_from_logits(logits, response_ids)
+            
+            hidden_states = None
+            if get_hidden_states:   
+                hidden_states = output.hidden_states[-1]
+                hidden_states = hidden_states[:, -response_length:, :]
+            return hidden_states, log_probs
+
+
     def _optimizer_step(self):
         assert self.config.grad_clip is not None
 
@@ -351,6 +461,109 @@ class DataParallelPPOActor(BasePPOActor):
                 entropys = restore_dynamic_batch(entropys, batch_idx_list)
 
         return log_probs, entropys
+
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def process_input_for_ttt(self, data: DataProto):
+        """Compute the log probability of the responses given input_ids, attention_mask and position_ids
+
+        Args:
+            data (DataProto): a DataProto containing keys
+
+                ``input_ids``: tensor of shape [batch_size, sequence_length]. torch.int64. Note that input_ids is the
+                concatenation of prompt and response. Note that ``sequence_length = prompt_length + response_length``.
+
+                ``attention_mask``: tensor of shape [batch_size, sequence_length]. torch.int64.
+
+        Returns:
+            torch.Tensor: the log_prob tensor
+        """
+        # set to eval
+        self.actor_module.eval()
+        micro_batch_size = data.meta_info["micro_batch_size"]
+        
+        select_keys = ["input_ids", "attention_mask"]
+        data = data.select(batch_keys=select_keys)
+        micro_batches = data.split(micro_batch_size)
+
+        hidden_states_lst = []
+        response_ids_lst = []
+        entropys_lst = []
+        for micro_batch in micro_batches:
+            micro_batch = micro_batch.to(get_device_id())
+            model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
+            with torch.no_grad():
+                hidden_states, response_ids, entropys, _ = self._forward_micro_batch_for_input_ttt(model_inputs, get_hidden_states=True, get_response=True, get_entropy=True, get_loss=False)
+                hidden_states = hidden_states.to("cpu")
+                response_ids = response_ids.to("cpu")
+                entropys = entropys.to("cpu")
+            hidden_states_lst.append(hidden_states)
+            response_ids_lst.append(response_ids)
+            entropys_lst.append(entropys)
+
+        hidden_states = torch.concat(hidden_states_lst, dim=0)
+        response_ids = torch.concat(response_ids_lst, dim=0)
+        entropys = torch.concat(entropys_lst, dim=0)
+
+        return hidden_states, response_ids, entropys
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def generate_sequences_for_ttt(self, data: DataProto):
+
+        # set to eval
+        self.actor_module.eval()
+        micro_batch_size = data.meta_info["micro_batch_size"]
+        temperature = data.meta_info["temperature"]
+
+        select_keys = ["input_ids", "attention_mask"]
+        data = data.select(batch_keys=select_keys)
+        micro_batches = data.split(micro_batch_size)
+
+        response_ids_lst = []
+        input_ids_lst = []
+        attention_mask_lst = []
+        for micro_batch in micro_batches:
+            micro_batch = micro_batch.to(get_device_id())
+            model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
+            with torch.no_grad():
+                response_ids, input_ids, attention_mask = self._forward_micro_batch_for_generation_ttt(model_inputs, temperature=temperature)
+                response_ids = response_ids.to("cpu")
+                input_ids = input_ids.to("cpu")
+                attention_mask = attention_mask.to("cpu")
+            response_ids_lst.append(response_ids)
+            input_ids_lst.append(input_ids)
+            attention_mask_lst.append(attention_mask)
+        response_ids = torch.cat(response_ids_lst, dim=0)
+        input_ids = torch.cat(input_ids_lst, dim=0)
+        attention_mask = torch.cat(attention_mask_lst, dim=0)
+        return response_ids, input_ids, attention_mask
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def compute_log_prob_for_ttt(self, data: DataProto):
+        # set to eval
+        self.actor_module.eval()
+        micro_batch_size = data.meta_info["micro_batch_size"]
+        temperature = data.meta_info["temperature"]
+
+        select_keys = ["input_ids", "attention_mask", "responses"]
+        batch = data.select(batch_keys=select_keys)
+        micro_batches = batch.split(micro_batch_size)
+
+        hidden_states_lst = []
+        log_probs_lst = []
+        for micro_batch in micro_batches:
+            micro_batch = micro_batch.to(get_device_id())
+            model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
+            with torch.no_grad():
+                hidden_states, log_probs = self._forward_micro_batch_for_ttt(model_inputs, temperature=temperature, get_hidden_states=True)
+                hidden_states = hidden_states.to("cpu")
+                log_probs = log_probs.to("cpu")
+            log_probs_lst.append(log_probs)
+            hidden_states_lst.append(hidden_states)
+        
+        hidden_states = torch.concat(hidden_states_lst, dim=0)
+        log_probs = torch.concat(log_probs_lst, dim=0)
+        return hidden_states, log_probs
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
     def update_policy(self, data: DataProto):
@@ -484,6 +697,184 @@ class DataParallelPPOActor(BasePPOActor):
                     )
                     append_to_dict(metrics, micro_batch_metrics)
 
+                grad_norm = self._optimizer_step()
+                mini_batch_metrics = {"actor/grad_norm": grad_norm.detach().item()}
+                append_to_dict(metrics, mini_batch_metrics)
+        self.actor_optimizer.zero_grad()
+        return metrics
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def update_policy_for_ppo_ttt(self, ppo_data: DataProto, sft_data: DataProto):
+        # make sure we are in training mode
+        self.actor_module.train()
+
+        temperature = ppo_data.meta_info["temperature"]  # temperature must be in the data.meta_info to avoid silent error
+
+        ppo_select_keys = ["responses", "response_mask", "input_ids", "attention_mask", "old_log_probs", "advantages"]
+        #if self.config.use_kl_loss:
+        #    ppo_select_keys.append("ref_log_prob")
+        sft_select_keys = ["input_ids", "attention_mask"]
+
+        ppo_data = ppo_data.select(batch_keys=ppo_select_keys)
+        sft_data = sft_data.select(batch_keys=sft_select_keys) 
+
+        ppo_mini_batch_size = self.config.ttt_mini_batch_size
+        sft_mini_batch_size = self.config.ttt_mini_batch_size // self.config.ttt_n_chunks // self.config.ttt_n 
+        ppo_mini_batches = ppo_data.split(ppo_mini_batch_size) 
+        sft_mini_batches = sft_data.split(sft_mini_batch_size) 
+
+        self.sft_gradient_accumulation = sft_mini_batch_size // self.config.ttt_micro_batch_size_per_gpu 
+        self.ppo_gradient_accumulation = ppo_mini_batch_size // self.config.ttt_micro_batch_size_per_gpu
+
+
+        metrics = {}
+        for sft_mini_batch, ppo_mini_batch in zip(sft_mini_batches, ppo_mini_batches):
+
+            sft_micro_batches = sft_mini_batch.split(self.config.ttt_micro_batch_size_per_gpu)
+            ppo_micro_batches = ppo_mini_batch.split(self.config.ttt_micro_batch_size_per_gpu)
+            
+            self.actor_optimizer.zero_grad()
+
+            for sft_micro_batch in sft_micro_batches:
+                print("sft_micro_batches")
+                sft_micro_batch = sft_micro_batch.to(get_device_id())
+
+                # compute sft loss
+                sft_inputs = {**sft_micro_batch.batch, **sft_micro_batch.non_tensor_batch}
+                _, _, _, sft_loss = self._forward_micro_batch_for_input_ttt(sft_inputs, get_hidden_states=False, get_response=False, get_entropy=False, get_loss=True)
+                sft_loss = sft_loss * self.config.ttt_sft_loss_coef / self.sft_gradient_accumulation
+                sft_loss.backward() 
+                
+                sft_metrics = {
+                    "actor/sft_loss": sft_loss.detach().item(),
+                }
+                append_to_dict(metrics, sft_metrics)
+
+            for ppo_micro_batch in ppo_micro_batches:
+                print("ppo_micro_batches")
+                ppo_micro_batch = ppo_micro_batch.to(get_device_id())
+                
+                ppo_inputs = {**ppo_micro_batch.batch, **ppo_micro_batch.non_tensor_batch}
+                response_mask = ppo_inputs["response_mask"]
+                old_log_prob = ppo_inputs["old_log_probs"]
+                advantages = ppo_inputs["advantages"]
+
+                clip_ratio = self.config.clip_ratio
+                clip_ratio_low = (
+                    self.config.clip_ratio_low if self.config.clip_ratio_low is not None else clip_ratio
+                )
+                clip_ratio_high = (
+                    self.config.clip_ratio_high if self.config.clip_ratio_high is not None else clip_ratio
+                )
+                clip_ratio_c = self.config.get("clip_ratio_c", 3.0)
+                entropy_coeff = self.config.entropy_coeff
+                loss_agg_mode = self.config.loss_agg_mode
+
+                _, log_prob = self._forward_micro_batch_for_ttt(
+                    ppo_inputs, temperature=temperature, get_hidden_states=False
+                )
+
+                loss_mode = self.config.policy_loss.get("loss_mode", "vanilla")
+
+                if self.config.policy_loss.loss_mode == "vanilla":
+                    pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower = compute_policy_loss(
+                        old_log_prob=old_log_prob,
+                        log_prob=log_prob,
+                        advantages=advantages,
+                        response_mask=response_mask,
+                        cliprange=clip_ratio,
+                        cliprange_low=clip_ratio_low,
+                        cliprange_high=clip_ratio_high,
+                        clip_ratio_c=clip_ratio_c,
+                        loss_agg_mode=loss_agg_mode,
+                    )
+
+                else:
+                    policy_loss_fn = get_policy_loss_fn(loss_mode)
+                    pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower = policy_loss_fn(
+                        old_log_prob=old_log_prob,
+                        log_prob=log_prob,
+                        advantages=advantages,
+                        response_mask=response_mask,
+                        loss_agg_mode=loss_agg_mode,
+                        config=self.config,
+                    )
+
+                if entropy_coeff != 0:
+                    entropy_loss = agg_loss(loss_mat=entropy, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
+
+                    # compute policy loss
+                    policy_loss = pg_loss - entropy_loss * entropy_coeff
+                else:
+                    policy_loss = pg_loss
+                '''
+                if self.config.use_kl_loss:
+                    ref_log_prob = model_inputs["ref_log_prob"]
+                    # compute kl loss
+                    kld = kl_penalty(
+                        logprob=log_prob, ref_logprob=ref_log_prob, kl_penalty=self.config.kl_loss_type
+                    )
+                    kl_loss = agg_loss(loss_mat=kld, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
+
+                    policy_loss = policy_loss + kl_loss * self.config.kl_loss_coef
+                    micro_batch_metrics["actor/kl_loss"] = kl_loss.detach().item()
+                    micro_batch_metrics["actor/kl_coef"] = self.config.kl_loss_coef
+                '''
+                policy_loss = policy_loss * self.config.ttt_ppo_loss_coef / self.ppo_gradient_accumulation 
+                policy_loss.backward()
+
+                ppo_metrics = {
+                            "actor/pg_loss": policy_loss.detach().item(),
+                            "actor/pg_clipfrac": pg_clipfrac.detach().item(),
+                            "actor/ppo_kl": ppo_kl.detach().item(),
+                            "actor/pg_clipfrac_lower": pg_clipfrac_lower.detach().item(),
+                            }
+                
+                append_to_dict(metrics, ppo_metrics)
+
+                grad_norm = self._optimizer_step()
+                mini_batch_metrics = {"actor/grad_norm": grad_norm.detach().item()}
+                append_to_dict(metrics, mini_batch_metrics)
+        self.actor_optimizer.zero_grad()
+        return metrics
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def update_policy_for_sft_ttt(self, sft_data: DataProto):
+        # make sure we are in training mode
+        self.actor_module.train()
+
+        ppo_temperature = ppo_data.meta_info["temperature"]  # temperature must be in the data.meta_info to avoid silent error
+
+        sft_select_keys = ["input_ids", "attention_mask"]
+
+        sft_data = sft_data.select(batch_keys=sft_select_keys)
+
+        sft_mini_batch_size = self.config.ppo_mini_batch_size // self.config.ttt_n_chunks // self.config.ttt_n 
+        sft_mini_batches = sft_data.split(sft_mini_batch_size) # we changed the normalization for this
+
+        self.sft_gradient_accumulation = sft_mini_batch_size // self.config.ppo_micro_batch_size_per_gpu
+
+        metrics = {}
+        for _ in range(self.config.ppo_epochs):
+            for sft_mini_batch in sft_mini_batches:
+                
+                sft_micro_batches = sft_mini_batch.split(self.config.ppo_micro_batch_size_per_gpu)
+
+                self.actor_optimizer.zero_grad()
+
+                for sft_micro_batch in sft_micro_batches:
+                    sft_micro_batch = sft_micro_batch.to(get_device_id())
+                    
+                    sft_inputs = {**sft_micro_batch.batch, **sft_micro_batch.non_tensor_batch}
+                    _, _, _, sft_loss = self._forward_micro_batch_for_input_ttt(sft_inputs, get_hidden_states=False, get_response=False, get_entropy=False, get_loss=True)
+                    sft_loss = sft_loss * self.config.sft_loss_coef / self.sft_gradient_accumulation
+                    sft_loss.backward() 
+                    
+                    sft_metrics = {
+                        "actor/sft_loss": sft_loss.detach().item(),
+                    }
+                    append_to_dict(metrics, sft_metrics)
+                    
                 grad_norm = self._optimizer_step()
                 mini_batch_metrics = {"actor/grad_norm": grad_norm.detach().item()}
                 append_to_dict(metrics, mini_batch_metrics)

@@ -32,6 +32,7 @@ import numpy as np
 import ray
 import torch
 from omegaconf import OmegaConf, open_dict
+import torch.nn.functional as F
 from torch.utils.data import Dataset, Sampler
 from torchdata.stateful_dataloader import StatefulDataLoader
 from tqdm import tqdm
@@ -289,6 +290,111 @@ def compute_advantage(
         data.batch["advantages"] = advantages
         data.batch["returns"] = returns
     return data
+
+
+def compute_reward_for_ttt(data: DataProto, reward = "cosine_similarity"):
+    scores = torch.zeros_like(data.batch["response_mask"]).float()
+
+    if reward == "cosine_similarity":
+        response_hidden_states = data.batch["response_hidden_states"]
+        ground_truth_hidden_states = data.batch["ground_truth_hidden_states"]
+        sim = F.cosine_similarity(response_hidden_states, ground_truth_hidden_states, dim = -1).mean(dim = -1)
+    elif reward == "binary":
+        response_ids = data.batch["responses"]
+        ground_truth_ids = data.batch["ground_truth_ids"]
+        sim = scores = (ground_truth_ids == response_ids).float().mean(dim = -1)
+    else:
+        raise NotImplementedError(f"Reward function {reward} is not supported")
+
+    scores[:, -1] = sim
+    return scores
+
+def prepare_ppo_batch_for_ttt(
+        data: DataProto, 
+        ttt_n_chunks: int, 
+        ttt_k: int, 
+        ttt_n: int, 
+        pad_token_id: int
+    ) -> DataProto:
+    
+    # repeat by n_chunks for splitting into chunks
+    input_ids = data.batch['input_ids']
+    attention_mask = data.batch['attention_mask']
+    entropys = data.batch['entropys']
+    hidden_states = data.batch['hidden_states']
+    uuids = data.non_tensor_batch['uid']
+
+    B, S = attention_mask.shape
+    
+    new_input_ids = []
+    new_attention_mask = []
+    new_ground_truth_ids = []
+    new_ground_truth_hidden_states = []
+    new_uuids = []
+    for i in range(B):
+        seq_input_ids = input_ids[i, :]
+        seq_attention_mask = attention_mask[i, :]
+        seq_entropys = entropys[i, :]
+        seq_hidden_states = hidden_states[i, :, :]
+        seq_uuids = uuids[i]
+
+        seq_start_idx = seq_attention_mask.argmax(dim = -1).item() # first nonzero
+        seq_len = seq_attention_mask.sum(dim = -1).item()
+        seq_chunk_size = seq_len // ttt_n_chunks
+        for j in range(ttt_n_chunks):
+            chunk_start_idx = seq_start_idx + j * seq_chunk_size
+            chunk_entropys = seq_entropys[chunk_start_idx: chunk_start_idx + seq_chunk_size]
+            entropy_sampled_idx = torch.distributions.Categorical(logits = chunk_entropys).sample()
+            response_start_idx = chunk_start_idx + entropy_sampled_idx - ttt_k + 2
+            response_start_idx = torch.clamp(response_start_idx, min = seq_start_idx + 20, max = S - 20)
+            response_end_idx = response_start_idx + ttt_k
+
+            seq_new_input_ids = torch.full((S,), pad_token_id, dtype = seq_input_ids.dtype)
+            seq_new_input_ids[-response_start_idx:] = seq_input_ids[:response_start_idx]
+
+            seq_new_attention_mask = torch.zeros((S,), dtype = seq_attention_mask.dtype)
+            seq_new_attention_mask[-response_start_idx:] = seq_attention_mask[:response_start_idx]
+
+            seq_new_ground_truth_ids = seq_input_ids[response_start_idx:response_end_idx]
+            seq_new_ground_truth_hidden_states = seq_hidden_states[response_start_idx:response_end_idx, :]
+
+            new_input_ids.append(seq_new_input_ids)
+            new_attention_mask.append(seq_new_attention_mask)
+            new_ground_truth_ids.append(seq_new_ground_truth_ids)
+            new_ground_truth_hidden_states.append(seq_new_ground_truth_hidden_states)
+
+            new_uuids.append(seq_uuids)
+   
+    new_input_ids = torch.stack(new_input_ids)
+    new_attention_mask = torch.stack(new_attention_mask)
+    new_ground_truth_ids = torch.stack(new_ground_truth_ids)
+    new_ground_truth_hidden_states = torch.stack(new_ground_truth_hidden_states)
+    new_uuids = np.array(new_uuids)
+    tensor_batch = {
+        "input_ids": new_input_ids,
+        "attention_mask": new_attention_mask,
+        "ground_truth_ids": new_ground_truth_ids,
+        "ground_truth_hidden_states": new_ground_truth_hidden_states,
+    }
+    non_tensor_batch = {
+        "uid": new_uuids,
+    }
+    meta_info = {
+        "ttt_global_token_num": (torch.sum(new_attention_mask, dim=-1) + ttt_k).tolist(),
+    }
+
+    output = DataProto.from_dict(tensors=tensor_batch, non_tensors=non_tensor_batch, meta_info=meta_info)
+
+    output = output.repeat(repeat_times=ttt_n, interleave=True)  
+
+    return output 
+
+def prepare_sft_batch_for_ttt(data: DataProto):
+    batch_keys = ["input_ids", "attention_mask"]
+    non_tensor_batch_keys = ['uid']
+    sft_batch = data.select(batch_keys=batch_keys, non_tensor_batch_keys=non_tensor_batch_keys)
+    sft_batch.meta_info['ttt_global_token_num'] = torch.sum(sft_batch.batch["attention_mask"], dim=-1).tolist()
+    return sft_batch
 
 
 class RayPPOTrainer:
@@ -1081,6 +1187,151 @@ class RayPPOTrainer:
         )
         metrics.update(global_balance_stats)
 
+    def _inner_training_loop(self, batch: DataProto, metrics: dict, timing_raw: dict):
+        """
+        RL to update the fast weights. Should be able to call during train or validation.
+        """
+
+        sft_update = self.config.actor_rollout_ref.actor.ttt_sft_update
+        ppo_update = self.config.actor_rollout_ref.actor.ttt_ppo_update
+        sft_batch = None
+        ppo_batch = None
+        if sft_update:
+            sft_batch = prepare_sft_batch_for_ttt(batch)  # input_ids, attention_mask, uid
+
+        if ppo_update:
+            with marked_timer("forward_ttt", timing_raw):
+                outputs = self.actor_rollout_wg.process_input_for_ttt(batch) # hidden_states, responses, entropys
+            batch = batch.union(outputs)
+            print("input processed")
+
+
+            ppo_batch = prepare_ppo_batch_for_ttt(
+                    data=batch,  
+                    ttt_n_chunks=self.config.actor_rollout_ref.actor.ttt_n_chunks, 
+                    ttt_k=self.config.actor_rollout_ref.actor.ttt_k, 
+                    ttt_n=self.config.actor_rollout_ref.actor.ttt_n, 
+                    pad_token_id=self.tokenizer.pad_token_id 
+                ) # input_ids, attention_mask, ground_truth_ids, ground_truth_hidden_states, uid
+
+            batch_keys_to_pop = ["input_ids", "attention_mask"]
+            gen_batch = ppo_batch.pop(batch_keys=batch_keys_to_pop)
+            with marked_timer("generate_ttt", timing_raw):
+                output = self.actor_rollout_wg.actor_generate_sequences_for_ttt(gen_batch) # responses, updated input_ids, updated attention_mask, temperature
+            ppo_batch = ppo_batch.union(output)
+            print("responses generated")
+
+            ppo_batch.batch["response_mask"] = compute_response_mask(ppo_batch)
+
+            # recompute old_log_probs
+            #batch_keys_to_select = ["input_ids", "attention_mask", "responses"]
+            #log_prob_batch = ppo_batch.select(batch_keys=batch_keys_to_select)
+            with marked_timer("old_log_prob_ttt", timing_raw):
+                output = self.actor_rollout_wg.compute_log_prob_for_ttt(ppo_batch) # old_log_probs, hidden_states
+            ppo_batch.batch['old_log_probs'] = output.batch.pop("old_log_probs")
+            ppo_batch.batch['response_hidden_states'] = output.batch.pop("hidden_states")
+            print("old_log_probs computed")
+
+            # compute reward
+            reward_tensor = compute_reward_for_ttt(ppo_batch, reward=self.config.actor_rollout_ref.actor.ttt_reward)
+            ppo_batch.batch["token_level_rewards"] = reward_tensor
+                
+            # compute advantages, executed on the driver process
+            norm_adv_by_std_in_grpo = self.config.algorithm.get("norm_adv_by_std_in_grpo", True)  # GRPO adv normalization factor
+            ppo_batch = compute_advantage(
+                ppo_batch,
+                adv_estimator=self.config.algorithm.adv_estimator,
+                gamma=self.config.algorithm.gamma,
+                lam=self.config.algorithm.lam,
+                num_repeat=self.config.actor_rollout_ref.actor.ttt_n,
+                norm_adv_by_std_in_grpo=norm_adv_by_std_in_grpo,
+                config=self.config.algorithm,
+            )
+            print("reward and advantages computed")
+        
+        # update actor
+        with marked_timer("update_actor_ttt", timing_raw):
+            actor_output = self.actor_rollout_wg.update_actor_ttt(sft_data=sft_batch, ppo_data=ppo_batch)
+
+        return timing_raw, actor_output.meta_info["metrics"]
+
+    def _outer_training_loop(self, batch: DataProto, metrics: dict, timing_raw: dict):
+ 
+        batch = batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
+
+        batch_keys_to_pop = ["input_ids", "attention_mask"]
+        non_tensor_batch_keys_to_pop = ["uid"]
+        gen_batch = batch.pop(
+            batch_keys=batch_keys_to_pop,
+            non_tensor_batch_keys=non_tensor_batch_keys_to_pop,
+        )
+        # generate a batch
+        with marked_timer("gen", timing_raw, color="red"):
+            gen_batch_output = self.actor_rollout_wg.generate_sequences(gen_batch)    
+        batch = batch.union(gen_batch_output)
+
+        if "response_mask" not in batch.batch.keys():
+            batch.batch["response_mask"] = compute_response_mask(batch)
+
+        if self.config.trainer.balance_batch:
+            self._balance_batch(batch, metrics=metrics)
+
+        # compute global_valid tokens
+        batch.meta_info["global_token_num"] = torch.sum(batch.batch["attention_mask"], dim=-1).tolist()
+
+        reward_tensor, reward_extra_infos_dict = compute_reward(batch, self.reward_fn)
+    
+        # recompute old_log_probs
+        with marked_timer("old_log_prob", timing_raw, color="blue"):
+            old_log_prob = self.actor_rollout_wg.compute_log_prob(batch)
+        batch.batch["old_log_probs"] = old_log_prob.batch.pop("old_log_probs")
+
+        '''
+        if self.use_reference_policy:
+            # compute reference log_prob
+            with marked_timer("ref", timing_raw, color="olive"):
+                if not self.ref_in_actor:
+                    ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
+                else:
+                    ref_log_prob = self.actor_rollout_wg.compute_ref_log_prob(batch)
+                batch = batch.union(ref_log_prob)
+        ''' 
+        batch.batch["token_level_rewards"] = reward_tensor
+
+        '''
+        # compute rewards. apply_kl_penalty if available
+        if self.config.algorithm.use_kl_in_reward:
+            batch, kl_metrics = apply_kl_penalty(
+                batch, kl_ctrl=self.kl_ctrl_in_reward, kl_penalty=self.config.algorithm.kl_penalty
+            )
+            metrics.update(kl_metrics)
+        else:
+            batch.batch["token_level_rewards"] = batch.batch["token_level_scores"]
+        '''
+        
+        # compute advantages, executed on the driver process
+        norm_adv_by_std_in_grpo = self.config.algorithm.get(
+            "norm_adv_by_std_in_grpo", True
+        )  # GRPO adv normalization factor
+
+        batch = compute_advantage(
+            batch,
+            adv_estimator=self.config.algorithm.adv_estimator,
+            gamma=self.config.algorithm.gamma,
+            lam=self.config.algorithm.lam,
+            num_repeat=self.config.actor_rollout_ref.rollout.n,
+            norm_adv_by_std_in_grpo=norm_adv_by_std_in_grpo,
+            config=self.config.algorithm,
+        )
+
+        # implement critic warmup
+        if self.config.trainer.critic_warmup <= self.global_steps:
+            # update actor
+            with marked_timer("update_actor", timing_raw, color="red"):
+                actor_output = self.actor_rollout_wg.update_actor(batch)
+        return timing_raw, actor_output.meta_info["metrics"]
+
+
     def fit(self):
         """
         The training loop of PPO.
@@ -1127,6 +1378,7 @@ class RayPPOTrainer:
                 metrics = {}
                 timing_raw = {}
 
+                '''
                 do_profile = (
                     self.global_steps in self.config.trainer.profile_steps
                     if self.config.trainer.profile_steps is not None
@@ -1134,14 +1386,35 @@ class RayPPOTrainer:
                 )
                 with marked_timer("start_profile", timing_raw):
                     self._start_profiling(do_profile)
+                '''
 
                 batch: DataProto = DataProto.from_single_dict(batch_dict)
+                batch.non_tensor_batch["uid"] = np.array(
+                    [str(uuid.uuid4()) for _ in range(len(batch.batch))], dtype=object
+                )
 
+                is_last_step = self.global_steps >= self.total_training_steps
+
+                with marked_timer("step", timing_raw):
+                    # inner training loop 
+                    if self.config.actor_rollout_ref.actor.ttt_training:
+                        print("inner training loop")
+                        with marked_timer("inner_training_loop", timing_raw):
+                            ttt_batch, timing_raw, ttt_metrics = self._inner_training_loop(batch, timing_raw)
+                        metrics.update(ttt_metrics)
+                    
+                    if self.config.actor_rollout_ref.actor.task_training:
+                        print("outer training loop")
+                        with marked_timer("outer_training_loop", timing_raw):
+                            task_batch, timing_raw, task_metrics = self._outer_training_loop(batch, timing_raw)
+                        metrics.update(task_metrics)
+                
+                '''
                 # pop those keys for generation
                 #batch_keys_to_pop = ["input_ids", "attention_mask", "position_ids"]
                 batch_keys_to_pop = ["input_ids", "attention_mask"]
                 non_tensor_batch_keys_to_pop = []
-                '''
+                
                 if "multi_modal_data" in batch.non_tensor_batch:
                     non_tensor_batch_keys_to_pop.append("multi_modal_data")
                 if "raw_prompt" in batch.non_tensor_batch:
@@ -1154,7 +1427,6 @@ class RayPPOTrainer:
                     non_tensor_batch_keys_to_pop.append("index")
                 if "agent_name" in batch.non_tensor_batch:
                     non_tensor_batch_keys_to_pop.append("agent_name")
-                '''
 
                 gen_batch = batch.pop(
                     batch_keys=batch_keys_to_pop,
@@ -1177,7 +1449,7 @@ class RayPPOTrainer:
                         timing_raw.update(gen_batch_output.meta_info["timing"])
                         gen_batch_output.meta_info.pop("timing", None)
 
-                    '''
+                    
                     if self.config.algorithm.adv_estimator == AdvantageEstimator.REMAX:
                         with marked_timer("gen_max", timing_raw, color="purple"):
                             gen_baseline_batch = deepcopy(gen_batch)
@@ -1195,11 +1467,9 @@ class RayPPOTrainer:
                             batch.batch["reward_baselines"] = reward_baseline_tensor
 
                             del gen_baseline_batch, gen_baseline_output
-                    '''
                     
-                    batch.non_tensor_batch["uid"] = np.array(
-                        [str(uuid.uuid4()) for _ in range(len(batch.batch))], dtype=object
-                    )
+                    
+
                     # repeat to align with repeated responses in rollout
                     batch = batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
                     batch = batch.union(gen_batch_output)
@@ -1272,12 +1542,14 @@ class RayPPOTrainer:
                             else:
                                 ref_log_prob = self.actor_rollout_wg.compute_ref_log_prob(batch)
                             batch = batch.union(ref_log_prob)
-
+ 
+                    
                     # compute values
                     if self.use_critic:
                         with marked_timer("values", timing_raw, color="cyan"):
                             values = self.critic_wg.compute_values(batch)
                             batch = batch.union(values)
+                    
 
                     with marked_timer("adv", timing_raw, color="brown"):
                         # we combine with rule-based rm
@@ -1314,12 +1586,14 @@ class RayPPOTrainer:
                             config=self.config.algorithm,
                         )
 
+                    
                     # update critic
                     if self.use_critic:
                         with marked_timer("update_critic", timing_raw, color="pink"):
                             critic_output = self.critic_wg.update_critic(batch)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info["metrics"])
                         metrics.update(critic_output_metrics)
+                    
 
                     # implement critic warmup
                     if self.config.trainer.critic_warmup <= self.global_steps:
@@ -1330,6 +1604,7 @@ class RayPPOTrainer:
                         actor_output_metrics = reduce_metrics(actor_output.meta_info["metrics"])
                         metrics.update(actor_output_metrics)
 
+                    
                     # Log rollout generations if enabled
                     rollout_data_dir = self.config.trainer.get("rollout_data_dir", None)
                     if rollout_data_dir:
@@ -1349,6 +1624,7 @@ class RayPPOTrainer:
                                 reward_extra_infos_dict=reward_extra_infos_dict,
                                 dump_path=rollout_data_dir,
                             )
+                '''    
 
                     # validate
                     if (
@@ -1383,9 +1659,12 @@ class RayPPOTrainer:
                             print("Force saving checkpoint: ESI instance expiration approaching.")
                         with marked_timer("save_checkpoint", timing_raw, color="green"):
                             self._save_checkpoint()
-
+                
+                
+                '''
                 with marked_timer("stop_profile", timing_raw):
                     self._stop_profiling(do_profile)
+                '''
 
                 steps_duration = timing_raw["step"]
                 self.max_steps_duration = max(self.max_steps_duration, steps_duration)
@@ -1397,16 +1676,30 @@ class RayPPOTrainer:
                         "training/epoch": epoch,
                     }
                 )
+                metrics.update(compute_data_metrics(batch=ttt_batch, use_critic=self.use_critic, ttt=True))
+                metrics.update(compute_timing_metrics(batch=ttt_batch, timing_raw=timing_raw, ttt=True))
+                n_gpus = self.resource_pool_manager.get_n_gpus()
+                metrics.update(compute_throughout_metrics(batch=ttt_batch, timing_raw=timing_raw, n_gpus=n_gpus, ttt=True))
+                
+                metrics.update(compute_data_metrics(batch=task_batch, use_critic=self.use_critic, ttt=False))
+                metrics.update(compute_timing_metrics(batch=task_batch, timing_raw=timing_raw, ttt=False))
+                n_gpus = self.resource_pool_manager.get_n_gpus()
+                metrics.update(compute_throughout_metrics(batch=task_batch, timing_raw=timing_raw, n_gpus=n_gpus, ttt=False))
+                
+                '''
                 # collect metrics
                 metrics.update(compute_data_metrics(batch=batch, use_critic=self.use_critic))
                 metrics.update(compute_timing_metrics(batch=batch, timing_raw=timing_raw))
                 # TODO: implement actual tflpo and theoretical tflpo
                 n_gpus = self.resource_pool_manager.get_n_gpus()
                 metrics.update(compute_throughout_metrics(batch=batch, timing_raw=timing_raw, n_gpus=n_gpus))
+                '''
 
+                '''
                 # this is experimental and may be changed/removed in the future in favor of a general-purpose one
                 if isinstance(self.train_dataloader.sampler, AbstractCurriculumSampler):
                     self.train_dataloader.sampler.update(batch=batch)
+                '''
 
                 # TODO: make a canonical logger that supports various backend
                 logger.log(data=metrics, step=self.global_steps)
