@@ -379,7 +379,6 @@ class DataParallelPPOActor(BasePPOActor):
                 hidden_states = hidden_states[:, -response_length:, :]
             return hidden_states, log_probs
 
-
     def _optimizer_step(self):
         assert self.config.grad_clip is not None
 
@@ -445,10 +444,12 @@ class DataParallelPPOActor(BasePPOActor):
                 entropy, log_probs = self._forward_micro_batch(
                     model_inputs, temperature=temperature, calculate_entropy=calculate_entropy
                 )
-            entropy, log_probs = entropy.to("cpu"), log_probs.to("cpu")
-            log_probs_lst.append(log_probs)
+            if entropy is not None:
+                entropy = entropy.to("cpu")
+            
+            log_probs_lst.append(log_probs.to("cpu"))
             if calculate_entropy:
-                entropy_lst.append(entropy)
+                entropy_lst.append(entropy.to("cpu"))
 
         log_probs = torch.concat(log_probs_lst, dim=0)
         entropys = None
@@ -461,7 +462,6 @@ class DataParallelPPOActor(BasePPOActor):
                 entropys = restore_dynamic_batch(entropys, batch_idx_list)
 
         return log_probs, entropys
-
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
     def process_input_for_ttt(self, data: DataProto):
@@ -506,6 +506,44 @@ class DataParallelPPOActor(BasePPOActor):
         entropys = torch.concat(entropys_lst, dim=0)
 
         return hidden_states, response_ids, entropys
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def process_sequence_for_validation(self, data: DataProto):
+        """Compute the log probability of the responses given input_ids, attention_mask and position_ids
+
+        Args:
+            data (DataProto): a DataProto containing keys
+
+                ``input_ids``: tensor of shape [batch_size, sequence_length]. torch.int64. Note that input_ids is the
+                concatenation of prompt and response. Note that ``sequence_length = prompt_length + response_length``.
+
+                ``attention_mask``: tensor of shape [batch_size, sequence_length]. torch.int64.
+
+        Returns:
+            torch.Tensor: the log_prob tensor
+        """
+        # set to eval
+        self.actor_module.eval()
+        micro_batch_size = data.meta_info["micro_batch_size"]
+        
+        select_keys = ["input_ids", "attention_mask"]
+        data = data.select(batch_keys=select_keys)
+        micro_batches = data.split(micro_batch_size)
+
+        response_ids_lst = []
+        loss_lst = []
+        for micro_batch in micro_batches:
+            micro_batch = micro_batch.to(get_device_id())
+            model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
+            with torch.no_grad():
+                _, response_ids, _, loss = self._forward_micro_batch_for_input_ttt(model_inputs, get_hidden_states=False, get_response=True, get_entropy=False, get_loss=True)
+            response_ids_lst.append(response_ids.to("cpu"))
+            loss_lst.append(loss.detach().to("cpu").item())
+
+        response_ids = torch.concat(response_ids_lst, dim=0)
+        loss = loss_lst
+
+        return response_ids, loss
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
     def generate_sequences_for_ttt(self, data: DataProto):
@@ -690,9 +728,9 @@ class DataParallelPPOActor(BasePPOActor):
                     micro_batch_metrics.update(
                         {
                             "actor/pg_loss": pg_loss.detach().item(),
-                            "actor/pg_clipfrac": pg_clipfrac.detach().item(),
-                            "actor/ppo_kl": ppo_kl.detach().item(),
-                            "actor/pg_clipfrac_lower": pg_clipfrac_lower.detach().item(),
+                            #"actor/pg_clipfrac": pg_clipfrac.detach().item(),
+                            #"actor/ppo_kl": ppo_kl.detach().item(),
+                            #"actor/pg_clipfrac_lower": pg_clipfrac_lower.detach().item(),
                         }
                     )
                     append_to_dict(metrics, micro_batch_metrics)
@@ -746,7 +784,7 @@ class DataParallelPPOActor(BasePPOActor):
                 sft_loss.backward() 
                 
                 sft_metrics = {
-                    "actor/sft_loss": sft_loss.detach().item(),
+                    "actor/sft_loss_ttt": sft_loss.detach().item(),
                 }
                 append_to_dict(metrics, sft_metrics)
 
@@ -824,10 +862,10 @@ class DataParallelPPOActor(BasePPOActor):
                 policy_loss.backward()
 
                 ppo_metrics = {
-                            "actor/pg_loss": policy_loss.detach().item(),
-                            "actor/pg_clipfrac": pg_clipfrac.detach().item(),
-                            "actor/ppo_kl": ppo_kl.detach().item(),
-                            "actor/pg_clipfrac_lower": pg_clipfrac_lower.detach().item(),
+                            "actor/pg_loss_ttt": policy_loss.detach().item(),
+                            #"actor/pg_clipfrac": pg_clipfrac.detach().item(),
+                            #"actor/ppo_kl": ppo_kl.detach().item(),
+                            #"actor/pg_clipfrac_lower": pg_clipfrac_lower.detach().item(),
                             }
                 
                 append_to_dict(metrics, ppo_metrics)
@@ -871,12 +909,12 @@ class DataParallelPPOActor(BasePPOActor):
                     sft_loss.backward() 
                     
                     sft_metrics = {
-                        "actor/sft_loss": sft_loss.detach().item(),
+                        "actor/sft_loss_ttt": sft_loss.detach().item(),
                     }
                     append_to_dict(metrics, sft_metrics)
                     
                 grad_norm = self._optimizer_step()
-                mini_batch_metrics = {"actor/grad_norm": grad_norm.detach().item()}
+                mini_batch_metrics = {"actor/grad_norm_ttt": grad_norm.detach().item()}
                 append_to_dict(metrics, mini_batch_metrics)
         self.actor_optimizer.zero_grad()
         return metrics

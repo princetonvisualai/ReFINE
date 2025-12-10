@@ -749,7 +749,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    @DistProfiler.annotate(color="red", role="ttt_actor_update")
+    @DistProfiler.annotate(color="red", role="actor_update_ttt")
     def update_actor_ttt(self, sft_data: DataProto, ppo_data: DataProto):
 
         assert self._is_actor
@@ -778,16 +778,16 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 global_num_tokens += ppo_data.meta_info["ttt_global_token_num"]
             if sft_data is not None:
                 global_num_tokens += sft_data.meta_info["ttt_global_token_num"]
-            estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
-            metrics["perf/mfu/actor"] = (
-                estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
-            )
-            metrics["perf/max_memory_allocated_gb"] = get_torch_device().max_memory_allocated() / (1024**3)
-            metrics["perf/max_memory_reserved_gb"] = get_torch_device().max_memory_reserved() / (1024**3)
-            metrics["perf/cpu_memory_used_gb"] = psutil.virtual_memory().used / (1024**3)
+            #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
+            #metrics["perf/mfu/actor"] = (
+            #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
+            #)
+            metrics["perf/max_memory_allocated_gb_ttt"] = get_torch_device().max_memory_allocated() / (1024**3)
+            metrics["perf/max_memory_reserved_gb_ttt"] = get_torch_device().max_memory_reserved() / (1024**3)
+            metrics["perf/cpu_memory_used_gb_ttt"] = psutil.virtual_memory().used / (1024**3)
 
             lr = self.actor_lr_scheduler.get_last_lr()[0]
-            metrics["actor/lr"] = lr
+            metrics["actor/lr_ttt"] = lr
             self.actor_lr_scheduler.step()
 
             # TODO: here, we should return all metrics
@@ -804,7 +804,6 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             log_gpu_memory_usage("After offload actor optimizer during update_actor", logger=logger)
 
         return output
-
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="red", role="rollout_generate")
@@ -870,9 +869,10 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         with self.ulysses_sharding_manager:
             data = self.ulysses_sharding_manager.preprocess_data(data)
             with adapter_ctx:
-                output, entropys = self.actor.compute_log_prob(data=data, calculate_entropy=True)
+                output, _ = self.actor.compute_log_prob(data=data, calculate_entropy=False)
             output = DataProto.from_dict(
-                tensors={"old_log_probs": output, "entropys": entropys},
+                #tensors={"old_log_probs": output, "entropys": entropys},
+                tensors={"old_log_probs": output},
                 meta_info={"temperature": self.config.rollout.temperature},
             )
             output = self.ulysses_sharding_manager.postprocess_data(output)
@@ -932,7 +932,51 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    @DistProfiler.annotate(color="blue", role="actor_generate_sequence_for_ttt")
+    @DistProfiler.annotate(color="blue", role="actor_process_input_for_ttt")
+    def process_sequence_for_validation(self, data: DataProto):
+        # when is_lora is True, we use the actor without lora applied to calculate the log_prob
+        # which is mostly used for ref log_prob calculation
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+
+        # Support all hardwares
+        from contextlib import nullcontext
+        adapter_ctx = nullcontext()
+        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
+
+        # perform recompute log_prob
+        with self.ulysses_sharding_manager:
+            data = self.ulysses_sharding_manager.preprocess_data(data)
+            with adapter_ctx:
+                response_ids, loss = self.actor.process_sequence_for_validation(data=data)
+            output = DataProto.from_dict(
+                tensors={
+                    "responses": response_ids,
+                },
+                meta_info={
+                    "loss": loss,
+                }
+            )
+            output = self.ulysses_sharding_manager.postprocess_data(output)
+
+        output = output.to("cpu")
+
+        # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
+        # unshard the root FSDP module
+        if self.world_size > 1 and fsdp_version(self.actor.actor_module) == 1:
+            self.actor.actor_module._handle.reshard(True)
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during compute_log_prob", logger=logger)
+
+        return output
+
+
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="blue", role="actor_generate_ttt")
     def actor_generate_sequences_for_ttt(self, data: DataProto):
         # when is_lora is True, we use the actor without lora applied to calculate the log_prob
         # which is mostly used for ref log_prob calculation
@@ -979,7 +1023,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    @DistProfiler.annotate(color="blue", role="actor_compute_log_prob_for_ttt")
+    @DistProfiler.annotate(color="blue", role="actor_compute_log_prob_ttt")
     def compute_log_prob_for_ttt(self, data: DataProto):
         # when is_lora is True, we use the actor without lora applied to calculate the log_prob
         # which is mostly used for ref log_prob calculation
@@ -1001,7 +1045,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 hidden_states, log_probs = self.actor.compute_log_prob_for_ttt(data=data)
             tensors = {
                 "old_log_probs": log_probs,
-                "hidden_states": hidden_states,
+                "response_hidden_states": hidden_states,
             }
             meta_info = {
                 "temperature": temperature,

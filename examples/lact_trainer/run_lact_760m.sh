@@ -15,8 +15,8 @@ val_files="/n/fs/xw-hh/ruler_qa_data/data/ruler_squad_4096_4000_test.parquet"
 model_path="/n/fs/xw-hh/lact_llm/lact-muon-nope-postnorm-nheads2-chunk2048-760m"
 
 # data parameters
-max_seq_length=4096
-max_response_length=32
+max_seq_length=4096 # for testing. use 16k for deployment
+max_response_length=32 # this should equal the config in the data construction
 max_prompt_length=$((max_seq_length - max_response_length))
 filter_overlong_prompts=False 
 
@@ -29,13 +29,13 @@ ttt_micro_batch_size_per_gpu=4
 NGPU=8
 n=8
 
-ttt_training=True
-task_training=False
+ttt_update=False
+task_update=True
 
-ttt_sft_update=True # this should be True
-ttt_ppo_update=True # this should be True
+ttt_sft_update=True # this should be True if ttt_update is True
+ttt_ppo_update=True # this should be True if ttt_update is True
 ttt_n_chunks=8
-ttt_k=2
+ttt_k=6
 ttt_n=1
 ttt_reward="cosine_similarity"
 ttt_temperature=1.0
@@ -44,18 +44,21 @@ ttt_sft_loss_coef=1.0
 ttt_ppo_loss_coef=1.0
 
 # validation parameters
-val_before_train=False
-val_only=False
+val_batch_size=32
+val_ttt_update=False
+val_get_loss=True
+val_before_train=True
+val_only=True
 save_freq=-1
-test_freq=-1
+test_freq=10
 total_epochs=1
 
 # wandb / logging parameters
 project_name='lact_rl'
-experiment_name="lact_760m_muon_ptn_nh2_sftrl_test_task" 
+experiment_name="lact_760m_muon_ptn_nh2_rulersquad_4096_task_rl_8n" 
 
-logger='console'
-
+#logger='["console", "wandb"]'
+logger='["console"]'
 
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
@@ -68,9 +71,12 @@ python3 -m verl.trainer.main_ppo \
     data.custom_cls.path="/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py" \
     data.custom_cls.name="TTTRLHFDataset" \
     data.train_batch_size=$train_batch_size \
+    data.val_batch_size=$val_batch_size \
     data.max_prompt_length=$max_prompt_length \
     data.max_response_length=$max_response_length \
     actor_rollout_ref.model.path=$model_path \
+    +actor_rollout_ref.actor.task_update=$task_update \
+    +actor_rollout_ref.actor.ttt_update=$ttt_update \
     +actor_rollout_ref.actor.ttt_sft_update=$ttt_sft_update \
     +actor_rollout_ref.actor.ttt_ppo_update=$ttt_ppo_update \
     +actor_rollout_ref.actor.ttt_n_chunks=$ttt_n_chunks \
@@ -90,6 +96,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.n=$n \
     trainer.balance_batch=False \
     trainer.logger=$logger \
+    +trainer.val_get_loss=$val_get_loss \
+    +trainer.val_ttt_update=$val_ttt_update \
     trainer.val_before_train=$val_before_train \
     trainer.val_only=$val_only \
     trainer.n_gpus_per_node=$NGPU \

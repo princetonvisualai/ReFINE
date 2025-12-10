@@ -47,7 +47,6 @@ class HFRollout(BaseRollout):
         batch_prompts = prompts.chunk(chunks=num_chunks)
         outputs = []
         for p in batch_prompts:
-            print("generate sequence for micro batch")
             p = p.to(get_device_id())
             output = self._generate_minibatch(p)
             output = output.to("cpu")
