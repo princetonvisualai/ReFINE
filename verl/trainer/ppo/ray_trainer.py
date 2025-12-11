@@ -380,17 +380,12 @@ def prepare_ppo_batch_for_ttt(
         "uid": new_uuids,
     }
 
-    output = DataProto.from_dict(tensors=tensor_batch, non_tensors=non_tensor_batch, meta_info=meta_info)
+    output = DataProto.from_dict(tensors=tensor_batch, non_tensors=non_tensor_batch)
 
     output = output.repeat(repeat_times=ttt_n, interleave=True)  
 
     return output 
 
-def prepare_sft_batch_for_ttt(data: DataProto):
-    batch_keys = ["input_ids", "attention_mask"]
-    non_tensor_batch_keys = ['uid']
-    sft_batch = data.select(batch_keys=batch_keys, non_tensor_batch_keys=non_tensor_batch_keys)
-    return sft_batch
 
 class RayPPOTrainer:
     """Distributed PPO trainer using Ray for scalable reinforcement learning.
@@ -926,7 +921,7 @@ class RayPPOTrainer:
         #    metric_dict["val-aux/num_turns/max"] = sample_turns.max()
         #    metric_dict["val-aux/num_turns/mean"] = sample_turns.mean()
         '''
-
+        val_timing_raw = {}
         val_metrics = defaultdict(list)
 
         for test_data in tqdm(self.val_dataloader, total = len(self.val_dataloader), desc="Validating"):
@@ -953,8 +948,14 @@ class RayPPOTrainer:
             # inner training loop 
             if self.config.trainer.val_ttt_update:
                 print("inner training loop -- ttt update for validation")
+                batch_keys_to_select = ["input_ids", "attention_mask"]
+                non_tensor_batch_keys_to_select = ["uid"]
+                ttt_batch = test_batch.select(
+                    batch_keys=batch_keys_to_select,
+                    non_tensor_batch_keys=non_tensor_batch_keys_to_select,
+                )
                 with marked_timer("ttt_update_val", val_timing_raw):
-                    self._inner_training_loop(test_batch, val_timing_raw)
+                    self._inner_training_loop(ttt_batch, val_timing_raw)
 
             batch_keys_to_pop = ["input_ids", "attention_mask"]
             test_gen_batch = test_batch.pop(
@@ -1229,27 +1230,35 @@ class RayPPOTrainer:
         )
         metrics.update(global_balance_stats)
 
-    def _inner_training_loop(self, batch: DataProto, timing_raw: dict):
+    def _inner_training_loop(self, batch: DataProto, timing_raw: dict, validation: bool = False):
         """
         RL to update the fast weights. Should be able to call during train or validation.
         """
 
-        sft_update = self.config.actor_rollout_ref.actor.ttt_sft_update
-        ppo_update = self.config.actor_rollout_ref.actor.ttt_ppo_update
-        
+        sft_update = self.config.actor_rollout_ref.actor.ttt_sft_update #if not validation else self.config.actor_rollout_ref.actor.val_ttt_sft_update
+        ppo_update = self.config.actor_rollout_ref.actor.ttt_ppo_update #if not validation else self.config.actor_rollout_ref.actor.val_ttt_ppo_update
+
         sft_batch = None
         if sft_update:
-            sft_batch = prepare_sft_batch_for_ttt(batch)  # input_ids, attention_mask, uid
+            batch_keys_to_select = ["input_ids", "attention_mask"]
+            non_tensor_batch_keys_to_select = ['uid']
+            sft_batch = batch.select(batch_keys=batch_keys_to_select, non_tensor_batch_keys=non_tensor_batch_keys_to_select)
             sft_batch.meta_info["ttt_global_token_num"] = torch.sum(sft_batch.batch["attention_mask"], dim=-1).tolist()
 
         ppo_batch = None
         if ppo_update:
+            batch_select_keys = ["input_ids", "attention_mask"]
+            non_tensor_batch_select_keys = ["uid"]
+            ppo_batch = batch.select(
+                batch_keys=batch_select_keys, 
+                non_tensor_batch_keys=non_tensor_batch_select_keys
+            )
             with marked_timer("forward_ttt", timing_raw):
-                outputs = self.actor_rollout_wg.process_input_for_ttt(batch) # hidden_states, responses, entropys
-            batch = batch.union(outputs)
+                outputs = self.actor_rollout_wg.process_input_for_ttt(ppo_batch) # hidden_states, responses, entropys
+            ppo_batch = ppo_batch.union(outputs)
 
             ppo_batch = prepare_ppo_batch_for_ttt(
-                    data=batch,  
+                    data=ppo_batch,  
                     ttt_n_chunks=self.config.actor_rollout_ref.actor.ttt_n_chunks, 
                     ttt_k=self.config.actor_rollout_ref.actor.ttt_k, 
                     ttt_n=self.config.actor_rollout_ref.actor.ttt_n, 
@@ -1291,7 +1300,13 @@ class RayPPOTrainer:
         
         # update actor
         with marked_timer("update_actor_ttt", timing_raw):
-            ttt_actor_output = self.actor_rollout_wg.update_actor_ttt(sft_data=sft_batch, ppo_data=ppo_batch)
+            if sft_update:
+                if ppo_update:
+                    ttt_actor_output = self.actor_rollout_wg.update_actor_ppo_ttt(sft_data=sft_batch, ppo_data=ppo_batch)
+                else:
+                    ttt_actor_output = self.actor_rollout_wg.update_actor_sft_ttt(sft_data=sft_batch)
+            else:
+                raise ValueError("sft_update and ppo_update cannot be False at the same time")
         ttt_metrics = reduce_metrics(ttt_actor_output.meta_info["metrics"])
         return ppo_batch, timing_raw, ttt_metrics
 

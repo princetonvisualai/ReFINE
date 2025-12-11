@@ -749,9 +749,9 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    @DistProfiler.annotate(color="red", role="actor_update_ttt")
-    def update_actor_ttt(self, sft_data: DataProto, ppo_data: DataProto):
-
+    @DistProfiler.annotate(color="red", role="actor_update_ppo_ttt")
+    def update_actor_ppo_ttt(self, sft_data: DataProto, ppo_data: DataProto):
+        print("entered update function")
         assert self._is_actor
         if self._is_offload_param:
             load_fsdp_model_to_gpu(self.actor_module_fsdp)
@@ -759,25 +759,15 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
 
         with self.ulysses_sharding_manager:
-            if ppo_data is not None:
-                ppo_data = self.ulysses_sharding_manager.preprocess_data(data=ppo_data)
-            if sft_data is not None:
-                sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
+            sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
+            ppo_data = self.ulysses_sharding_manager.preprocess_data(data=ppo_data)
+               
             # perform training
-            with Timer(name="update_policy_ttt", logger=None) as timer:
-                if ppo_data is not None: 
-                    metrics = self.actor.update_policy_for_ppo_ttt(ppo_data=ppo_data, sft_data=sft_data)
-                elif sft_data is not None:
-                    metrics = self.actor.update_policy_for_sft_ttt(sft_data=sft_data)
-                else:
-                    raise ValueError("ppo_data and sft_data cannot be None at the same time")
-
+            with Timer(name="update_policy_ppo_ttt", logger=None) as timer:
+                metrics = self.actor.update_policy_ppo_ttt(sft_data=sft_data, ppo_data=ppo_data)
+       
             delta_time = timer.last
-            global_num_tokens = [] 
-            if ppo_data is not None: 
-                global_num_tokens += ppo_data.meta_info["ttt_global_token_num"]
-            if sft_data is not None:
-                global_num_tokens += sft_data.meta_info["ttt_global_token_num"]
+            global_num_tokens = ppo_data.meta_info["ttt_global_token_num"] + sft_data.meta_info["ttt_global_token_num"]
             #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
             #metrics["perf/mfu/actor"] = (
             #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
@@ -804,6 +794,52 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             log_gpu_memory_usage("After offload actor optimizer during update_actor", logger=logger)
 
         return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="red", role="actor_update_sft_ttt")
+    def update_actor_sft_ttt(self, sft_data: DataProto):
+        print("entered update function")
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+        if self._is_offload_optimizer:
+            load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
+
+        with self.ulysses_sharding_manager: 
+            sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
+            # perform training
+            with Timer(name="update_policy_sft_ttt", logger=None) as timer:    
+                metrics = self.actor.update_policy_sft_ttt(sft_data=sft_data)
+                
+            delta_time = timer.last
+            global_num_tokens = sft_data.meta_info["ttt_global_token_num"]
+            #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
+            #metrics["perf/mfu/actor"] = (
+            #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
+            #)
+            metrics["perf/max_memory_allocated_gb_ttt"] = get_torch_device().max_memory_allocated() / (1024**3)
+            metrics["perf/max_memory_reserved_gb_ttt"] = get_torch_device().max_memory_reserved() / (1024**3)
+            metrics["perf/cpu_memory_used_gb_ttt"] = psutil.virtual_memory().used / (1024**3)
+
+            lr = self.actor_lr_scheduler.get_last_lr()[0]
+            metrics["actor/lr_ttt"] = lr
+            self.actor_lr_scheduler.step()
+
+            # TODO: here, we should return all metrics
+            output = DataProto(meta_info={"metrics": metrics})
+
+            output = self.ulysses_sharding_manager.postprocess_data(data=output)
+            output = output.to("cpu")
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during update_actor", logger=logger)
+        if self._is_offload_optimizer:
+            offload_fsdp_optimizer(optimizer=self.actor_optimizer)
+            log_gpu_memory_usage("After offload actor optimizer during update_actor", logger=logger)
+
+        return output
+
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="red", role="rollout_generate")

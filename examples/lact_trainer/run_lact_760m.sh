@@ -8,14 +8,15 @@ unset HIP_VISIBLE_DEVICES
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 
 #### Data files
-train_files="/n/fs/xw-hh/ruler_qa_data/data/ruler_squad_4096_16000_train.parquet"
-val_files="/n/fs/xw-hh/ruler_qa_data/data/ruler_squad_4096_4000_test.parquet"
+train_files="/n/fs/xw-hh/ruler_qa_data/data/ruler_squad_4096_train.parquet"
+#val_files="/n/fs/xw-hh/ruler_qa_data/data/ruler_squad_4096_4000_test.parquet"
+val_files="/n/fs/xw-hh/ruler_qa_data/data/ruler_squad_4096_test_mini.parquet"
 
 # model parameters
 model_path="/n/fs/xw-hh/lact_llm/lact-muon-nope-postnorm-nheads2-chunk2048-760m"
 
 # data parameters
-max_seq_length=4096 # for testing. use 16k for deployment
+max_seq_length=16384 # for testing. use 16k for deployment
 max_response_length=32 # this should equal the config in the data construction
 max_prompt_length=$((max_seq_length - max_response_length))
 filter_overlong_prompts=False 
@@ -30,10 +31,10 @@ NGPU=8
 n=8
 
 ttt_update=False
-task_update=True
+task_update=False
 
-ttt_sft_update=True # this should be True if ttt_update is True
-ttt_ppo_update=True # this should be True if ttt_update is True
+ttt_sft_update=True # dont change this, always True
+ttt_ppo_update=True # this should be True if ppo, else False
 ttt_n_chunks=8
 ttt_k=6
 ttt_n=1
@@ -45,8 +46,9 @@ ttt_ppo_loss_coef=1.0
 
 # validation parameters
 val_batch_size=32
-val_ttt_update=False
-val_get_loss=True
+val_ttt_update=True   # change ttt parameters accordingly
+# TODO: val ttt sft / ppo update
+val_get_loss=False   
 val_before_train=True
 val_only=True
 save_freq=-1

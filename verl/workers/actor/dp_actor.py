@@ -742,7 +742,7 @@ class DataParallelPPOActor(BasePPOActor):
         return metrics
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
-    def update_policy_for_ppo_ttt(self, ppo_data: DataProto, sft_data: DataProto):
+    def update_policy_ppo_ttt(self, sft_data: DataProto, ppo_data: DataProto):
         # make sure we are in training mode
         self.actor_module.train()
 
@@ -877,44 +877,32 @@ class DataParallelPPOActor(BasePPOActor):
         return metrics
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
-    def update_policy_for_sft_ttt(self, sft_data: DataProto):
+    def update_policy_sft_ttt(self, sft_data: DataProto):
         # make sure we are in training mode
         self.actor_module.train()
 
-        ppo_temperature = ppo_data.meta_info["temperature"]  # temperature must be in the data.meta_info to avoid silent error
-
         sft_select_keys = ["input_ids", "attention_mask"]
-
         sft_data = sft_data.select(batch_keys=sft_select_keys)
-
-        sft_mini_batch_size = self.config.ppo_mini_batch_size // self.config.ttt_n_chunks // self.config.ttt_n 
-        sft_mini_batches = sft_data.split(sft_mini_batch_size) # we changed the normalization for this
-
-        self.sft_gradient_accumulation = sft_mini_batch_size // self.config.ppo_micro_batch_size_per_gpu
+        print("sft data length: ", len(sft_data))
+        sft_micro_batches = sft_data.split(self.config.ppo_micro_batch_size_per_gpu) # we changed the normalization for this
 
         metrics = {}
-        for _ in range(self.config.ppo_epochs):
-            for sft_mini_batch in sft_mini_batches:
+        self.actor_optimizer.zero_grad()
+        for sft_micro_batch in sft_micro_batches:
+            print("sft_micro_batches")
+            sft_micro_batch = sft_micro_batch.to(get_device_id())
+            sft_inputs = {**sft_micro_batch.batch, **sft_micro_batch.non_tensor_batch}
+            _, _, _, sft_loss = self._forward_micro_batch_for_input_ttt(sft_inputs, get_hidden_states=False, get_response=False, get_entropy=False, get_loss=True)
+            sft_loss.backward() 
+            
+            sft_metrics = {
+                "actor/sft_loss_ttt": sft_loss.detach().item(),
+            }
+            append_to_dict(metrics, sft_metrics)
                 
-                sft_micro_batches = sft_mini_batch.split(self.config.ppo_micro_batch_size_per_gpu)
+        grad_norm = self._optimizer_step()
+        batch_metrics = {"actor/grad_norm_ttt": grad_norm.detach().item()}
+        append_to_dict(metrics, batch_metrics)
 
-                self.actor_optimizer.zero_grad()
-
-                for sft_micro_batch in sft_micro_batches:
-                    sft_micro_batch = sft_micro_batch.to(get_device_id())
-                    
-                    sft_inputs = {**sft_micro_batch.batch, **sft_micro_batch.non_tensor_batch}
-                    _, _, _, sft_loss = self._forward_micro_batch_for_input_ttt(sft_inputs, get_hidden_states=False, get_response=False, get_entropy=False, get_loss=True)
-                    sft_loss = sft_loss * self.config.sft_loss_coef / self.sft_gradient_accumulation
-                    sft_loss.backward() 
-                    
-                    sft_metrics = {
-                        "actor/sft_loss_ttt": sft_loss.detach().item(),
-                    }
-                    append_to_dict(metrics, sft_metrics)
-                    
-                grad_norm = self._optimizer_step()
-                mini_batch_metrics = {"actor/grad_norm_ttt": grad_norm.detach().item()}
-                append_to_dict(metrics, mini_batch_metrics)
         self.actor_optimizer.zero_grad()
         return metrics
