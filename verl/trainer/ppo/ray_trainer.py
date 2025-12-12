@@ -931,12 +931,18 @@ class RayPPOTrainer:
                 )
             
             if self.config.trainer.val_get_loss:
-                print("get loss for validation")
-                output = self.actor_rollout_wg.process_sequence_for_validation(test_batch)
+                print("get loss for validation") # loss and exact match score
+                batch_keys_to_select = ["input_ids", "attention_mask"]
+                non_tensor_batch_keys_to_select = ["uid"]
+                score_batch = test_batch.select(
+                    batch_keys=batch_keys_to_select,
+                    non_tensor_batch_keys=non_tensor_batch_keys_to_select,
+                )
+                output = self.actor_rollout_wg.process_sequence_for_validation(score_batch)
                 val_metrics['val_loss'] += output.meta_info['loss']
 
-                input_ids = test_batch.batch["input_ids"]
-                reward_mask = test_batch.batch["attention_mask"]
+                input_ids = score_batch.batch["input_ids"]
+                reward_mask = score_batch.batch["attention_mask"]
                 reward_mask[:, -1] = 0
 
                 responses = output.batch.pop("responses")
@@ -1438,14 +1444,26 @@ class RayPPOTrainer:
                     # inner training loop 
                     if self.config.actor_rollout_ref.actor.ttt_update:
                         print("inner training loop -- ttt update")
+                        batch_keys_to_select = ["input_ids", "attention_mask"]
+                        non_tensor_batch_keys_to_select = ["uid"]
+                        ttt_batch = batch.select(
+                            batch_keys=batch_keys_to_select,
+                            non_tensor_batch_keys=non_tensor_batch_keys_to_select,
+                        )
                         with marked_timer("ttt_update", timing_raw):
-                            ttt_batch, timing_raw, ttt_metrics = self._inner_training_loop(batch, timing_raw)
+                            ttt_batch, timing_raw, ttt_metrics = self._inner_training_loop(ttt_batch, timing_raw)
                         metrics.update(ttt_metrics)
                     
                     if self.config.actor_rollout_ref.actor.task_update:
                         print("outer training loop -- task update")
+                        batch_keys_to_select = ["input_ids", "attention_mask"]
+                        non_tensor_batch_keys_to_select = ["uid"]
+                        task_batch = batch.select(
+                            batch_keys=batch_keys_to_select,
+                            non_tensor_batch_keys=non_tensor_batch_keys_to_select,
+                        )
                         with marked_timer("task_update", timing_raw):
-                            task_batch, timing_raw, task_metrics = self._outer_training_loop(batch, timing_raw)
+                            task_batch, timing_raw, task_metrics = self._outer_training_loop(task_batch, timing_raw)
                         metrics.update(task_metrics)
                 
                     '''
