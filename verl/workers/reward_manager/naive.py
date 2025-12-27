@@ -17,7 +17,7 @@ from collections import defaultdict
 import torch
 
 from verl import DataProto
-from verl.utils.reward_score import default_compute_score
+#from verl.utils.reward_score import default_compute_score
 from verl.workers.reward_manager import register
 
 
@@ -38,30 +38,34 @@ class NaiveRewardManager:
         """
         self.tokenizer = tokenizer  # Store the tokenizer for decoding token IDs
         #self.num_examine = num_examine  # the number of batches of decoded responses to print to the console
-        #self.compute_score = compute_score or default_compute_score
-        self.compute_score = compute_score
-        #self.reward_fn_key = reward_fn_key  # Store the key for accessing the data source
+        self.compute_score = compute_score 
+        self.reward_fn_key = reward_fn_key
+
 
     def __call__(self, data: DataProto, return_dict=False):
         """We will expand this function gradually based on the available datasets"""
 
-        reward_tensor = torch.zeros_like(data.batch["responses"], dtype=torch.float32)
+        reward_tensor = torch.zeros_like(data.batch["responses"]).float()
         reward_extra_info = {} 
 
         for i in range(len(data)):
             data_item = data[i]  # DataProtoItem
 
-            response_str = self.tokenizer.decode(data_item.batch["responses"], skip_special_tokens=True)
-            ground_truth = self.tokenizer.decode(data_item.batch["ground_truth_ids"], skip_special_tokens=True)
-            valid_response_length = data_item.batch["ground_truth_attention_mask"].sum(dim=-1)
-
+            response: str = self.tokenizer.decode(data_item.batch["responses"], skip_special_tokens=True)
+            answers: List[str] = data_item.non_tensor_batch["answers"].split("|") # split by | to get the list of answers
+            data_source: str = data_item.non_tensor_batch[self.reward_fn_key]
             score = self.compute_score(
-                response=response_str,
-                ground_truth=ground_truth,
+                response=response,
+                answers=answers,
+                data_source=data_source
             )
 
-            reward_tensor[i, valid_response_length - 1] = score
-      
+            if score > 0.2:
+                print(f"response: {response} | answer: {answers} | score: {score}")
+
+
+            reward_tensor[i, -1] = score
+       
         if return_dict:
             return {
                 "reward_tensor": reward_tensor,

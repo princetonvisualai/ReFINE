@@ -19,13 +19,13 @@ import random
 import re
 import string
 
-def compute_score(response: str, ground_truth: str):
-    response = postprocess_response(response)
-    score = 1.0 if ground_truth.lower() in response.lower() else 0.0
+def compute_score(prediction: str, ground_truth: str, data_source: str):
+    prediction = postprocess_response(prediction)
+    score = 1.0 if ground_truth.lower() in prediction.lower() else 0.0
     return score
 
-def postprocess_response(response: str):
-    predict_str = response.strip()   
+def postprocess_response(prediction: str):
+    predict_str = prediction.strip()   
     np_pattern = re.compile(r"[\x00-\x1f]")
     predict_str = np_pattern.sub("\n", predict_str).strip()
     return predict_str

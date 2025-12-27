@@ -170,7 +170,7 @@ class TaskRunner:
         # Map roles to their corresponding remote worker classes.
         role_worker_mapping = {
             Role.ActorRollout: ray.remote(actor_rollout_cls),
-            Role.Critic: ray.remote(CriticWorker),
+            #Role.Critic: ray.remote(CriticWorker),
         }
 
         # Define the resource pool specification.
@@ -181,7 +181,7 @@ class TaskRunner:
         }
         mapping = {
             Role.ActorRollout: global_pool_id,
-            Role.Critic: global_pool_id,
+            #Role.Critic: global_pool_id,
         }
 
         # We should adopt a multi-source reward function here:
@@ -220,6 +220,7 @@ class TaskRunner:
         train_dataset = create_rl_dataset(config.data.train_files, config.data, tokenizer, processor, is_train=True)
         val_dataset = create_rl_dataset(config.data.val_files, config.data, tokenizer, processor, is_train=False)
         train_sampler = create_rl_sampler(config.data, train_dataset)
+        val_sampler = create_rl_sampler(config.data, val_dataset)
 
         # Initialize the PPO trainer.
         trainer = RayPPOTrainer(

@@ -349,6 +349,7 @@ class TTTRLHFDataset(RLHFDataset):
     ):
         self.max_response_length = config.get("max_response_length", 32)
         self.answer_key = config.get("answer_key", "answer")
+        self.data_source_key = config.get("data_source_key", "task")
         super().__init__(data_files, tokenizer, config, processor)
 
 
@@ -384,25 +385,34 @@ class TTTRLHFDataset(RLHFDataset):
 
     def _build_messages(self, example: dict):
         messages: str = example.pop(self.prompt_key)
-        answers: str = example.pop(self.answer_key)
-        return messages, answers
+        return messages
+    
+    def _build_answers(self, example: dict):    
+        answers = None
+        if self.answer_key in example:
+            answers = example.pop(self.answer_key)
+            if isinstance(answers, list):
+                answers = "|".join(answers)
+        return answers
+
+    def _build_data_source(self, example: dict):
+        data_source = None
+        if self.data_source_key in example:
+            data_source = example.pop(self.data_source_key)
+        return data_source
 
     def __getitem__(self, item):
         """
         Note that we also return the raw_input_ids so that it can be combined with other chat template
         """
         row_dict: dict = self.dataframe[item]
-        messages, answers = self._build_messages(row_dict)
-        model_inputs = {}
+        messages = self._build_messages(row_dict)
+        answers = self._build_answers(row_dict)
+        data_source = self._build_data_source(row_dict)
 
-        
         model_inputs = self.tokenizer(messages, return_tensors="pt", add_special_tokens=False)
         input_ids = model_inputs.pop("input_ids")
         attention_mask = model_inputs.pop("attention_mask")
-
-        ground_truth = self.tokenizer(answers, return_tensors="pt", add_special_tokens=False)
-        ground_truth_ids = ground_truth.pop("input_ids")
-        ground_truth_attention_mask = ground_truth.pop("attention_mask")
 
         input_ids, attention_mask = verl_F.postprocess_data(
             input_ids=input_ids,
@@ -413,18 +423,9 @@ class TTTRLHFDataset(RLHFDataset):
             truncation=self.truncation,
         )
 
-        ground_truth_ids, ground_truth_attention_mask = verl_F.postprocess_data(
-            input_ids=ground_truth_ids,
-            attention_mask=ground_truth_attention_mask,
-            max_length=self.max_response_length,
-            pad_token_id=self.tokenizer.pad_token_id,
-            left_pad=False,
-            truncation=self.truncation,
-        )
-
+        row_dict = {}
         row_dict["input_ids"] = input_ids[0]
         row_dict["attention_mask"] = attention_mask[0]
-        row_dict["ground_truth_ids"] = ground_truth_ids[0]
-        row_dict["ground_truth_attention_mask"] = ground_truth_attention_mask[0]
-
+        row_dict["answers"] = answers # string
+        row_dict["data_source"] = data_source # string
         return row_dict

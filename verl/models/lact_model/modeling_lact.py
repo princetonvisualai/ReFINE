@@ -421,12 +421,11 @@ class LaCTForCausalLM(LaCTPreTrainedModel, GenerationMixin):
             else:
                 criterion = self.criterion
             # Enable model parallelism
-            labels = labels.to(hidden_states.device)
+            #labels = labels.to(hidden_states.device)
+            labels = torch.cat((labels[..., 1:], torch.full_like(labels[:, :1], criterion.ignore_index)), 1).to(hidden_states.device)
             if attention_mask is not None:
                 labels = labels.masked_fill(attention_mask == 0, criterion.ignore_index) 
-            labels = torch.cat((labels[..., 1:], torch.full_like(labels[:, :1], criterion.ignore_index)), 1)
-        
-            
+    
             if fuse_linear_and_cross_entropy:
                 loss = criterion(hidden_states, labels, self.lm_head.weight, self.lm_head.bias)
             else:

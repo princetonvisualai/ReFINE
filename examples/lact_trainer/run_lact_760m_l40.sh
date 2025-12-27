@@ -5,7 +5,7 @@ set -x
 # Clean up conflicting GPU environment variables
 unset ROCR_VISIBLE_DEVICES
 unset HIP_VISIBLE_DEVICES
-export CUDA_VISIBLE_DEVICES=0,1,2,3 #,4,5,6,7
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 # configs
 datasets=(
@@ -25,7 +25,7 @@ datasets=(
         "repobench-p"
     )
 maxlens=(128 128 64 32 32 32 512 512 512 64 32 128 64 64)    
-dataset_idx=0  ##change this to the dataset you want to train/test on
+dataset_idx=1  ##change this to the dataset you want to train/test on
 max_seq_length=16384
 dataset=${datasets[dataset_idx]}
 max_response_length=${maxlens[dataset_idx]}
@@ -46,6 +46,7 @@ custom_reward_function_path="/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench
 #model_path="/n/fs/xw-hh/lact_llm/lact-muon-nope-postnorm-nheads2-chunk2048-760m"
 #model_path="/n/fs/xw-hh/lact_llm/lact-sft-16k-100"
 model_path="/n/fs/xw-hh/lact_llm/lact-sftrl-embedding-16k-c8k6n1-100"
+
 
 # training parameters
 NGPU=4
@@ -72,7 +73,7 @@ ttt_ppo_micro_batch_size_per_gpu=4 # update actor
 ttt_n_chunks=16
 ttt_k=6
 ttt_n=1
-ttt_reward="binary" #"cosine_similarity"
+ttt_reward="binary"
 ttt_temperature=1.0
 ttt_sft_loss_coef=1.0
 ttt_ppo_loss_coef=1.0

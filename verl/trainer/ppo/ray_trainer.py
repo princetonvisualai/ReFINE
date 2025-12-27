@@ -330,6 +330,7 @@ def prepare_ppo_batch_for_ttt(
     new_attention_mask = []
     new_ground_truth_ids = []
     new_ground_truth_hidden_states = []
+
     new_uuids = []
     for i in range(B):
         seq_input_ids = input_ids[i, :]
@@ -354,7 +355,7 @@ def prepare_ppo_batch_for_ttt(
 
             seq_new_attention_mask = torch.zeros((S,), dtype = seq_attention_mask.dtype)
             seq_new_attention_mask[-response_start_idx:] = seq_attention_mask[:response_start_idx]
-
+            
             seq_new_ground_truth_ids = seq_input_ids[response_start_idx:response_end_idx]
             seq_new_ground_truth_hidden_states = seq_hidden_states[response_start_idx:response_end_idx, :]
 
@@ -380,7 +381,11 @@ def prepare_ppo_batch_for_ttt(
         "uid": new_uuids,
     }
 
-    output = DataProto.from_dict(tensors=tensor_batch, non_tensors=non_tensor_batch)
+
+    output = DataProto.from_dict(
+        tensors=tensor_batch, 
+        non_tensors=non_tensor_batch, 
+    )
 
     output = output.repeat(repeat_times=ttt_n, interleave=True)  
 
@@ -575,6 +580,7 @@ class RayPPOTrainer:
                 "actor_rollout_ref.rollout",
             )
 
+        '''
         if self.use_critic and not config.critic.use_dynamic_bsz:
             # Check for critic micro-batch size conflicts
             check_mutually_exclusive(
@@ -586,7 +592,7 @@ class RayPPOTrainer:
             check_mutually_exclusive(
                 config.reward_model.micro_batch_size, config.reward_model.micro_batch_size_per_gpu, "reward_model"
             )
-
+        '''
         # Actor
         # check if train_batch_size is larger than ppo_mini_batch_size
         # if NOT dynamic_bsz, we must ensure:
@@ -603,6 +609,11 @@ class RayPPOTrainer:
                 )
                 assert config.actor_rollout_ref.actor.ppo_micro_batch_size * sp_size >= n_gpus
 
+            # TTT mini batch size
+            assert config.data.train_batch_size >= config.actor_rollout_ref.actor.ttt_mini_batch_size
+            # val TTT mini batch size
+            assert config.data.val_batch_size >= config.actor_rollout_ref.actor.ttt_mini_batch_size
+
         assert config.actor_rollout_ref.actor.loss_agg_mode in [
             "token-mean",
             "seq-mean-token-sum",
@@ -613,6 +624,7 @@ class RayPPOTrainer:
         if self.config.algorithm.use_kl_in_reward and config.actor_rollout_ref.actor.use_kl_loss:
             print("NOTICE: You have both enabled in-reward kl and kl loss.")
 
+        '''
         # critic
         if self.use_critic and not config.critic.use_dynamic_bsz:
             assert config.data.train_batch_size >= config.critic.ppo_mini_batch_size
@@ -620,7 +632,7 @@ class RayPPOTrainer:
             if config.critic.ppo_micro_batch_size is not None:
                 assert config.critic.ppo_mini_batch_size % config.critic.ppo_micro_batch_size == 0
                 assert config.critic.ppo_micro_batch_size * sp_size >= n_gpus
-
+    
         # Check if use_remove_padding is enabled when using sequence parallelism for fsdp
         if config.actor_rollout_ref.actor.strategy in {"fsdp", "fsdp2"} and (
             config.actor_rollout_ref.actor.get("ulysses_sequence_parallel_size", 1) > 1
@@ -648,7 +660,7 @@ class RayPPOTrainer:
             assert config.actor_rollout_ref.rollout.temperature > 0, (
                 "validation gen temperature should be greater than 0 when enabling do_sample"
             )
-
+        '''
         print("[validate_config] All configuration checks passed successfully!")
 
     def _create_dataloader(self, train_dataset, val_dataset, collate_fn, train_sampler: Optional[Sampler]):
@@ -952,7 +964,7 @@ class RayPPOTrainer:
                 val_metrics['val_em_score'].append(em_score)
             
             # inner training loop 
-            if self.config.trainer.val_ttt_update:
+            if self.config.trainer.ttt_update:
                 print("inner training loop -- ttt update for validation")
                 batch_keys_to_select = ["input_ids", "attention_mask"]
                 non_tensor_batch_keys_to_select = ["uid"]
@@ -963,16 +975,21 @@ class RayPPOTrainer:
                 with marked_timer("ttt_update_val", val_timing_raw):
                     self._inner_training_loop(ttt_batch, val_timing_raw)
 
+            
             batch_keys_to_pop = ["input_ids", "attention_mask"]
             test_gen_batch = test_batch.pop(
                 batch_keys=batch_keys_to_pop,
             )
-            test_gen_batch_output = self.actor_rollout_wg.generate_sequences(test_gen_batch)    
+            test_gen_batch.meta_info["validate"] = True
+            with marked_timer("gen_val", val_timing_raw):
+                test_gen_batch_output = self.actor_rollout_wg.generate_sequences(test_gen_batch)    
             test_batch = test_batch.union(test_gen_batch_output)
-
+            print("generation time: ", val_timing_raw["gen_val"])
+            
             test_batch.batch["response_mask"] = compute_response_mask(test_batch)
 
             test_reward_tensor, test_reward_extra_infos_dict = compute_reward(test_batch, self.val_reward_fn)
+            print("reward tensor: ", test_reward_tensor.sum(-1).tolist())
             val_metrics['val_reward'] += test_reward_tensor.sum(-1).tolist()
 
         val_metrics = reduce_metrics(val_metrics)
@@ -1003,11 +1020,12 @@ class RayPPOTrainer:
             raise NotImplementedError
 
         # create critic
+        '''
         if self.use_critic:
             resource_pool = self.resource_pool_manager.get_resource_pool(Role.Critic)
             critic_cls = RayClassWithInitArgs(cls=self.role_worker_mapping[Role.Critic], config=self.config.critic)
             self.resource_pool_to_cls[resource_pool]["critic"] = critic_cls
-
+        '''
         # create reference policy if needed
         if self.use_reference_policy:
             resource_pool = self.resource_pool_manager.get_resource_pool(Role.RefPolicy)
@@ -1019,12 +1037,14 @@ class RayPPOTrainer:
             )
             self.resource_pool_to_cls[resource_pool]["ref"] = ref_policy_cls
 
+        '''
         # create a reward model if reward_fn is None
         if self.use_rm:
             # we create a RM here
             resource_pool = self.resource_pool_manager.get_resource_pool(Role.RewardModel)
             rm_cls = RayClassWithInitArgs(self.role_worker_mapping[Role.RewardModel], config=self.config.reward_model)
             self.resource_pool_to_cls[resource_pool]["rm"] = rm_cls
+        '''
 
         # initialize WorkerGroup
         # NOTE: if you want to use a different resource pool for each role, which can support different parallel size,
@@ -1236,19 +1256,22 @@ class RayPPOTrainer:
         )
         metrics.update(global_balance_stats)
 
-    def _inner_training_loop(self, batch: DataProto, timing_raw: dict, validation: bool = False):
+    def _inner_training_loop(self, batch: DataProto, timing_raw: dict):
         """
         RL to update the fast weights. Should be able to call during train or validation.
         """
 
-        sft_update = self.config.actor_rollout_ref.actor.ttt_sft_update #if not validation else self.config.actor_rollout_ref.actor.val_ttt_sft_update
-        ppo_update = self.config.actor_rollout_ref.actor.ttt_ppo_update #if not validation else self.config.actor_rollout_ref.actor.val_ttt_ppo_update
+        sft_update = self.config.trainer.ttt_sft_update 
+        ppo_update = self.config.trainer.ttt_ppo_update 
 
         sft_batch = None
         if sft_update:
             batch_keys_to_select = ["input_ids", "attention_mask"]
             non_tensor_batch_keys_to_select = ['uid']
-            sft_batch = batch.select(batch_keys=batch_keys_to_select, non_tensor_batch_keys=non_tensor_batch_keys_to_select)
+            sft_batch = batch.select(
+                batch_keys=batch_keys_to_select, 
+                non_tensor_batch_keys=non_tensor_batch_keys_to_select,
+            )
             sft_batch.meta_info["ttt_global_token_num"] = torch.sum(sft_batch.batch["attention_mask"], dim=-1).tolist()
 
         ppo_batch = None
@@ -1257,7 +1280,7 @@ class RayPPOTrainer:
             non_tensor_batch_select_keys = ["uid"]
             ppo_batch = batch.select(
                 batch_keys=batch_select_keys, 
-                non_tensor_batch_keys=non_tensor_batch_select_keys
+                non_tensor_batch_keys=non_tensor_batch_select_keys,
             )
             with marked_timer("forward_ttt", timing_raw):
                 outputs = self.actor_rollout_wg.process_input_for_ttt(ppo_batch) # hidden_states, responses, entropys
@@ -1276,7 +1299,7 @@ class RayPPOTrainer:
             with marked_timer("gen_ttt", timing_raw):
                 output = self.actor_rollout_wg.actor_generate_sequences_for_ttt(gen_batch) # responses, updated input_ids, updated attention_mask, temperature
             ppo_batch = ppo_batch.union(output)
-
+            print("generation time: ", timing_raw["gen_ttt"])
             if "response_mask" not in ppo_batch.batch.keys():
                 ppo_batch.batch["response_mask"] = compute_response_mask(ppo_batch)
 
@@ -1322,7 +1345,7 @@ class RayPPOTrainer:
 
         batch_keys_to_pop = ["input_ids", "attention_mask"]
         gen_batch = batch.pop(
-            batch_keys=batch_keys_to_pop,
+            batch_keys=batch_keys_to_pop
         )
         # generate a batch
         with marked_timer("gen_task", timing_raw, color="red"):
@@ -1426,7 +1449,6 @@ class RayPPOTrainer:
         # we start from step 1
         self.global_steps += 1
         last_val_metrics = None
-        #self.max_steps_duration = 0
 
         for epoch in range(self.config.trainer.total_epochs):
             for batch_dict in self.train_dataloader:

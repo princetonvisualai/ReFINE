@@ -44,15 +44,19 @@ class HFRollout(BaseRollout):
     def generate_sequences(self, prompts: DataProto) -> DataProto:
         batch_size = prompts.batch.batch_size[0]
         num_chunks = max(batch_size // self.config.get("log_prob_micro_batch_size_per_gpu", batch_size), 1)
-        batch_prompts = prompts.chunk(chunks=num_chunks)
-        outputs = []
-        for p in batch_prompts:
-            p = p.to(get_device_id())
-            output = self._generate_minibatch(p)
-            output = output.to("cpu")
-            outputs.append(output)
-        outputs = DataProto.concat(outputs)
-        return outputs
+        prompts = prompts.chunk(chunks=num_chunks)
+        
+        self.module.eval()
+        param_ctx = contextlib.nullcontext()
+        if isinstance(self.module, FSDP):
+            param_ctx = FSDP.summon_full_params(self.module, writeback=False, recurse=False)
+        with param_ctx:
+            outputs = []
+            for p in prompts:
+                p = p.to(get_device_id())
+                output = self._generate_minibatch(p)
+                outputs.append(output.to("cpu"))
+        return DataProto.concat(outputs)
 
     @torch.no_grad()
     def _generate_minibatch(self, prompts: DataProto) -> DataProto:
@@ -72,14 +76,16 @@ class HFRollout(BaseRollout):
                 "num_beams": 1,
             }
         elif is_validate:
+            print("is_validate: ", is_validate)
             # do validate and do sample -> use val_kwargs
             kwargs = {
-                "do_sample": True,
+                #"do_sample": True,
+                "do_sample": False,
                 "num_beams": 1,
-                "top_k": max(0, self.config.val_kwargs.top_k),  # to be compatible with vllm
-                "top_p": self.config.val_kwargs.top_p,
-                "temperature": self.config.val_kwargs.temperature,
-                "num_return_sequences": 1,  # if validate, already repeat in ray_trainer
+                #"top_k": max(0, self.config.val_kwargs.top_k),  # to be compatible with vllm
+                #"top_p": self.config.val_kwargs.top_p,
+                #"temperature": self.config.val_kwargs.temperature,
+                #"num_return_sequences": 1,  # if validate, already repeat in ray_trainer
             }
         else:
             # do_sample -> use rollout config
@@ -99,20 +105,13 @@ class HFRollout(BaseRollout):
         idx = prompts.batch["input_ids"]  # (bs, prompt_length)
         prompt_length = idx.size(1)
         attention_mask = prompts.batch["attention_mask"]  # left-padded attention_mask
-        #position_ids = prompts.batch["position_ids"]
         position_ids = None
 
         # used to construct attention_mask
         eos_token_id = prompts.meta_info["eos_token_id"]
         pad_token_id = prompts.meta_info["pad_token_id"]
 
-        self.module.eval()
-        param_ctx = contextlib.nullcontext()
-
-        if isinstance(self.module, FSDP):
-            # recurse need to set to False according to https://github.com/pytorch/pytorch/issues/100069
-            param_ctx = FSDP.summon_full_params(self.module, writeback=False, recurse=False)
-        with param_ctx, torch.autocast(device_type=get_device_name(), dtype=torch.bfloat16):
+        with torch.autocast(device_type=get_device_name(), dtype=torch.bfloat16):
             output = self.module.generate(
                 input_ids=idx,
                 attention_mask=attention_mask,
@@ -123,12 +122,13 @@ class HFRollout(BaseRollout):
                 pad_token_id=pad_token_id,
                 generation_config=generation_config,
                 output_scores=False,  # this is potentially very large
-                return_dict_in_generate=True,
+                return_dict_in_generate=False, # set to False?
                 use_cache=True,
             )
 
         # TODO: filter out the seq with no answers like ds-chat
-        seq = output.sequences
+        #seq = output.sequences
+        seq = output
         generated_batch_size = seq.size(0)  # bs * num_return_sequences
 
         # huggingface generate will stop generating when all the batch reaches [EOS].
@@ -151,13 +151,6 @@ class HFRollout(BaseRollout):
         prompt = seq[:, :prompt_length]  # (generated_batch_size, prompt_length)
         response = seq[:, prompt_length:]  # (generated_batch_size, response_length)
 
-        #response_length = response.size(1)
-        #delta_position_id = torch.arange(1, response_length + 1, device=position_ids.device)
-        #delta_position_id = delta_position_id.unsqueeze(0).repeat(generated_batch_size, 1)
-
-        #response_position_ids = position_ids[:, -1:] + delta_position_id
-        #position_ids = torch.cat([position_ids, response_position_ids], dim=-1)
-
         response_attention_mask = get_response_mask(
             response_id=response, eos_token=eos_token_id, dtype=attention_mask.dtype
         )
@@ -169,13 +162,12 @@ class HFRollout(BaseRollout):
                 "responses": response,
                 "input_ids": seq,
                 "attention_mask": attention_mask,
-                #"position_ids": position_ids,
             },
             batch_size=generated_batch_size,
         )
 
         # empty cache before compute old_log_prob
-        get_torch_device().empty_cache()
+        #get_torch_device().empty_cache()
 
-        self.module.train()
+        #self.module.train()
         return DataProto(batch=batch)

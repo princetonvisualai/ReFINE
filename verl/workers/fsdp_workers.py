@@ -172,6 +172,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
         # normalize config
         if self._is_actor:
+
             # normalize ttt config
             self.config.actor.ttt_mini_batch_size *= self.config.actor.ttt_n_chunks 
             self.config.actor.ttt_mini_batch_size *= self.config.actor.ttt_n 
@@ -188,6 +189,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 f"ppo_mini_batch_size {self.config.actor.ppo_mini_batch_size} should be larger than 0 after "
                 f"normalization"
             )
+
             '''
             # micro bsz
             if self.config.actor.ppo_micro_batch_size is not None:
@@ -196,7 +198,6 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 )
                 self.config.actor.ppo_micro_batch_size_per_gpu = self.config.actor.ppo_micro_batch_size
             '''
-
             if self.config.actor.ppo_micro_batch_size_per_gpu is not None:
                 assert self.config.actor.ppo_mini_batch_size % self.config.actor.ppo_micro_batch_size_per_gpu == 0, (
                     f"normalized ppo_mini_batch_size {self.config.actor.ppo_mini_batch_size} should be divisible by "
@@ -206,6 +207,17 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                     f"normalized ppo_mini_batch_size {self.config.actor.ppo_mini_batch_size} should be larger than "
                     f"ppo_micro_batch_size_per_gpu {self.config.actor.ppo_micro_batch_size_per_gpu}"
                 )
+
+            if self.config.actor.ttt_micro_batch_size_per_gpu is not None:
+                assert self.config.actor.ttt_mini_batch_size % self.config.actor.ttt_micro_batch_size_per_gpu == 0, (
+                    f"normalized ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be divisible by "
+                    f"ttt_micro_batch_size_per_gpu {self.config.actor.ttt_micro_batch_size_per_gpu}"
+                )
+                assert self.config.actor.ttt_mini_batch_size // self.config.actor.ttt_micro_batch_size_per_gpu > 0, (
+                    f"normalized ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be larger than "
+                    f"ttt_micro_batch_size_per_gpu {self.config.actor.ttt_micro_batch_size_per_gpu}"
+                )
+
 
         '''
         # normalize rollout config
@@ -485,7 +497,9 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
     def _build_rollout(self, trust_remote_code=False):
         from torch.distributed.device_mesh import init_device_mesh
-
+ 
+        '''
+        # not for hf
         # TODO(sgm): support FSDP hybrid shard for larger model
         infer_tp = self.config.rollout.tensor_model_parallel_size
         dp = self.world_size // infer_tp
@@ -495,14 +509,16 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         rollout_device_mesh = init_device_mesh(
             device_name, mesh_shape=(dp, infer_tp), mesh_dim_names=["dp", "infer_tp"]
         )
+        '''
         rollout_name = self.config.rollout.name
         if rollout_name == "hf":
             from verl.workers.rollout import HFRollout
-            from verl.workers.sharding_manager.base import BaseShardingManager
-
+            from verl.workers.sharding_manager.base import BaseShardingManager, HFRolloutShardingManager
+            
             rollout = HFRollout(module=self.actor_module_fsdp, config=self.config.rollout)
             rollout_sharding_manager = BaseShardingManager()
             # TODO: a sharding manager that do nothing?
+            #rollout_sharding_manager = HFRolloutShardingManager()
 
         elif rollout_name == "vllm":
             from verl.workers.rollout.vllm_rollout import vLLMRollout
@@ -759,8 +775,8 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
 
         with self.ulysses_sharding_manager:
-            sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
-            ppo_data = self.ulysses_sharding_manager.preprocess_data(data=ppo_data)
+            #sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
+            #ppo_data = self.ulysses_sharding_manager.preprocess_data(data=ppo_data)
                
             # perform training
             with Timer(name="update_policy_ppo_ttt", logger=None) as timer:
@@ -783,7 +799,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             # TODO: here, we should return all metrics
             output = DataProto(meta_info={"metrics": metrics})
 
-            output = self.ulysses_sharding_manager.postprocess_data(data=output)
+            #output = self.ulysses_sharding_manager.postprocess_data(data=output)
             output = output.to("cpu")
 
         if self._is_offload_param:
@@ -806,9 +822,9 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
 
         with self.ulysses_sharding_manager: 
-            sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
+            #sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
             # perform training
-            with Timer(name="update_policy_sft_ttt", logger=None) as timer:    
+            with Timer(name="update_policy_sft_ttt", logger=None) as timer:   
                 metrics = self.actor.update_policy_sft_ttt(sft_data=sft_data)
                 
             delta_time = timer.last
@@ -828,7 +844,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             # TODO: here, we should return all metrics
             output = DataProto(meta_info={"metrics": metrics})
 
-            output = self.ulysses_sharding_manager.postprocess_data(data=output)
+            #output = self.ulysses_sharding_manager.postprocess_data(data=output)
             output = output.to("cpu")
 
         if self._is_offload_param:
@@ -840,15 +856,14 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
         return output
 
-
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="red", role="rollout_generate")
     def generate_sequences(self, prompts: DataProto):
         # Support all hardwares
         #prompts = prompts.to(get_device_id())
-
+        
         assert self._is_rollout
-
+        
         meta_info = {
             "eos_token_id": self.generation_config.eos_token_id
             if self.generation_config is not None
@@ -862,14 +877,14 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         with self.rollout_sharding_manager:
             log_gpu_memory_usage("After entering rollout sharding manager", logger=logger)
 
-            prompts = self.rollout_sharding_manager.preprocess_data(prompts)
+            #local_prompts = self.rollout_sharding_manager.preprocess_data(prompts)
+            
             with simple_timer("generate_sequences", timing_generate):
                 output = self.rollout.generate_sequences(prompts=prompts)
 
             log_gpu_memory_usage("After rollout generation", logger=logger)
-
-            output = self.rollout_sharding_manager.postprocess_data(output)
-
+ 
+            #output = self.rollout_sharding_manager.postprocess_data(local_out)
         timing_generate.update(self.rollout_sharding_manager.timing)
         # We calculate the average timing across all ranks
         # to make sure meta_info["timing"] is the same
@@ -938,21 +953,19 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         # Support all hardwares
         from contextlib import nullcontext
         adapter_ctx = nullcontext()
-        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
 
         # perform recompute log_prob
         with self.ulysses_sharding_manager:
-            data = self.ulysses_sharding_manager.preprocess_data(data)
+            #data = self.ulysses_sharding_manager.preprocess_data(data)
             with adapter_ctx:
-                hidden_states, response_ids, entropys = self.actor.process_input_for_ttt(data=data)
+                hidden_states, entropys = self.actor.process_input_for_ttt(data=data)
             output = DataProto.from_dict(
                 tensors={
                     "hidden_states": hidden_states,
-                    "responses": response_ids,
                     "entropys": entropys,
                 }
             )
-            output = self.ulysses_sharding_manager.postprocess_data(output)
+            #output = self.ulysses_sharding_manager.postprocess_data(output)
 
         output = output.to("cpu")
 
@@ -1009,8 +1022,6 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
         return output
 
-
-
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="blue", role="actor_generate_ttt")
     def actor_generate_sequences_for_ttt(self, data: DataProto):
@@ -1023,13 +1034,12 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         # Support all hardwares
         from contextlib import nullcontext
         adapter_ctx = nullcontext()
-        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
-        temperature = self.config.actor.ttt_temperature
-        data.meta_info["temperature"] = temperature
+        temperature = self.config.actor.ttt_temperature  # don't change this 
+        data.meta_info['temperature'] = temperature
 
         # perform recompute log_prob
         with self.ulysses_sharding_manager:
-            data = self.ulysses_sharding_manager.preprocess_data(data)
+            #data = self.ulysses_sharding_manager.preprocess_data(data)
             with adapter_ctx:
                 response_ids, input_ids, attention_mask = self.actor.generate_sequences_for_ttt(data=data)
             tensors = {
@@ -1044,7 +1054,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 tensors=tensors,
                 meta_info=meta_info,
             )
-            output = self.ulysses_sharding_manager.postprocess_data(output)
+            #output = self.ulysses_sharding_manager.postprocess_data(output)
         output = output.to("cpu")
 
         # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
@@ -1071,12 +1081,12 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         from contextlib import nullcontext
 
         adapter_ctx = nullcontext()
-        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
-        temperature = self.config.actor.ttt_temperature
+        temperature = self.config.actor.ttt_temperature  # don't change this 
         data.meta_info["temperature"] = temperature
+
         # perform recompute log_prob
         with self.ulysses_sharding_manager:
-            data = self.ulysses_sharding_manager.preprocess_data(data)
+            #data = self.ulysses_sharding_manager.preprocess_data(data)
             with adapter_ctx:
                 hidden_states, log_probs = self.actor.compute_log_prob_for_ttt(data=data)
             tensors = {

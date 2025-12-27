@@ -15,6 +15,7 @@
 Sharding manager to implement HybridEngine
 """
 
+import torch.distributed as dist
 from verl import DataProto
 
 
@@ -33,3 +34,19 @@ class BaseShardingManager:
 
     def postprocess_data(self, data: DataProto) -> DataProto:
         return data
+
+
+class HFRolloutShardingManager(BaseShardingManager):
+    def __init__(self):
+        super().__init__()
+        self.world_size = dist.get_world_size()
+        self.rank = dist.get_rank()
+
+    def preprocess_data(self, data: DataProto) -> DataProto:
+        return data.chunk(chunks = self.world_size)[self.rank]
+
+    def postprocess_data(self, data: DataProto) -> DataProto:
+        gathered = [None] * self.world_size
+        dist.all_gather_object(gathered, data)
+        return DataProto.concat(gathered)
+
