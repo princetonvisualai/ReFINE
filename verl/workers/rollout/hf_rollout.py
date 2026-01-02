@@ -58,6 +58,23 @@ class HFRollout(BaseRollout):
                 outputs.append(output.to("cpu"))
         return DataProto.concat(outputs)
 
+    def generate_sequences_for_ttt(self, prompts: DataProto) -> DataProto:
+        batch_size = prompts.batch.batch_size[0]
+        num_chunks = max(batch_size // self.config.get("ttt_log_prob_micro_batch_size_per_gpu", batch_size), 1)
+        prompts = prompts.chunk(chunks=num_chunks)
+        
+        self.module.eval()
+        param_ctx = contextlib.nullcontext()
+        if isinstance(self.module, FSDP):
+            param_ctx = FSDP.summon_full_params(self.module, writeback=False, recurse=False)
+        with param_ctx:
+            outputs = []
+            for p in prompts:
+                p = p.to(get_device_id())
+                output = self._generate_minibatch_for_ttt(p)
+                outputs.append(output.to("cpu"))
+        return DataProto.concat(outputs)
+
     @torch.no_grad()
     def _generate_minibatch(self, prompts: DataProto) -> DataProto:
         # make sampling args can be overridden by inputs
@@ -79,13 +96,8 @@ class HFRollout(BaseRollout):
             print("is_validate: ", is_validate)
             # do validate and do sample -> use val_kwargs
             kwargs = {
-                #"do_sample": True,
                 "do_sample": False,
                 "num_beams": 1,
-                #"top_k": max(0, self.config.val_kwargs.top_k),  # to be compatible with vllm
-                #"top_p": self.config.val_kwargs.top_p,
-                #"temperature": self.config.val_kwargs.temperature,
-                #"num_return_sequences": 1,  # if validate, already repeat in ray_trainer
             }
         else:
             # do_sample -> use rollout config
@@ -95,7 +107,6 @@ class HFRollout(BaseRollout):
                 "top_p": top_p,
                 "top_k": top_k,
                 "temperature": temperature,
-                #"num_return_sequences": self.config.n,
                 "num_return_sequences": 1,
             }
 
@@ -105,7 +116,6 @@ class HFRollout(BaseRollout):
         idx = prompts.batch["input_ids"]  # (bs, prompt_length)
         prompt_length = idx.size(1)
         attention_mask = prompts.batch["attention_mask"]  # left-padded attention_mask
-        position_ids = None
 
         # used to construct attention_mask
         eos_token_id = prompts.meta_info["eos_token_id"]
@@ -115,7 +125,6 @@ class HFRollout(BaseRollout):
             output = self.module.generate(
                 input_ids=idx,
                 attention_mask=attention_mask,
-                position_ids=position_ids,
                 do_sample=do_sample,
                 max_new_tokens=response_length,
                 eos_token_id=eos_token_id,
@@ -158,10 +167,81 @@ class HFRollout(BaseRollout):
 
         batch = TensorDict(
             {
-                "prompts": prompt,
                 "responses": response,
                 "input_ids": seq,
                 "attention_mask": attention_mask,
+            },
+            batch_size=generated_batch_size,
+        )
+
+        # empty cache before compute old_log_prob
+        #get_torch_device().empty_cache()
+
+        #self.module.train()
+        return DataProto(batch=batch)
+
+    @torch.no_grad()
+    def _generate_minibatch_for_ttt(self, prompts: DataProto) -> DataProto:
+
+        temperature = prompts.meta_info.get("temperature", self.config.ttt_temperature)
+        response_length = prompts.meta_info.get("ttt_response_length", self.config.ttt_response_length)
+        top_p = prompts.meta_info.get("ttt_top_p", self.config.get("ttt_top_p", 1.0))
+        top_k = max(0, prompts.meta_info.get("ttt_top_k", self.config.get("ttt_top_k", 0)))  # to be compatible with vllm
+
+        kwargs = {
+            "do_sample": True,
+            "num_beams": 1,
+            "top_p": top_p,
+            "top_k": top_k,
+            "temperature": temperature,
+            "num_return_sequences": 1,
+        }
+
+        # make config according to generate mode
+        generation_config = GenerationConfig(**kwargs)
+
+        idx = prompts.batch["input_ids"]  # (bs, prompt_length)
+        prompt_length = idx.size(1)
+        attention_mask = prompts.batch["attention_mask"]  # left-padded attention_mask
+
+        # used to construct attention_mask
+        eos_token_id = prompts.meta_info["eos_token_id"]
+        pad_token_id = prompts.meta_info["pad_token_id"]
+
+        with torch.autocast(device_type=get_device_name(), dtype=torch.bfloat16):
+            output = self.module.generate(
+                input_ids=idx,
+                attention_mask=attention_mask,
+                min_new_tokens=response_length,
+                max_new_tokens=response_length,
+                eos_token_id=eos_token_id,
+                pad_token_id=pad_token_id,
+                generation_config=generation_config,
+                output_scores=False,  # this is potentially very large
+                return_dict_in_generate=False, # set to False?
+                use_cache=True,
+            )
+
+        # TODO: filter out the seq with no answers like ds-chat
+        #seq = output.sequences
+        seq = output
+        generated_batch_size = seq.size(0)  # bs * num_return_sequences
+        # huggingface generate will stop generating when all the batch reaches [EOS].
+        # We have to pad to response_length
+        sequence_length = prompt_length + response_length
+        assert seq.shape[1] == sequence_length
+
+        response = seq[:, prompt_length:]  # (generated_batch_size, response_length)
+
+        response_attention_mask = torch.ones_like(response, dtype=attention_mask.dtype) # min_new_token == max_new_token
+        attention_mask = torch.cat((attention_mask, response_attention_mask), dim=-1)
+
+        batch = TensorDict(
+            {
+                "input_ids": seq,
+                "responses": response,
+                "attention_mask": attention_mask,
+                "response_mask": response_attention_mask,
             },
             batch_size=generated_batch_size,
         )

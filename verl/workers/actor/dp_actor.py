@@ -22,6 +22,7 @@ import os
 
 import torch
 from torch import nn
+from torch.distributed import get_rank
 from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 
 import verl.utils.torch_functional as verl_F
@@ -100,12 +101,9 @@ class DataParallelPPOActor(BasePPOActor):
             input_ids = micro_batch["input_ids"]
             batch_size, seqlen = input_ids.shape
             attention_mask = micro_batch["attention_mask"]
-            #position_ids = micro_batch["position_ids"]
             position_ids = None
             entropy = None
-            #if position_ids.dim() == 3:  # qwen2vl mrope
-            #    position_ids = position_ids.transpose(0, 1)  # (bsz, 3, seqlen) -> (3, bsz, seqlen)
-            
+
             if self.use_remove_padding:
                 input_ids_rmpad, indices, cu_seqlens, *_ = unpad_input(
                     input_ids.unsqueeze(-1), attention_mask
@@ -245,7 +243,6 @@ class DataParallelPPOActor(BasePPOActor):
                 output = self.actor_module(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
-                    position_ids=position_ids,
                     **multi_modal_inputs,
                     use_cache=False,
                     **extra_args,
@@ -268,6 +265,36 @@ class DataParallelPPOActor(BasePPOActor):
                             entropy = torch.utils.checkpoint.checkpoint(verl_F.entropy_from_logits, logits)
 
             return entropy, log_probs
+
+    def _forward_micro_batch_for_sft(self, micro_batch) -> tuple[torch.Tensor]:
+        """
+        Returns:
+            sft_loss: # (1,)
+        """
+        response_length = micro_batch["ground_truth_ids"].size(-1)
+
+        with torch.autocast(device_type=self.device_name, dtype=torch.bfloat16):
+            input_ids = micro_batch["input_ids"]
+            ground_truth_ids = micro_batch["ground_truth_ids"]
+            input_ids = torch.cat([input_ids, ground_truth_ids], dim=-1)
+
+            attention_mask = micro_batch["attention_mask"]
+            ground_truth_attention_mask = micro_batch["ground_truth_attention_mask"] 
+            attention_mask = torch.cat([attention_mask, ground_truth_attention_mask], dim=-1)
+
+            output = self.actor_module(
+                input_ids=input_ids,
+                attention_mask=attention_mask
+            )  # prevent model thinks we are generating
+
+            logits = output.logits
+            logits = logits[:, -response_length - 1 : -1, :]  # (bsz, response_length, vocab_size)
+            criterion = nn.CrossEntropyLoss()
+            
+            labels = ground_truth_ids.masked_fill(ground_truth_attention_mask == 0, criterion.ignore_index)
+            sft_loss = criterion(logits.reshape(-1, logits.shape[-1]), labels.reshape(-1))
+     
+            return sft_loss
 
     def _forward_micro_batch_for_input_ttt(
         self, micro_batch, get_hidden_states=True, get_response=False, get_entropy=True, get_loss=False
@@ -293,8 +320,6 @@ class DataParallelPPOActor(BasePPOActor):
             output = self.actor_module(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
-                #position_ids=position_ids, position_ids is not supported for ttt
-                #use_cache=False, cache is not supported for ttt
                 **extra_args,
             )  # prevent model thinks we are generating
             logits = output.logits
@@ -346,6 +371,7 @@ class DataParallelPPOActor(BasePPOActor):
             return response_ids, input_ids, attention_mask
 
     def _forward_micro_batch_for_ttt(self, micro_batch, temperature, get_hidden_states=True):
+        
         with torch.autocast(device_type=self.device_name, dtype=torch.bfloat16):
             input_ids = micro_batch["input_ids"]
             attention_mask = micro_batch["attention_mask"]
@@ -475,10 +501,12 @@ class DataParallelPPOActor(BasePPOActor):
         """
         # set to eval
         self.actor_module.eval()
-        micro_batch_size = min(len(data), self.config.ttt_micro_batch_size_per_gpu)
+        micro_batch_size = min(len(data), data.meta_info["micro_batch_size"])
         
-        select_keys = ["input_ids", "attention_mask"]
-        data = data.select(batch_keys=select_keys)
+        data = data.select(
+            batch_keys=["input_ids", "attention_mask"],
+            non_tensor_batch_keys=[],
+        )
         micro_batches = data.split(micro_batch_size)
 
         hidden_states_lst = []
@@ -541,11 +569,13 @@ class DataParallelPPOActor(BasePPOActor):
 
         # set to eval
         self.actor_module.eval()
-        micro_batch_size = min(len(data), self.config.ttt_micro_batch_size_per_gpu)
+        micro_batch_size = min(len(data), data.meta_info["micro_batch_size"])
         temperature = data.meta_info["temperature"]
 
-        select_keys = ["input_ids", "attention_mask"]
-        data = data.select(batch_keys=select_keys)
+        data = data.select(
+            batch_keys=["input_ids", "attention_mask"],
+            non_tensor_batch_keys=[],
+        )
         micro_batches = data.split(micro_batch_size)
 
         response_ids_lst = []
@@ -571,11 +601,13 @@ class DataParallelPPOActor(BasePPOActor):
     def compute_log_prob_for_ttt(self, data: DataProto):
         # set to eval
         self.actor_module.eval()
-        micro_batch_size = min(len(data), self.config.ttt_micro_batch_size_per_gpu)
+        micro_batch_size = min(len(data), data.meta_info["micro_batch_size"])
         temperature = data.meta_info["temperature"]
 
-        select_keys = ["input_ids", "attention_mask", "responses"]
-        batch = data.select(batch_keys=select_keys)
+        batch = data.select(
+            batch_keys=["input_ids", "attention_mask", "responses"],
+            non_tensor_batch_keys=[],
+        )
         micro_batches = batch.split(micro_batch_size)
 
         hidden_states_lst = []
@@ -606,15 +638,13 @@ class DataParallelPPOActor(BasePPOActor):
             "response_mask",
             "input_ids",
             "attention_mask",
-            #"position_ids",
             "old_log_probs",
             "advantages",
         ]
         if self.config.use_kl_loss:
             select_keys.append("ref_log_prob")
 
-        has_multi_modal_inputs = "multi_modal_inputs" in data.non_tensor_batch.keys()
-        non_tensor_select_keys = ["multi_modal_inputs"] if has_multi_modal_inputs else []
+        non_tensor_select_keys = []
 
         data = data.select(batch_keys=select_keys, non_tensor_batch_keys=non_tensor_select_keys)
 
@@ -733,21 +763,60 @@ class DataParallelPPOActor(BasePPOActor):
         return metrics
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
+    def update_policy_sft(self, sft_data: DataProto):
+        # make sure we are in training mode
+        self.actor_module.train()
+
+        sft_data = sft_data.select(
+            batch_keys=["input_ids", "attention_mask", "ground_truth_ids", "ground_truth_attention_mask"],
+            non_tensor_batch_keys=[],
+        )
+        micro_batch_size_per_gpu = min(len(sft_data), self.config.ppo_micro_batch_size_per_gpu)
+        sft_micro_batches = sft_data.split(micro_batch_size_per_gpu)
+        self.sft_gradient_accumulation = len(sft_micro_batches)
+
+        metrics = {}
+        self.actor_optimizer.zero_grad()
+        if get_rank() == 0:
+            print(f"sft gradient accumulation")
+        for sft_micro_batch in sft_micro_batches:
+            sft_micro_batch = sft_micro_batch.to(get_device_id())
+            sft_inputs = {**sft_micro_batch.batch, **sft_micro_batch.non_tensor_batch}
+            sft_loss = self._forward_micro_batch_for_sft(sft_inputs)
+            sft_loss = sft_loss / self.sft_gradient_accumulation
+            sft_loss.backward() 
+            
+            sft_metrics = {
+                "actor/sft_loss": sft_loss.detach().item(),
+            }
+            append_to_dict(metrics, sft_metrics)
+                
+        grad_norm = self._optimizer_step()
+        batch_metrics = {"actor/grad_norm": grad_norm.detach().item()}
+        append_to_dict(metrics, batch_metrics)
+
+        self.actor_optimizer.zero_grad()
+        return metrics
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
     def update_policy_ppo_ttt(self, sft_data: DataProto, ppo_data: DataProto):
         # make sure we are in training mode
         self.actor_module.train()
 
         temperature = ppo_data.meta_info["temperature"]  # temperature must be in the data.meta_info to avoid silent error
 
-        ppo_select_keys = ["responses", "response_mask", "input_ids", "attention_mask", "old_log_probs", "advantages"]
         #if self.config.use_kl_loss:
         #    ppo_select_keys.append("ref_log_prob")
-        sft_select_keys = ["input_ids", "attention_mask"]
+        ppo_data = ppo_data.select(
+            batch_keys=["responses", "response_mask", "input_ids", "attention_mask", "old_log_probs", "advantages"],
+            non_tensor_batch_keys=[],
+        )
+        sft_data = sft_data.select(
+            batch_keys=["input_ids", "attention_mask"],
+            non_tensor_batch_keys=[],
+        ) 
 
-        ppo_data = ppo_data.select(batch_keys=ppo_select_keys)
-        sft_data = sft_data.select(batch_keys=sft_select_keys) 
-
-        ttt_mini_batch_size = min(len(ppo_data), self.config.ttt_mini_batch_size) 
+        ttt_mini_batch_size = min(len(ppo_data), self.config.ttt_ppo_mini_batch_size) 
         ppo_mini_batch_size = ttt_mini_batch_size
         sft_mini_batch_size = ttt_mini_batch_size // self.config.ttt_n_chunks // self.config.ttt_n 
         ppo_mini_batches = ppo_data.split(ppo_mini_batch_size) 
@@ -765,8 +834,9 @@ class DataParallelPPOActor(BasePPOActor):
             
             self.actor_optimizer.zero_grad()
 
+            if get_rank() == 0:
+                print(f"sft gradient accumulation")
             for sft_micro_batch in sft_micro_batches:
-                print("sft_micro_batches")
                 sft_micro_batch = sft_micro_batch.to(get_device_id())
 
                 # compute sft loss
@@ -780,9 +850,14 @@ class DataParallelPPOActor(BasePPOActor):
                 }
                 print(sft_metrics)
                 append_to_dict(metrics, sft_metrics)
-
+            
+            #sft_grad_norm = self._optimizer_step()
+            #if get_rank() == 0:
+            #    print(f"sft grad norm: {sft_grad_norm.detach().item()}")
+            #self.actor_optimizer.zero_grad()
+            if get_rank() == 0:
+                print(f"ppo gradient accumulation")
             for ppo_micro_batch in ppo_micro_batches:
-                print("ppo_micro_batches")
                 ppo_micro_batch = ppo_micro_batch.to(get_device_id())
                 
                 ppo_inputs = {**ppo_micro_batch.batch, **ppo_micro_batch.non_tensor_batch}
@@ -831,13 +906,15 @@ class DataParallelPPOActor(BasePPOActor):
                         config=self.config,
                     )
 
+                '''
                 if entropy_coeff != 0:
                     entropy_loss = agg_loss(loss_mat=entropy, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
-
                     # compute policy loss
                     policy_loss = pg_loss - entropy_loss * entropy_coeff
                 else:
                     policy_loss = pg_loss
+                '''
+                policy_loss = pg_loss
                 '''
                 if self.config.use_kl_loss:
                     ref_log_prob = model_inputs["ref_log_prob"]
@@ -863,9 +940,17 @@ class DataParallelPPOActor(BasePPOActor):
                 print(ppo_metrics)
                 append_to_dict(metrics, ppo_metrics)
 
-                grad_norm = self._optimizer_step()
-                mini_batch_metrics = {"actor/grad_norm": grad_norm.detach().item()}
-                append_to_dict(metrics, mini_batch_metrics)
+            #if get_rank() == 0:
+            #    print(f"optimizer step")
+            #ppo_grad_norm = self._optimizer_step()
+            #if get_rank() == 0:
+            #    print(f"ppo grad norm: {ppo_grad_norm.detach().item()}")
+            
+            grad_norm = self._optimizer_step()
+            mini_batch_metrics = {"actor/grad_norm_ttt": grad_norm.detach().item()}
+            if get_rank() == 0:
+                print(mini_batch_metrics)
+            append_to_dict(metrics, mini_batch_metrics)
         self.actor_optimizer.zero_grad()
         return metrics
 
@@ -874,18 +959,23 @@ class DataParallelPPOActor(BasePPOActor):
         # make sure we are in training mode
         self.actor_module.train()
 
-        sft_select_keys = ["input_ids", "attention_mask"]
-        sft_data = sft_data.select(batch_keys=sft_select_keys)
-        ttt_micro_batch_size_per_gpu = min(len(sft_data), self.config.ttt_micro_batch_size_per_gpu)
+        sft_data = sft_data.select(
+            batch_keys=["input_ids", "attention_mask"],
+            non_tensor_batch_keys=[],
+        )
+        ttt_micro_batch_size_per_gpu = min(len(sft_data), self.config.ttt_ppo_micro_batch_size_per_gpu)
         sft_micro_batches = sft_data.split(ttt_micro_batch_size_per_gpu)
+        self.sft_gradient_accumulation = len(sft_micro_batches)
 
         metrics = {}
         self.actor_optimizer.zero_grad()
+        if get_rank() == 0:
+            print(f"sft gradient accumulation")
         for sft_micro_batch in sft_micro_batches:
-            print("sft_micro_batches")
             sft_micro_batch = sft_micro_batch.to(get_device_id())
             sft_inputs = {**sft_micro_batch.batch, **sft_micro_batch.non_tensor_batch}
             _, _, _, sft_loss = self._forward_micro_batch_for_input_ttt(sft_inputs, get_hidden_states=False, get_response=False, get_entropy=False, get_loss=True)
+            sft_loss = sft_loss / self.sft_gradient_accumulation
             sft_loss.backward() 
             
             sft_metrics = {
@@ -895,6 +985,8 @@ class DataParallelPPOActor(BasePPOActor):
                 
         grad_norm = self._optimizer_step()
         batch_metrics = {"actor/grad_norm_ttt": grad_norm.detach().item()}
+        if get_rank() == 0:
+            print(batch_metrics)
         append_to_dict(metrics, batch_metrics)
 
         self.actor_optimizer.zero_grad()

@@ -174,11 +174,11 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         if self._is_actor:
 
             # normalize ttt config
-            self.config.actor.ttt_mini_batch_size *= self.config.actor.ttt_n_chunks 
-            self.config.actor.ttt_mini_batch_size *= self.config.actor.ttt_n 
-            self.config.actor.ttt_mini_batch_size //= self.device_mesh.size() // self.ulysses_sequence_parallel_size
-            assert self.config.actor.ttt_mini_batch_size > 0, (
-                f"ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be larger than 0 after "
+            self.config.actor.ttt_ppo_mini_batch_size *= self.config.actor.ttt_n_chunks 
+            self.config.actor.ttt_ppo_mini_batch_size *= self.config.actor.ttt_n 
+            self.config.actor.ttt_ppo_mini_batch_size //= self.device_mesh.size() // self.ulysses_sequence_parallel_size
+            assert self.config.actor.ttt_ppo_mini_batch_size > 0, (
+                f"ttt_ppo_mini_batch_size {self.config.actor.ttt_ppo_mini_batch_size} should be larger than 0 after "
                 f"normalization"
             )
 
@@ -208,15 +208,15 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                     f"ppo_micro_batch_size_per_gpu {self.config.actor.ppo_micro_batch_size_per_gpu}"
                 )
 
-            if self.config.actor.ttt_micro_batch_size_per_gpu is not None:
-                assert self.config.actor.ttt_mini_batch_size % self.config.actor.ttt_micro_batch_size_per_gpu == 0, (
-                    f"normalized ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be divisible by "
-                    f"ttt_micro_batch_size_per_gpu {self.config.actor.ttt_micro_batch_size_per_gpu}"
-                )
-                assert self.config.actor.ttt_mini_batch_size // self.config.actor.ttt_micro_batch_size_per_gpu > 0, (
-                    f"normalized ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be larger than "
-                    f"ttt_micro_batch_size_per_gpu {self.config.actor.ttt_micro_batch_size_per_gpu}"
-                )
+            #if self.config.actor.ttt_micro_batch_size_per_gpu is not None:
+            #    assert self.config.actor.ttt_mini_batch_size % self.config.actor.ttt_micro_batch_size_per_gpu == 0, (
+            #        f"normalized ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be divisible by "
+            #        f"ttt_micro_batch_size_per_gpu {self.config.actor.ttt_micro_batch_size_per_gpu}"
+            #    )
+            #    assert self.config.actor.ttt_mini_batch_size // self.config.actor.ttt_micro_batch_size_per_gpu > 0, (
+            #        f"normalized ttt_mini_batch_size {self.config.actor.ttt_mini_batch_size} should be larger than "
+            #        f"ttt_micro_batch_size_per_gpu {self.config.actor.ttt_micro_batch_size_per_gpu}"
+            #    )
 
 
         '''
@@ -606,11 +606,14 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     def init_model(self):
         from verl.workers.actor import DataParallelPPOActor
 
-        from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
-        from verl.models.lact_model import LaCTSWIGLUConfig, LaCTModel, LaCTForCausalLM
-        AutoConfig.register("lact_swiglu", LaCTSWIGLUConfig)
-        AutoModel.register(LaCTSWIGLUConfig, LaCTModel)
-        AutoModelForCausalLM.register(LaCTSWIGLUConfig, LaCTForCausalLM)
+        if "lact" in self.config.model.path:
+            from verl.models import lact_model
+        elif "delta_net" in self.config.model.path:
+            from verl.models import delta_net
+        elif "Gated-Deltanet" in self.config.model.path:
+            from verl.models import gated_deltanet
+        else:
+            raise ValueError(f"Model {self.config.model.path} is not supported")
 
         # This is used to import external_lib into the huggingface systems
         import_external_libs(self.config.model.get("external_lib", None))
@@ -731,16 +734,16 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
 
         with self.ulysses_sharding_manager:
-            data = self.ulysses_sharding_manager.preprocess_data(data=data)
+            #data = self.ulysses_sharding_manager.preprocess_data(data=data)
             # perform training
-            with Timer(name="update_policy", logger=None) as timer:
-                metrics = self.actor.update_policy(data=data)
-            delta_time = timer.last
-            global_num_tokens = data.meta_info["global_token_num"]
-            estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
-            metrics["perf/mfu/actor"] = (
-                estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
-            )
+            #with Timer(name="update_policy", logger=None) as timer:
+            metrics = self.actor.update_policy(data=data)
+            #delta_time = timer.last
+            #global_num_tokens = data.meta_info["global_token_num"]
+            #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
+            #metrics["perf/mfu/actor"] = (
+            #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
+            #)
             metrics["perf/max_memory_allocated_gb"] = get_torch_device().max_memory_allocated() / (1024**3)
             metrics["perf/max_memory_reserved_gb"] = get_torch_device().max_memory_reserved() / (1024**3)
             metrics["perf/cpu_memory_used_gb"] = psutil.virtual_memory().used / (1024**3)
@@ -752,8 +755,45 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             # TODO: here, we should return all metrics
             output = DataProto(meta_info={"metrics": metrics})
 
-            output = self.ulysses_sharding_manager.postprocess_data(data=output)
-            output = output.to("cpu")
+            #output = self.ulysses_sharding_manager.postprocess_data(data=output)
+            #output = output.to("cpu")
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during update_actor", logger=logger)
+        if self._is_offload_optimizer:
+            offload_fsdp_optimizer(optimizer=self.actor_optimizer)
+            log_gpu_memory_usage("After offload actor optimizer during update_actor", logger=logger)
+
+        return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="red", role="actor_update")
+    def update_actor_sft(self, sft_data: DataProto):
+    
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+        if self._is_offload_optimizer:
+            load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
+
+        metrics = self.actor.update_policy_sft(sft_data=sft_data)
+        #delta_time = timer.last
+        #global_num_tokens = sft_data.meta_info["global_token_num"]
+        #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
+        #metrics["perf/mfu/actor"] = (
+        #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
+        #)
+        metrics["perf/max_memory_allocated_gb"] = get_torch_device().max_memory_allocated() / (1024**3)
+        metrics["perf/max_memory_reserved_gb"] = get_torch_device().max_memory_reserved() / (1024**3)
+        metrics["perf/cpu_memory_used_gb"] = psutil.virtual_memory().used / (1024**3)
+
+        lr = self.actor_lr_scheduler.get_last_lr()[0]
+        metrics["actor/lr"] = lr
+        self.actor_lr_scheduler.step()
+
+        # TODO: here, we should return all metrics
+        output = DataProto(meta_info={"metrics": metrics})
 
         if self._is_offload_param:
             offload_fsdp_model_to_cpu(self.actor_module_fsdp)
@@ -767,40 +807,32 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="red", role="actor_update_ppo_ttt")
     def update_actor_ppo_ttt(self, sft_data: DataProto, ppo_data: DataProto):
-        print("entered update function")
+        
         assert self._is_actor
         if self._is_offload_param:
             load_fsdp_model_to_gpu(self.actor_module_fsdp)
         if self._is_offload_optimizer:
             load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
 
-        with self.ulysses_sharding_manager:
-            #sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
-            #ppo_data = self.ulysses_sharding_manager.preprocess_data(data=ppo_data)
-               
-            # perform training
-            with Timer(name="update_policy_ppo_ttt", logger=None) as timer:
-                metrics = self.actor.update_policy_ppo_ttt(sft_data=sft_data, ppo_data=ppo_data)
+        metrics = self.actor.update_policy_ppo_ttt(sft_data=sft_data, ppo_data=ppo_data)
        
-            delta_time = timer.last
-            global_num_tokens = ppo_data.meta_info["ttt_global_token_num"] + sft_data.meta_info["ttt_global_token_num"]
-            #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
-            #metrics["perf/mfu/actor"] = (
-            #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
-            #)
-            metrics["perf/max_memory_allocated_gb_ttt"] = get_torch_device().max_memory_allocated() / (1024**3)
-            metrics["perf/max_memory_reserved_gb_ttt"] = get_torch_device().max_memory_reserved() / (1024**3)
-            metrics["perf/cpu_memory_used_gb_ttt"] = psutil.virtual_memory().used / (1024**3)
+        #delta_time = timer.last
+        #global_num_tokens = ppo_data.meta_info["ttt_global_token_num"] + sft_data.meta_info["ttt_global_token_num"]
+        #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
+        #metrics["perf/mfu/actor"] = (
+        #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
+        #)
+        metrics["perf/max_memory_allocated_gb_ttt"] = get_torch_device().max_memory_allocated() / (1024**3)
+        metrics["perf/max_memory_reserved_gb_ttt"] = get_torch_device().max_memory_reserved() / (1024**3)
+        metrics["perf/cpu_memory_used_gb_ttt"] = psutil.virtual_memory().used / (1024**3)
 
-            lr = self.actor_lr_scheduler.get_last_lr()[0]
-            metrics["actor/lr_ttt"] = lr
-            self.actor_lr_scheduler.step()
+        lr = self.actor_lr_scheduler.get_last_lr()[0]
+        metrics["actor/lr_ttt"] = lr
+        self.actor_lr_scheduler.step()
 
-            # TODO: here, we should return all metrics
-            output = DataProto(meta_info={"metrics": metrics})
-
-            #output = self.ulysses_sharding_manager.postprocess_data(data=output)
-            output = output.to("cpu")
+        # TODO: here, we should return all metrics
+        output = DataProto(meta_info={"metrics": metrics})
+        #output = output.to("cpu")
 
         if self._is_offload_param:
             offload_fsdp_model_to_cpu(self.actor_module_fsdp)
@@ -814,38 +846,31 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="red", role="actor_update_sft_ttt")
     def update_actor_sft_ttt(self, sft_data: DataProto):
-        print("entered update function")
+
         assert self._is_actor
         if self._is_offload_param:
             load_fsdp_model_to_gpu(self.actor_module_fsdp)
         if self._is_offload_optimizer:
             load_fsdp_optimizer(optimizer=self.actor_optimizer, device_id=get_device_id())
 
-        with self.ulysses_sharding_manager: 
-            #sft_data = self.ulysses_sharding_manager.preprocess_data(data=sft_data)
-            # perform training
-            with Timer(name="update_policy_sft_ttt", logger=None) as timer:   
-                metrics = self.actor.update_policy_sft_ttt(sft_data=sft_data)
+        metrics = self.actor.update_policy_sft_ttt(sft_data=sft_data)
                 
-            delta_time = timer.last
-            global_num_tokens = sft_data.meta_info["ttt_global_token_num"]
-            #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
-            #metrics["perf/mfu/actor"] = (
-            #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
-            #)
-            metrics["perf/max_memory_allocated_gb_ttt"] = get_torch_device().max_memory_allocated() / (1024**3)
-            metrics["perf/max_memory_reserved_gb_ttt"] = get_torch_device().max_memory_reserved() / (1024**3)
-            metrics["perf/cpu_memory_used_gb_ttt"] = psutil.virtual_memory().used / (1024**3)
+        #delta_time = timer.last
+        #global_num_tokens = sft_data.meta_info["ttt_global_token_num"]
+        #estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
+        #metrics["perf/mfu/actor"] = (
+        #    estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
+        #)
+        metrics["perf/max_memory_allocated_gb_ttt"] = get_torch_device().max_memory_allocated() / (1024**3)
+        metrics["perf/max_memory_reserved_gb_ttt"] = get_torch_device().max_memory_reserved() / (1024**3)
+        metrics["perf/cpu_memory_used_gb_ttt"] = psutil.virtual_memory().used / (1024**3)
 
-            lr = self.actor_lr_scheduler.get_last_lr()[0]
-            metrics["actor/lr_ttt"] = lr
-            self.actor_lr_scheduler.step()
+        lr = self.actor_lr_scheduler.get_last_lr()[0]
+        metrics["actor/lr_ttt"] = lr
+        self.actor_lr_scheduler.step()
 
-            # TODO: here, we should return all metrics
-            output = DataProto(meta_info={"metrics": metrics})
-
-            #output = self.ulysses_sharding_manager.postprocess_data(data=output)
-            output = output.to("cpu")
+        # TODO: here, we should return all metrics
+        output = DataProto(meta_info={"metrics": metrics})
 
         if self._is_offload_param:
             offload_fsdp_model_to_cpu(self.actor_module_fsdp)
@@ -859,8 +884,6 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="red", role="rollout_generate")
     def generate_sequences(self, prompts: DataProto):
-        # Support all hardwares
-        #prompts = prompts.to(get_device_id())
         
         assert self._is_rollout
         
@@ -877,20 +900,41 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         with self.rollout_sharding_manager:
             log_gpu_memory_usage("After entering rollout sharding manager", logger=logger)
 
-            #local_prompts = self.rollout_sharding_manager.preprocess_data(prompts)
-            
             with simple_timer("generate_sequences", timing_generate):
                 output = self.rollout.generate_sequences(prompts=prompts)
 
             log_gpu_memory_usage("After rollout generation", logger=logger)
  
-            #output = self.rollout_sharding_manager.postprocess_data(local_out)
         timing_generate.update(self.rollout_sharding_manager.timing)
         # We calculate the average timing across all ranks
         # to make sure meta_info["timing"] is the same
         timing_generate = reduce_timing(timing_generate)
         output.meta_info["timing"] = timing_generate
         output = output.to("cpu")
+
+        # clear kv cache
+        get_torch_device().empty_cache()
+        return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="red", role="rollout_generate")
+    def generate_sequences_for_ttt(self, prompts: DataProto):
+
+        assert self._is_rollout
+        
+        meta_info = {
+            "eos_token_id": self.generation_config.eos_token_id
+            if self.generation_config is not None
+            else self.tokenizer.eos_token_id,
+            "pad_token_id": self.generation_config.pad_token_id
+            if self.generation_config is not None
+            else self.tokenizer.pad_token_id,
+        }
+        prompts.meta_info.update(meta_info)
+
+        output = self.rollout.generate_sequences_for_ttt(prompts=prompts)
+
+        output.meta_info["temperature"] = self.config.rollout.ttt_temperature  # don't change this 
 
         # clear kv cache
         get_torch_device().empty_cache()
@@ -944,30 +988,25 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="blue", role="actor_process_input_for_ttt")
     def process_input_for_ttt(self, data: DataProto):
-        # when is_lora is True, we use the actor without lora applied to calculate the log_prob
-        # which is mostly used for ref log_prob calculation
+
         assert self._is_actor
         if self._is_offload_param:
             load_fsdp_model_to_gpu(self.actor_module_fsdp)
 
+        data.meta_info["micro_batch_size"] = self.config.rollout.ttt_log_prob_micro_batch_size_per_gpu
+        
         # Support all hardwares
         from contextlib import nullcontext
         adapter_ctx = nullcontext()
 
-        # perform recompute log_prob
-        with self.ulysses_sharding_manager:
-            #data = self.ulysses_sharding_manager.preprocess_data(data)
-            with adapter_ctx:
-                hidden_states, entropys = self.actor.process_input_for_ttt(data=data)
-            output = DataProto.from_dict(
-                tensors={
-                    "hidden_states": hidden_states,
-                    "entropys": entropys,
-                }
-            )
-            #output = self.ulysses_sharding_manager.postprocess_data(output)
-
-        output = output.to("cpu")
+        with adapter_ctx:
+            hidden_states, entropys = self.actor.process_input_for_ttt(data=data)
+        output = DataProto.from_dict(
+            tensors={
+                "hidden_states": hidden_states,
+                "entropys": entropys,
+            }
+        )
 
         # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
         # unshard the root FSDP module
@@ -1034,7 +1073,8 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         # Support all hardwares
         from contextlib import nullcontext
         adapter_ctx = nullcontext()
-        temperature = self.config.actor.ttt_temperature  # don't change this 
+        data.meta_info["micro_batch_size"] = self.config.rollout.ttt_log_prob_micro_batch_size_per_gpu
+        temperature = self.config.rollout.ttt_temperature  # don't change this 
         data.meta_info['temperature'] = temperature
 
         # perform recompute log_prob
@@ -1071,38 +1111,33 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="blue", role="actor_compute_log_prob_ttt")
     def compute_log_prob_for_ttt(self, data: DataProto):
-        # when is_lora is True, we use the actor without lora applied to calculate the log_prob
-        # which is mostly used for ref log_prob calculation
+
         assert self._is_actor
         if self._is_offload_param:
             load_fsdp_model_to_gpu(self.actor_module_fsdp)
 
         # Support all hardwares
         from contextlib import nullcontext
-
         adapter_ctx = nullcontext()
-        temperature = self.config.actor.ttt_temperature  # don't change this 
+
+        data.meta_info["micro_batch_size"] = self.config.rollout.ttt_log_prob_micro_batch_size_per_gpu
+        temperature = self.config.rollout.ttt_temperature  # don't change this 
         data.meta_info["temperature"] = temperature
 
-        # perform recompute log_prob
-        with self.ulysses_sharding_manager:
-            #data = self.ulysses_sharding_manager.preprocess_data(data)
-            with adapter_ctx:
-                hidden_states, log_probs = self.actor.compute_log_prob_for_ttt(data=data)
-            tensors = {
-                "old_log_probs": log_probs,
-                "response_hidden_states": hidden_states,
-            }
-            meta_info = {
-                "temperature": temperature,
-            }
-            output = DataProto.from_dict(
-                tensors=tensors,
-                meta_info=meta_info
-            )
-            output = self.ulysses_sharding_manager.postprocess_data(output)
 
-        output = output.to("cpu")
+        with adapter_ctx:
+            hidden_states, log_probs = self.actor.compute_log_prob_for_ttt(data=data)
+        tensors = {
+            "old_log_probs": log_probs,
+            "response_hidden_states": hidden_states,
+        }
+        meta_info = {
+            "temperature": temperature,
+        }
+        output = DataProto.from_dict(
+            tensors=tensors,
+            meta_info=meta_info
+        )
 
         # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
         # unshard the root FSDP module
