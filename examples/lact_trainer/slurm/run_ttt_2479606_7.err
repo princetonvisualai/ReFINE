@@ -1,0 +1,1200 @@
+[2026-01-21T16:21:36.686] error: execve(): ray: No such file or directory
+srun: error: neu305: task 0: Exited with exit code 2
++ unset ROCR_VISIBLE_DEVICES
++ unset HIP_VISIBLE_DEVICES
++ export CUDA_VISIBLE_DEVICES=0,1,2,3
++ CUDA_VISIBLE_DEVICES=0,1,2,3
++ longbench_datasets=("narrativeqa" "qasper" "multifieldqa_en" "hotpotqa" "2wikimqa" "qmsum" "multi_news" "samsum" "trec" "triviaqa" "lcc" "repobench-p")
++ longbench_maxlens=(128 128 64 32 32 512 512 128 64 32 64 64)
++ dataset_idx=7
++ MODEL=lact_sftrl
++ TTT_K=5
++ VAL_TTT_RL=0
++ VAL_TTT_SFT=0
++ TTT_N_CHUNKS=6
++ '[' lact_sftrl == lact ']'
++ '[' lact_sftrl == lact_sft ']'
++ '[' lact_sftrl == lact_sftrl ']'
++ model_path=/n/fs/xw-hh/lact_llm/lact-sftrl-embedding-16k-c6n1k5-100
++ model_tag=lact_sftrl_k5
++ dataset=samsum
++ max_response_length=128
++ max_seq_length=16384
++ max_prompt_length=16256
++ train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet
++ val_files=/n/fs/xw-hh/tttrl_data/data/longbench/samsum_16384.parquet
++ custom_reward_function_path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py
++ NGPU=4
++ test_freq=-1
++ total_epochs=1
++ train_batch_size=128
++ task_ppo_mini_batch_size=32
++ task_ppo_micro_batch_size_per_gpu=2
++ val_batch_size=8
++ task_log_prob_micro_batch_size_per_gpu=2
++ '[' 0 == 0 ']'
++ val_ttt_sft_update=False
++ val_ttt_ppo_update=False
++ ttt_ppo_mini_batch_size=4
++ ttt_ppo_micro_batch_size_per_gpu=2
++ ttt_log_prob_micro_batch_size_per_gpu=2
++ ttt_reward=binary
++ ttt_n_chunks=6
++ ttt_k=5
++ ttt_n=1
++ ttt_temperature=1.0
++ ttt_sft_loss_coef=1.0
++ ttt_ppo_loss_coef=0.4
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ ttt_tag=
++ project_name=lact_rl
++ experiment_name=lact_sftrl_k5_longbench_samsum_16384_128
++ logger=console
++ cd /n/fs/xw-hh/tttrl/
++ source /n/fs/wh-vlm/miniforge3/etc/profile.d/conda.sh
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ '[' -z '' ']'
+++ export CONDA_SHLVL=0
+++ CONDA_SHLVL=0
+++ '[' -n '' ']'
+++++ dirname /n/fs/wh-vlm/miniforge3/bin/conda
++++ dirname /n/fs/wh-vlm/miniforge3/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export PATH
+++ '[' -z '' ']'
+++ PS1=
++ conda activate lact_rl
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate lact_rl
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate lact_rl
+++ /n/fs/wh-vlm/miniforge3/bin/conda shell.posix activate lact_rl
++ ask_conda='PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
++ eval 'PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
+++ PS1='(lact_rl) '
+++ export PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ export CONDA_SHLVL=1
+++ CONDA_SHLVL=1
+++ export CONDA_DEFAULT_ENV=lact_rl
+++ CONDA_DEFAULT_ENV=lact_rl
+++ export 'CONDA_PROMPT_MODIFIER=(lact_rl) '
+++ CONDA_PROMPT_MODIFIER='(lact_rl) '
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ PYTHONUNBUFFERED=1
++ srun --overlap --nodes=1 --ntasks=1 -w neu305 python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo +algorithm.val_ttt_ppo_update=False +algorithm.val_ttt_sft_update=False custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py data.train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet data.val_files=/n/fs/xw-hh/tttrl_data/data/longbench/samsum_16384.parquet data.prompt_key=prompt +data.answer_key=answers +data.data_source_key=task data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py data.custom_cls.name=TTTRLHFDataset data.train_batch_size=128 data.val_batch_size=8 data.max_prompt_length=16256 data.max_response_length=128 actor_rollout_ref.model.path=/n/fs/xw-hh/lact_llm/lact-sftrl-embedding-16k-c6n1k5-100 +actor_rollout_ref.actor.ttt_n_chunks=6 +actor_rollout_ref.actor.ttt_n=1 +actor_rollout_ref.actor.ttt_reward=binary +actor_rollout_ref.actor.ttt_sft_loss_coef=1.0 +actor_rollout_ref.actor.ttt_ppo_loss_coef=0.4 +actor_rollout_ref.actor.ttt_ppo_mini_batch_size=4 +actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.actor.ppo_mini_batch_size=32 actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_temperature=1.0 +actor_rollout_ref.rollout.ttt_response_length=5 actor_rollout_ref.rollout.name=hf actor_rollout_ref.rollout.gpu_memory_utilization=0.9 trainer.balance_batch=False trainer.val_before_train=True trainer.val_only=True trainer.n_gpus_per_node=4 trainer.nnodes=1 trainer.save_freq= trainer.test_freq=-1 trainer.project_name=lact_rl trainer.experiment_name=lact_sftrl_k5_longbench_samsum_16384_128 trainer.logger=console trainer.total_epochs=1
+[2026-01-21 16:27:12,526 W 1202610 1202610] gcs_rpc_client.h:155: Failed to connect to GCS at address 172.17.32.105:59508 within 5 seconds.
+2026-01-21 16:27:42,894	INFO worker.py:1942 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
+[36m(TaskRunner pid=1209819)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/jieba/_compat.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+[36m(TaskRunner pid=1209819)[0m   import pkg_resources
+[36m(TaskRunner pid=1209819)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+[36m(TaskRunner pid=1209819)[0m   warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[36m(TaskRunner pid=1209819)[0m DeprecationWarning: `ray.state.available_resources_per_node` is a private attribute and access will be removed in a future Ray version.
+[36m(TaskRunner pid=1209819)[0m WARNING:2026-01-21 16:28:11,354:Waiting for register center actor 8xS4fD_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
+[36m(WorkerDict pid=1212825)[0m `generation_config` default values have been modified to match model-specific defaults: {'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.
+[36m(WorkerDict pid=1212825)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Error executing job with overrides: ['algorithm.adv_estimator=grpo', '+algorithm.val_ttt_ppo_update=False', '+algorithm.val_ttt_sft_update=False', 'custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py', 'data.train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet', 'data.val_files=/n/fs/xw-hh/tttrl_data/data/longbench/samsum_16384.parquet', 'data.prompt_key=prompt', '+data.answer_key=answers', '+data.data_source_key=task', 'data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py', 'data.custom_cls.name=TTTRLHFDataset', 'data.train_batch_size=128', 'data.val_batch_size=8', 'data.max_prompt_length=16256', 'data.max_response_length=128', 'actor_rollout_ref.model.path=/n/fs/xw-hh/lact_llm/lact-sftrl-embedding-16k-c6n1k5-100', '+actor_rollout_ref.actor.ttt_n_chunks=6', '+actor_rollout_ref.actor.ttt_n=1', '+actor_rollout_ref.actor.ttt_reward=binary', '+actor_rollout_ref.actor.ttt_sft_loss_coef=1.0', '+actor_rollout_ref.actor.ttt_ppo_loss_coef=0.4', '+actor_rollout_ref.actor.ttt_ppo_mini_batch_size=4', '+actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.actor.ppo_mini_batch_size=32', 'actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_temperature=1.0', '+actor_rollout_ref.rollout.ttt_response_length=5', 'actor_rollout_ref.rollout.name=hf', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.9', 'trainer.balance_batch=False', 'trainer.val_before_train=True', 'trainer.val_only=True', 'trainer.n_gpus_per_node=4', 'trainer.nnodes=1', 'trainer.save_freq=', 'trainer.test_freq=-1', 'trainer.project_name=lact_rl', 'trainer.experiment_name=lact_sftrl_k5_longbench_samsum_16384_128', 'trainer.logger=console', 'trainer.total_epochs=1']
+[36m(TaskRunner pid=1209819)[0m Failed to unpickle serialized exception
+[36m(TaskRunner pid=1209819)[0m Original exception (string repr):
+[36m(TaskRunner pid=1209819)[0m ray.exceptions.RayTaskError: [36mray::WorkerDict.actor_rollout_generate_sequences()[39m (pid=1213006, ip=172.17.32.105, actor_id=659893cbcd0a9b3cc6f830f801000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f7aa199de20>)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 705, in func
+[36m(TaskRunner pid=1209819)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/single_controller/base/decorator.py", line 514, in inner
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/workers/fsdp_workers.py", line 809, in generate_sequences
+[36m(TaskRunner pid=1209819)[0m     output = self.rollout.generate_sequences(prompts=prompts)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 57, in generate_sequences
+[36m(TaskRunner pid=1209819)[0m     output = self._generate_minibatch(p)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 125, in _generate_minibatch
+[36m(TaskRunner pid=1209819)[0m     output = self.module.generate(
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 2617, in generate
+[36m(TaskRunner pid=1209819)[0m     result = self._sample(
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 3601, in _sample
+[36m(TaskRunner pid=1209819)[0m     outputs = model_forward(**model_inputs, return_dict=True)
+[36m(TaskRunner pid=1209819)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 395, in forward
+[36m(TaskRunner pid=1209819)[0m     outputs = self.model(
+[36m(TaskRunner pid=1209819)[0m               ^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 272, in forward
+[36m(TaskRunner pid=1209819)[0m     layer_outputs = layer(
+[36m(TaskRunner pid=1209819)[0m                     ^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 88, in forward
+[36m(TaskRunner pid=1209819)[0m     hidden_states, attentions, past_key_values = self.attn(
+[36m(TaskRunner pid=1209819)[0m                                                  ^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/layer_lact_swiglu.py", line 397, in forward
+[36m(TaskRunner pid=1209819)[0m     fw_x = block_causal_lact_swiglu(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 574, in _fn
+[36m(TaskRunner pid=1209819)[0m     return fn(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1380, in __call__
+[36m(TaskRunner pid=1209819)[0m     return self._torchdynamo_orig_callable(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1164, in __call__
+[36m(TaskRunner pid=1209819)[0m     result = self._inner_convert(
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 547, in __call__
+[36m(TaskRunner pid=1209819)[0m     return _compile(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 986, in _compile
+[36m(TaskRunner pid=1209819)[0m     guarded_code = compile_inner(code, one_graph, hooks, transform)
+[36m(TaskRunner pid=1209819)[0m                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 715, in compile_inner
+[36m(TaskRunner pid=1209819)[0m     return _compile_inner(code, one_graph, hooks, transform)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_utils_internal.py", line 95, in wrapper_function
+[36m(TaskRunner pid=1209819)[0m     return function(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 750, in _compile_inner
+[36m(TaskRunner pid=1209819)[0m     out_code = transform_code_object(code, transform)
+[36m(TaskRunner pid=1209819)[0m                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/bytecode_transformation.py", line 1361, in transform_code_object
+[36m(TaskRunner pid=1209819)[0m     transformations(instructions, code_options)
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 231, in _fn
+[36m(TaskRunner pid=1209819)[0m     return fn(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 662, in transform
+[36m(TaskRunner pid=1209819)[0m     tracer.run()
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2868, in run
+[36m(TaskRunner pid=1209819)[0m     super().run()
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1052, in run
+[36m(TaskRunner pid=1209819)[0m     while self.step():
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 962, in step
+[36m(TaskRunner pid=1209819)[0m     self.dispatch_table[inst.opcode](self, inst)
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3048, in RETURN_VALUE
+[36m(TaskRunner pid=1209819)[0m     self._return(inst)
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3033, in _return
+[36m(TaskRunner pid=1209819)[0m     self.output.compile_subgraph(
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1101, in compile_subgraph
+[36m(TaskRunner pid=1209819)[0m     self.compile_and_call_fx_graph(
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1382, in compile_and_call_fx_graph
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = self.call_user_compiler(gm)
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1432, in call_user_compiler
+[36m(TaskRunner pid=1209819)[0m     return self._call_user_compiler(gm)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1483, in _call_user_compiler
+[36m(TaskRunner pid=1209819)[0m     raise BackendCompilerFailed(self.compiler_fn, e).with_traceback(
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1462, in _call_user_compiler
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = compiler_fn(gm, self.example_inputs())
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_dynamo.py", line 130, in __call__
+[36m(TaskRunner pid=1209819)[0m     compiled_gm = compiler_fn(gm, example_inputs)
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/__init__.py", line 2340, in __call__
+[36m(TaskRunner pid=1209819)[0m     return compile_fx(model_, inputs_, config_patches=self.config)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1863, in compile_fx
+[36m(TaskRunner pid=1209819)[0m     return aot_autograd(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/backends/common.py", line 83, in __call__
+[36m(TaskRunner pid=1209819)[0m     cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+[36m(TaskRunner pid=1209819)[0m          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1155, in aot_module_simplified
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = dispatch_and_compile()
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1131, in dispatch_and_compile
+[36m(TaskRunner pid=1209819)[0m     compiled_fn, _ = create_aot_dispatcher_function(
+[36m(TaskRunner pid=1209819)[0m                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 580, in create_aot_dispatcher_function
+[36m(TaskRunner pid=1209819)[0m     return _create_aot_dispatcher_function(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 830, in _create_aot_dispatcher_function
+[36m(TaskRunner pid=1209819)[0m     compiled_fn, fw_metadata = compiler_fn(
+[36m(TaskRunner pid=1209819)[0m                                ^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/jit_compile_runtime_wrappers.py", line 203, in aot_dispatch_base
+[36m(TaskRunner pid=1209819)[0m     compiled_fw = compiler(fw_module, updated_flat_args)
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 489, in __call__
+[36m(TaskRunner pid=1209819)[0m     return self.compiler_fn(gm, example_inputs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1741, in fw_compiler_base
+[36m(TaskRunner pid=1209819)[0m     return inner_compile(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 569, in compile_fx_inner
+[36m(TaskRunner pid=1209819)[0m     return wrap_compiler_debug(_compile_fx_inner, compiler_name="inductor")(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_aot.py", line 102, in debug_wrapper
+[36m(TaskRunner pid=1209819)[0m     inner_compiled_fn = compiler_fn(gm, example_inputs)
+[36m(TaskRunner pid=1209819)[0m                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 685, in _compile_fx_inner
+[36m(TaskRunner pid=1209819)[0m     mb_compiled_graph = fx_codegen_and_compile(
+[36m(TaskRunner pid=1209819)[0m                         ^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1129, in fx_codegen_and_compile
+[36m(TaskRunner pid=1209819)[0m     return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1044, in codegen_and_compile
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = graph.compile_to_module().call
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2027, in compile_to_module
+[36m(TaskRunner pid=1209819)[0m     return self._compile_to_module()
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2068, in _compile_to_module
+[36m(TaskRunner pid=1209819)[0m     mod = PyCodeCache.load_by_key_path(
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+[36m(TaskRunner pid=1209819)[0m     mod = _reload_python_module(key, path)
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+[36m(TaskRunner pid=1209819)[0m     exec(code, mod.__dict__, mod.__dict__)
+[36m(TaskRunner pid=1209819)[0m   File "/tmp/torchinductor_hh2605/xs/cxsh4cha6wkw3n4br3us4kwb6m45l5jzc3fiwxrju5mda53soipz.py", line 2738, in <module>
+[36m(TaskRunner pid=1209819)[0m     triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43 = async_compile.triton('triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43', '''
+[36m(TaskRunner pid=1209819)[0m                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/async_compile.py", line 186, in triton
+[36m(TaskRunner pid=1209819)[0m     kernel = TritonCodeCache.load(kernel_name, source_code)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2823, in load
+[36m(TaskRunner pid=1209819)[0m     return _module_to_triton_kernel(PyCodeCache.load(source_code), kernel_name)
+[36m(TaskRunner pid=1209819)[0m                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2746, in load
+[36m(TaskRunner pid=1209819)[0m     return cls.load_by_key_path(key, path, linemap, attrs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+[36m(TaskRunner pid=1209819)[0m     mod = _reload_python_module(key, path)
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+[36m(TaskRunner pid=1209819)[0m     exec(code, mod.__dict__, mod.__dict__)
+[36m(TaskRunner pid=1209819)[0m   File "/tmp/torchinductor_hh2605/yt/cytgv7bbuzwhf7fwknvvtmwhowi43febll5rq32t5zkl4kt6qyqr.py", line 11, in <module>
+[36m(TaskRunner pid=1209819)[0m     @triton_heuristics.pointwise(
+[36m(TaskRunner pid=1209819)[0m      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1646, in pointwise
+[36m(TaskRunner pid=1209819)[0m     return cached_autotune(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1266, in cached_autotune
+[36m(TaskRunner pid=1209819)[0m     if best_config := autotune_cache.read_best(inductor_meta, configs):
+[36m(TaskRunner pid=1209819)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 112, in read_best
+[36m(TaskRunner pid=1209819)[0m     if best := self._read():
+[36m(TaskRunner pid=1209819)[0m                ^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 95, in _read
+[36m(TaskRunner pid=1209819)[0m     if best_config := cache.get(key):
+[36m(TaskRunner pid=1209819)[0m                       ^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 171, in get
+[36m(TaskRunner pid=1209819)[0m     result = self._get(key, sample)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 470, in _get
+[36m(TaskRunner pid=1209819)[0m     result = super()._get(key, sample)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 206, in _get
+[36m(TaskRunner pid=1209819)[0m     return self._decode(data, sample)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 196, in _decode
+[36m(TaskRunner pid=1209819)[0m     return self.serde.decode(data)  # type: ignore[arg-type]
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 118, in decode
+[36m(TaskRunner pid=1209819)[0m     return json.loads(data)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/__init__.py", line 346, in loads
+[36m(TaskRunner pid=1209819)[0m     return _default_decoder.decode(s)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/decoder.py", line 340, in decode
+[36m(TaskRunner pid=1209819)[0m     raise JSONDecodeError("Extra data", s, end)
+[36m(TaskRunner pid=1209819)[0m torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+[36m(TaskRunner pid=1209819)[0m JSONDecodeError: Extra data: line 1 column 182 (char 181)
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m Set TORCH_LOGS="+dynamo" and TORCHDYNAMO_VERBOSE=1 for more information
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m You can suppress this exception and fall back to eager by setting:
+[36m(TaskRunner pid=1209819)[0m     import torch._dynamo
+[36m(TaskRunner pid=1209819)[0m     torch._dynamo.config.suppress_errors = True
+[36m(TaskRunner pid=1209819)[0m Traceback (most recent call last):
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/exceptions.py", line 50, in from_ray_exception
+[36m(TaskRunner pid=1209819)[0m     return pickle.loads(ray_exception.serialized_exception)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m TypeError: BackendCompilerFailed.__init__() missing 1 required positional argument: 'inner_exception'
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m The above exception was the direct cause of the following exception:
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m Traceback (most recent call last):
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/serialization.py", line 526, in deserialize_objects
+[36m(TaskRunner pid=1209819)[0m     obj = self._deserialize_object(
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/serialization.py", line 394, in _deserialize_object
+[36m(TaskRunner pid=1209819)[0m     return RayError.from_bytes(obj)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/exceptions.py", line 44, in from_bytes
+[36m(TaskRunner pid=1209819)[0m     return RayError.from_ray_exception(ray_exception)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/exceptions.py", line 63, in from_ray_exception
+[36m(TaskRunner pid=1209819)[0m     raise RuntimeError(msg) from e
+[36m(TaskRunner pid=1209819)[0m RuntimeError: Failed to unpickle serialized exception
+[36m(TaskRunner pid=1209819)[0m Original exception (string repr):
+[36m(TaskRunner pid=1209819)[0m ray.exceptions.RayTaskError: [36mray::WorkerDict.actor_rollout_generate_sequences()[39m (pid=1213006, ip=172.17.32.105, actor_id=659893cbcd0a9b3cc6f830f801000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f7aa199de20>)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 705, in func
+[36m(TaskRunner pid=1209819)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/single_controller/base/decorator.py", line 514, in inner
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/workers/fsdp_workers.py", line 809, in generate_sequences
+[36m(TaskRunner pid=1209819)[0m     output = self.rollout.generate_sequences(prompts=prompts)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 57, in generate_sequences
+[36m(TaskRunner pid=1209819)[0m     output = self._generate_minibatch(p)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 125, in _generate_minibatch
+[36m(TaskRunner pid=1209819)[0m     output = self.module.generate(
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 2617, in generate
+[36m(TaskRunner pid=1209819)[0m     result = self._sample(
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 3601, in _sample
+[36m(TaskRunner pid=1209819)[0m     outputs = model_forward(**model_inputs, return_dict=True)
+[36m(TaskRunner pid=1209819)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+[36m(TaskRunner pid=1209819)[0m     return func(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 395, in forward
+[36m(TaskRunner pid=1209819)[0m     outputs = self.model(
+[36m(TaskRunner pid=1209819)[0m               ^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 272, in forward
+[36m(TaskRunner pid=1209819)[0m     layer_outputs = layer(
+[36m(TaskRunner pid=1209819)[0m                     ^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 88, in forward
+[36m(TaskRunner pid=1209819)[0m     hidden_states, attentions, past_key_values = self.attn(
+[36m(TaskRunner pid=1209819)[0m                                                  ^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+[36m(TaskRunner pid=1209819)[0m     return self._call_impl(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+[36m(TaskRunner pid=1209819)[0m     return forward_call(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/xw-hh/tttrl/verl/models/lact_model/layer_lact_swiglu.py", line 397, in forward
+[36m(TaskRunner pid=1209819)[0m     fw_x = block_causal_lact_swiglu(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 574, in _fn
+[36m(TaskRunner pid=1209819)[0m     return fn(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1380, in __call__
+[36m(TaskRunner pid=1209819)[0m     return self._torchdynamo_orig_callable(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1164, in __call__
+[36m(TaskRunner pid=1209819)[0m     result = self._inner_convert(
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 547, in __call__
+[36m(TaskRunner pid=1209819)[0m     return _compile(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 986, in _compile
+[36m(TaskRunner pid=1209819)[0m     guarded_code = compile_inner(code, one_graph, hooks, transform)
+[36m(TaskRunner pid=1209819)[0m                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 715, in compile_inner
+[36m(TaskRunner pid=1209819)[0m     return _compile_inner(code, one_graph, hooks, transform)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_utils_internal.py", line 95, in wrapper_function
+[36m(TaskRunner pid=1209819)[0m     return function(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 750, in _compile_inner
+[36m(TaskRunner pid=1209819)[0m     out_code = transform_code_object(code, transform)
+[36m(TaskRunner pid=1209819)[0m                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/bytecode_transformation.py", line 1361, in transform_code_object
+[36m(TaskRunner pid=1209819)[0m     transformations(instructions, code_options)
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 231, in _fn
+[36m(TaskRunner pid=1209819)[0m     return fn(*args, **kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 662, in transform
+[36m(TaskRunner pid=1209819)[0m     tracer.run()
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2868, in run
+[36m(TaskRunner pid=1209819)[0m     super().run()
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1052, in run
+[36m(TaskRunner pid=1209819)[0m     while self.step():
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 962, in step
+[36m(TaskRunner pid=1209819)[0m     self.dispatch_table[inst.opcode](self, inst)
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3048, in RETURN_VALUE
+[36m(TaskRunner pid=1209819)[0m     self._return(inst)
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3033, in _return
+[36m(TaskRunner pid=1209819)[0m     self.output.compile_subgraph(
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1101, in compile_subgraph
+[36m(TaskRunner pid=1209819)[0m     self.compile_and_call_fx_graph(
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1382, in compile_and_call_fx_graph
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = self.call_user_compiler(gm)
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1432, in call_user_compiler
+[36m(TaskRunner pid=1209819)[0m     return self._call_user_compiler(gm)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1483, in _call_user_compiler
+[36m(TaskRunner pid=1209819)[0m     raise BackendCompilerFailed(self.compiler_fn, e).with_traceback(
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1462, in _call_user_compiler
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = compiler_fn(gm, self.example_inputs())
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_dynamo.py", line 130, in __call__
+[36m(TaskRunner pid=1209819)[0m     compiled_gm = compiler_fn(gm, example_inputs)
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/__init__.py", line 2340, in __call__
+[36m(TaskRunner pid=1209819)[0m     return compile_fx(model_, inputs_, config_patches=self.config)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1863, in compile_fx
+[36m(TaskRunner pid=1209819)[0m     return aot_autograd(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/backends/common.py", line 83, in __call__
+[36m(TaskRunner pid=1209819)[0m     cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+[36m(TaskRunner pid=1209819)[0m          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1155, in aot_module_simplified
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = dispatch_and_compile()
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1131, in dispatch_and_compile
+[36m(TaskRunner pid=1209819)[0m     compiled_fn, _ = create_aot_dispatcher_function(
+[36m(TaskRunner pid=1209819)[0m                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 580, in create_aot_dispatcher_function
+[36m(TaskRunner pid=1209819)[0m     return _create_aot_dispatcher_function(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 830, in _create_aot_dispatcher_function
+[36m(TaskRunner pid=1209819)[0m     compiled_fn, fw_metadata = compiler_fn(
+[36m(TaskRunner pid=1209819)[0m                                ^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/jit_compile_runtime_wrappers.py", line 203, in aot_dispatch_base
+[36m(TaskRunner pid=1209819)[0m     compiled_fw = compiler(fw_module, updated_flat_args)
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 489, in __call__
+[36m(TaskRunner pid=1209819)[0m     return self.compiler_fn(gm, example_inputs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1741, in fw_compiler_base
+[36m(TaskRunner pid=1209819)[0m     return inner_compile(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 569, in compile_fx_inner
+[36m(TaskRunner pid=1209819)[0m     return wrap_compiler_debug(_compile_fx_inner, compiler_name="inductor")(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_aot.py", line 102, in debug_wrapper
+[36m(TaskRunner pid=1209819)[0m     inner_compiled_fn = compiler_fn(gm, example_inputs)
+[36m(TaskRunner pid=1209819)[0m                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 685, in _compile_fx_inner
+[36m(TaskRunner pid=1209819)[0m     mb_compiled_graph = fx_codegen_and_compile(
+[36m(TaskRunner pid=1209819)[0m                         ^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1129, in fx_codegen_and_compile
+[36m(TaskRunner pid=1209819)[0m     return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1044, in codegen_and_compile
+[36m(TaskRunner pid=1209819)[0m     compiled_fn = graph.compile_to_module().call
+[36m(TaskRunner pid=1209819)[0m                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2027, in compile_to_module
+[36m(TaskRunner pid=1209819)[0m     return self._compile_to_module()
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2068, in _compile_to_module
+[36m(TaskRunner pid=1209819)[0m     mod = PyCodeCache.load_by_key_path(
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+[36m(TaskRunner pid=1209819)[0m     mod = _reload_python_module(key, path)
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+[36m(TaskRunner pid=1209819)[0m     exec(code, mod.__dict__, mod.__dict__)
+[36m(TaskRunner pid=1209819)[0m   File "/tmp/torchinductor_hh2605/xs/cxsh4cha6wkw3n4br3us4kwb6m45l5jzc3fiwxrju5mda53soipz.py", line 2738, in <module>
+[36m(TaskRunner pid=1209819)[0m     triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43 = async_compile.triton('triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43', '''
+[36m(TaskRunner pid=1209819)[0m                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/async_compile.py", line 186, in triton
+[36m(TaskRunner pid=1209819)[0m     kernel = TritonCodeCache.load(kernel_name, source_code)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2823, in load
+[36m(TaskRunner pid=1209819)[0m     return _module_to_triton_kernel(PyCodeCache.load(source_code), kernel_name)
+[36m(TaskRunner pid=1209819)[0m                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2746, in load
+[36m(TaskRunner pid=1209819)[0m     return cls.load_by_key_path(key, path, linemap, attrs)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+[36m(TaskRunner pid=1209819)[0m     mod = _reload_python_module(key, path)
+[36m(TaskRunner pid=1209819)[0m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+[36m(TaskRunner pid=1209819)[0m     exec(code, mod.__dict__, mod.__dict__)
+[36m(TaskRunner pid=1209819)[0m   File "/tmp/torchinductor_hh2605/yt/cytgv7bbuzwhf7fwknvvtmwhowi43febll5rq32t5zkl4kt6qyqr.py", line 11, in <module>
+[36m(TaskRunner pid=1209819)[0m     @triton_heuristics.pointwise(
+[36m(TaskRunner pid=1209819)[0m      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1646, in pointwise
+[36m(TaskRunner pid=1209819)[0m     return cached_autotune(
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1266, in cached_autotune
+[36m(TaskRunner pid=1209819)[0m     if best_config := autotune_cache.read_best(inductor_meta, configs):
+[36m(TaskRunner pid=1209819)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 112, in read_best
+[36m(TaskRunner pid=1209819)[0m     if best := self._read():
+[36m(TaskRunner pid=1209819)[0m                ^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 95, in _read
+[36m(TaskRunner pid=1209819)[0m     if best_config := cache.get(key):
+[36m(TaskRunner pid=1209819)[0m                       ^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 171, in get
+[36m(TaskRunner pid=1209819)[0m     result = self._get(key, sample)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 470, in _get
+[36m(TaskRunner pid=1209819)[0m     result = super()._get(key, sample)
+[36m(TaskRunner pid=1209819)[0m              ^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 206, in _get
+[36m(TaskRunner pid=1209819)[0m     return self._decode(data, sample)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 196, in _decode
+[36m(TaskRunner pid=1209819)[0m     return self.serde.decode(data)  # type: ignore[arg-type]
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 118, in decode
+[36m(TaskRunner pid=1209819)[0m     return json.loads(data)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/__init__.py", line 346, in loads
+[36m(TaskRunner pid=1209819)[0m     return _default_decoder.decode(s)
+[36m(TaskRunner pid=1209819)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(TaskRunner pid=1209819)[0m   File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/decoder.py", line 340, in decode
+[36m(TaskRunner pid=1209819)[0m     raise JSONDecodeError("Extra data", s, end)
+[36m(TaskRunner pid=1209819)[0m torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+[36m(TaskRunner pid=1209819)[0m JSONDecodeError: Extra data: line 1 column 182 (char 181)
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m Set TORCH_LOGS="+dynamo" and TORCHDYNAMO_VERBOSE=1 for more information
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m 
+[36m(TaskRunner pid=1209819)[0m You can suppress this exception and fall back to eager by setting:
+[36m(TaskRunner pid=1209819)[0m     import torch._dynamo
+[36m(TaskRunner pid=1209819)[0m     torch._dynamo.config.suppress_errors = True
+[36m(TaskRunner pid=1209819)[0m 
+[36m(WorkerDict pid=1213009)[0m `generation_config` default values have been modified to match model-specific defaults: {'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=1213009)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 3x across cluster][0m
+Traceback (most recent call last):
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 40, in main
+    run_ppo(config)
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 74, in run_ppo
+    ray.get(runner.run.remote(config))
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/auto_init_hook.py", line 22, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/client_mode_hook.py", line 104, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 2882, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 968, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(RaySystemError): [36mray::TaskRunner.run()[39m (pid=1209819, ip=172.17.32.105, actor_id=26567f0a08f4fb7e3135af1c01000000, repr=<main_ppo.TaskRunner object at 0x7fd2e67915b0>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 236, in run
+    trainer.fit()
+  File "/n/fs/xw-hh/tttrl/verl/trainer/ppo/ray_trainer.py", line 1444, in fit
+    val_metrics = self._validate()
+                  ^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/trainer/ppo/ray_trainer.py", line 1000, in _validate
+    test_gen_batch_output = self.actor_rollout_wg.generate_sequences(test_gen_batch)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 50, in __call__
+    output = ray.get(output)
+             ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ray.exceptions.RaySystemError: System error: Failed to unpickle serialized exception
+Original exception (string repr):
+ray.exceptions.RayTaskError: [36mray::WorkerDict.actor_rollout_generate_sequences()[39m (pid=1213006, ip=172.17.32.105, actor_id=659893cbcd0a9b3cc6f830f801000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f7aa199de20>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 705, in func
+    return getattr(self.worker_dict[key], name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/base/decorator.py", line 514, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/workers/fsdp_workers.py", line 809, in generate_sequences
+    output = self.rollout.generate_sequences(prompts=prompts)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 57, in generate_sequences
+    output = self._generate_minibatch(p)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 125, in _generate_minibatch
+    output = self.module.generate(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 2617, in generate
+    result = self._sample(
+             ^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 3601, in _sample
+    outputs = model_forward(**model_inputs, return_dict=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 395, in forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 272, in forward
+    layer_outputs = layer(
+                    ^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 88, in forward
+    hidden_states, attentions, past_key_values = self.attn(
+                                                 ^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/layer_lact_swiglu.py", line 397, in forward
+    fw_x = block_causal_lact_swiglu(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 574, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1380, in __call__
+    return self._torchdynamo_orig_callable(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1164, in __call__
+    result = self._inner_convert(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 547, in __call__
+    return _compile(
+           ^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 986, in _compile
+    guarded_code = compile_inner(code, one_graph, hooks, transform)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 715, in compile_inner
+    return _compile_inner(code, one_graph, hooks, transform)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_utils_internal.py", line 95, in wrapper_function
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 750, in _compile_inner
+    out_code = transform_code_object(code, transform)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/bytecode_transformation.py", line 1361, in transform_code_object
+    transformations(instructions, code_options)
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 231, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 662, in transform
+    tracer.run()
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2868, in run
+    super().run()
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1052, in run
+    while self.step():
+          ^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 962, in step
+    self.dispatch_table[inst.opcode](self, inst)
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3048, in RETURN_VALUE
+    self._return(inst)
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3033, in _return
+    self.output.compile_subgraph(
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1101, in compile_subgraph
+    self.compile_and_call_fx_graph(
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1382, in compile_and_call_fx_graph
+    compiled_fn = self.call_user_compiler(gm)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1432, in call_user_compiler
+    return self._call_user_compiler(gm)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1483, in _call_user_compiler
+    raise BackendCompilerFailed(self.compiler_fn, e).with_traceback(
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1462, in _call_user_compiler
+    compiled_fn = compiler_fn(gm, self.example_inputs())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_dynamo.py", line 130, in __call__
+    compiled_gm = compiler_fn(gm, example_inputs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/__init__.py", line 2340, in __call__
+    return compile_fx(model_, inputs_, config_patches=self.config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1863, in compile_fx
+    return aot_autograd(
+           ^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/backends/common.py", line 83, in __call__
+    cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1155, in aot_module_simplified
+    compiled_fn = dispatch_and_compile()
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1131, in dispatch_and_compile
+    compiled_fn, _ = create_aot_dispatcher_function(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 580, in create_aot_dispatcher_function
+    return _create_aot_dispatcher_function(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 830, in _create_aot_dispatcher_function
+    compiled_fn, fw_metadata = compiler_fn(
+                               ^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/jit_compile_runtime_wrappers.py", line 203, in aot_dispatch_base
+    compiled_fw = compiler(fw_module, updated_flat_args)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 489, in __call__
+    return self.compiler_fn(gm, example_inputs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1741, in fw_compiler_base
+    return inner_compile(
+           ^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 569, in compile_fx_inner
+    return wrap_compiler_debug(_compile_fx_inner, compiler_name="inductor")(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_aot.py", line 102, in debug_wrapper
+    inner_compiled_fn = compiler_fn(gm, example_inputs)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 685, in _compile_fx_inner
+    mb_compiled_graph = fx_codegen_and_compile(
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1129, in fx_codegen_and_compile
+    return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1044, in codegen_and_compile
+    compiled_fn = graph.compile_to_module().call
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2027, in compile_to_module
+    return self._compile_to_module()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2068, in _compile_to_module
+    mod = PyCodeCache.load_by_key_path(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+    mod = _reload_python_module(key, path)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File "/tmp/torchinductor_hh2605/xs/cxsh4cha6wkw3n4br3us4kwb6m45l5jzc3fiwxrju5mda53soipz.py", line 2738, in <module>
+    triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43 = async_compile.triton('triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43', '''
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/async_compile.py", line 186, in triton
+    kernel = TritonCodeCache.load(kernel_name, source_code)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2823, in load
+    return _module_to_triton_kernel(PyCodeCache.load(source_code), kernel_name)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2746, in load
+    return cls.load_by_key_path(key, path, linemap, attrs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+    mod = _reload_python_module(key, path)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File "/tmp/torchinductor_hh2605/yt/cytgv7bbuzwhf7fwknvvtmwhowi43febll5rq32t5zkl4kt6qyqr.py", line 11, in <module>
+    @triton_heuristics.pointwise(
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1646, in pointwise
+    return cached_autotune(
+           ^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1266, in cached_autotune
+    if best_config := autotune_cache.read_best(inductor_meta, configs):
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 112, in read_best
+    if best := self._read():
+               ^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 95, in _read
+    if best_config := cache.get(key):
+                      ^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 171, in get
+    result = self._get(key, sample)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 470, in _get
+    result = super()._get(key, sample)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 206, in _get
+    return self._decode(data, sample)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 196, in _decode
+    return self.serde.decode(data)  # type: ignore[arg-type]
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 118, in decode
+    return json.loads(data)
+           ^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/decoder.py", line 340, in decode
+    raise JSONDecodeError("Extra data", s, end)
+torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+JSONDecodeError: Extra data: line 1 column 182 (char 181)
+
+Set TORCH_LOGS="+dynamo" and TORCHDYNAMO_VERBOSE=1 for more information
+
+
+You can suppress this exception and fall back to eager by setting:
+    import torch._dynamo
+    torch._dynamo.config.suppress_errors = True
+
+traceback: Traceback (most recent call last):
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/exceptions.py", line 50, in from_ray_exception
+    return pickle.loads(ray_exception.serialized_exception)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: BackendCompilerFailed.__init__() missing 1 required positional argument: 'inner_exception'
+
+The above exception was the direct cause of the following exception:
+
+[36mray::TaskRunner.run()[39m (pid=1209819, ip=172.17.32.105, actor_id=26567f0a08f4fb7e3135af1c01000000, repr=<main_ppo.TaskRunner object at 0x7fd2e67915b0>)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/exceptions.py", line 44, in from_bytes
+    return RayError.from_ray_exception(ray_exception)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/exceptions.py", line 63, in from_ray_exception
+    raise RuntimeError(msg) from e
+RuntimeError: Failed to unpickle serialized exception
+Original exception (string repr):
+ray.exceptions.RayTaskError: [36mray::WorkerDict.actor_rollout_generate_sequences()[39m (pid=1213006, ip=172.17.32.105, actor_id=659893cbcd0a9b3cc6f830f801000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f7aa199de20>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 705, in func
+    return getattr(self.worker_dict[key], name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/base/decorator.py", line 514, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/workers/fsdp_workers.py", line 809, in generate_sequences
+    output = self.rollout.generate_sequences(prompts=prompts)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 57, in generate_sequences
+    output = self._generate_minibatch(p)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/workers/rollout/hf_rollout.py", line 125, in _generate_minibatch
+    output = self.module.generate(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 2617, in generate
+    result = self._sample(
+             ^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/generation/utils.py", line 3601, in _sample
+    outputs = model_forward(**model_inputs, return_dict=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 395, in forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 272, in forward
+    layer_outputs = layer(
+                    ^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/modeling_lact.py", line 88, in forward
+    hidden_states, attentions, past_key_values = self.attn(
+                                                 ^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/models/lact_model/layer_lact_swiglu.py", line 397, in forward
+    fw_x = block_causal_lact_swiglu(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 574, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1380, in __call__
+    return self._torchdynamo_orig_callable(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1164, in __call__
+    result = self._inner_convert(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 547, in __call__
+    return _compile(
+           ^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 986, in _compile
+    guarded_code = compile_inner(code, one_graph, hooks, transform)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 715, in compile_inner
+    return _compile_inner(code, one_graph, hooks, transform)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_utils_internal.py", line 95, in wrapper_function
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 750, in _compile_inner
+    out_code = transform_code_object(code, transform)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/bytecode_transformation.py", line 1361, in transform_code_object
+    transformations(instructions, code_options)
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 231, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 662, in transform
+    tracer.run()
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2868, in run
+    super().run()
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1052, in run
+    while self.step():
+          ^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 962, in step
+    self.dispatch_table[inst.opcode](self, inst)
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3048, in RETURN_VALUE
+    self._return(inst)
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 3033, in _return
+    self.output.compile_subgraph(
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1101, in compile_subgraph
+    self.compile_and_call_fx_graph(
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1382, in compile_and_call_fx_graph
+    compiled_fn = self.call_user_compiler(gm)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1432, in call_user_compiler
+    return self._call_user_compiler(gm)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1483, in _call_user_compiler
+    raise BackendCompilerFailed(self.compiler_fn, e).with_traceback(
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 1462, in _call_user_compiler
+    compiled_fn = compiler_fn(gm, self.example_inputs())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_dynamo.py", line 130, in __call__
+    compiled_gm = compiler_fn(gm, example_inputs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/__init__.py", line 2340, in __call__
+    return compile_fx(model_, inputs_, config_patches=self.config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1863, in compile_fx
+    return aot_autograd(
+           ^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/backends/common.py", line 83, in __call__
+    cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1155, in aot_module_simplified
+    compiled_fn = dispatch_and_compile()
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1131, in dispatch_and_compile
+    compiled_fn, _ = create_aot_dispatcher_function(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 580, in create_aot_dispatcher_function
+    return _create_aot_dispatcher_function(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 830, in _create_aot_dispatcher_function
+    compiled_fn, fw_metadata = compiler_fn(
+                               ^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/jit_compile_runtime_wrappers.py", line 203, in aot_dispatch_base
+    compiled_fw = compiler(fw_module, updated_flat_args)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 489, in __call__
+    return self.compiler_fn(gm, example_inputs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1741, in fw_compiler_base
+    return inner_compile(
+           ^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 569, in compile_fx_inner
+    return wrap_compiler_debug(_compile_fx_inner, compiler_name="inductor")(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_dynamo/repro/after_aot.py", line 102, in debug_wrapper
+    inner_compiled_fn = compiler_fn(gm, example_inputs)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 685, in _compile_fx_inner
+    mb_compiled_graph = fx_codegen_and_compile(
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1129, in fx_codegen_and_compile
+    return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 1044, in codegen_and_compile
+    compiled_fn = graph.compile_to_module().call
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2027, in compile_to_module
+    return self._compile_to_module()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/graph.py", line 2068, in _compile_to_module
+    mod = PyCodeCache.load_by_key_path(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+    mod = _reload_python_module(key, path)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File "/tmp/torchinductor_hh2605/xs/cxsh4cha6wkw3n4br3us4kwb6m45l5jzc3fiwxrju5mda53soipz.py", line 2738, in <module>
+    triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43 = async_compile.triton('triton_poi_fused__to_copy_add_mul_rsub_sigmoid_43', '''
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/async_compile.py", line 186, in triton
+    kernel = TritonCodeCache.load(kernel_name, source_code)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2823, in load
+    return _module_to_triton_kernel(PyCodeCache.load(source_code), kernel_name)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2746, in load
+    return cls.load_by_key_path(key, path, linemap, attrs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/codecache.py", line 2759, in load_by_key_path
+    mod = _reload_python_module(key, path)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/compile_tasks.py", line 45, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File "/tmp/torchinductor_hh2605/yt/cytgv7bbuzwhf7fwknvvtmwhowi43febll5rq32t5zkl4kt6qyqr.py", line 11, in <module>
+    @triton_heuristics.pointwise(
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1646, in pointwise
+    return cached_autotune(
+           ^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/triton_heuristics.py", line 1266, in cached_autotune
+    if best_config := autotune_cache.read_best(inductor_meta, configs):
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 112, in read_best
+    if best := self._read():
+               ^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 95, in _read
+    if best_config := cache.get(key):
+                      ^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 171, in get
+    result = self._get(key, sample)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/runtime/autotune_cache.py", line 470, in _get
+    result = super()._get(key, sample)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 206, in _get
+    return self._decode(data, sample)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 196, in _decode
+    return self.serde.decode(data)  # type: ignore[arg-type]
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/_inductor/remote_cache.py", line 118, in decode
+    return json.loads(data)
+           ^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/json/decoder.py", line 340, in decode
+    raise JSONDecodeError("Extra data", s, end)
+torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+JSONDecodeError: Extra data: line 1 column 182 (char 181)
+
+Set TORCH_LOGS="+dynamo" and TORCHDYNAMO_VERBOSE=1 for more information
+
+
+You can suppress this exception and fall back to eager by setting:
+    import torch._dynamo
+    torch._dynamo.config.suppress_errors = True
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
+srun: error: neu305: task 0: Exited with exit code 1
++ echo 'Experiment name: lact_sftrl_k5_longbench_samsum_16384_128'
++ echo 'Done!'

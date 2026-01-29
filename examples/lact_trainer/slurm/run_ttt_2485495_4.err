@@ -1,0 +1,197 @@
+[2026-01-24T11:41:03.920] error: execve(): ray: No such file or directory
+srun: error: neu303: task 0: Exited with exit code 2
++ unset ROCR_VISIBLE_DEVICES
++ unset HIP_VISIBLE_DEVICES
++ export CUDA_VISIBLE_DEVICES=0,1
++ CUDA_VISIBLE_DEVICES=0,1
++ longbench_datasets=("narrativeqa" "qasper" "multifieldqa_en" "hotpotqa" "2wikimqa" "qmsum" "multi_news" "samsum" "trec" "triviaqa" "lcc" "repobench-p")
++ longbench_maxlens=(128 128 64 32 32 512 512 128 64 32 64 64)
++ dataset_idx=4
++ MODEL=lact_sftrl
++ TTT_K=5
++ VAL_TTT_RL=0
++ VAL_TTT_SFT=0
++ TTT_N_CHUNKS=8
++ SAMPLING=argmin-
++ '[' lact_sftrl == lact ']'
++ '[' lact_sftrl == lact_sft ']'
++ '[' lact_sftrl == lact_sftrl ']'
++ model_path=/n/fs/xw-hh/lact_llm/lact-sftrl-argmin-embedding-16k-c8n1k5-100
++ model_tag=lact_sftrl_k5_argmin-
++ dataset=2wikimqa
++ max_response_length=32
++ max_seq_length=16384
++ max_prompt_length=16352
++ train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet
++ val_files=/n/fs/xw-hh/tttrl_data/data/longbench/2wikimqa_16384.parquet
++ custom_reward_function_path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py
++ NGPU=2
++ test_freq=-1
++ total_epochs=1
++ train_batch_size=128
++ task_ppo_mini_batch_size=32
++ task_ppo_micro_batch_size_per_gpu=2
++ val_batch_size=8
++ task_log_prob_micro_batch_size_per_gpu=2
++ '[' 0 == 0 ']'
++ val_ttt_sft_update=False
++ val_ttt_ppo_update=False
++ ttt_ppo_mini_batch_size=4
++ ttt_ppo_micro_batch_size_per_gpu=2
++ ttt_log_prob_micro_batch_size_per_gpu=2
++ ttt_reward=binary
++ ttt_n_chunks=8
++ ttt_k=5
++ ttt_n=1
++ ttt_temperature=1.0
++ ttt_sft_loss_coef=1.0
++ ttt_ppo_loss_coef=0.4
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ ttt_tag=
++ project_name=lact_rl
++ experiment_name=lact_sftrl_k5_argmin-_longbench_2wikimqa_16384_32
++ logger=console
++ cd /n/fs/xw-hh/tttrl/
++ source /n/fs/wh-vlm/miniforge3/etc/profile.d/conda.sh
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ '[' -z '' ']'
+++ export CONDA_SHLVL=0
+++ CONDA_SHLVL=0
+++ '[' -n '' ']'
+++++ dirname /n/fs/wh-vlm/miniforge3/bin/conda
++++ dirname /n/fs/wh-vlm/miniforge3/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export PATH
+++ '[' -z '' ']'
+++ PS1=
++ conda activate lact_rl
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate lact_rl
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate lact_rl
+++ /n/fs/wh-vlm/miniforge3/bin/conda shell.posix activate lact_rl
++ ask_conda='PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
++ eval 'PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
+++ PS1='(lact_rl) '
+++ export PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ export CONDA_SHLVL=1
+++ CONDA_SHLVL=1
+++ export CONDA_DEFAULT_ENV=lact_rl
+++ CONDA_DEFAULT_ENV=lact_rl
+++ export 'CONDA_PROMPT_MODIFIER=(lact_rl) '
+++ CONDA_PROMPT_MODIFIER='(lact_rl) '
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ PYTHONUNBUFFERED=1
++ srun --overlap --nodes=1 --ntasks=1 -w neu303 python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo +algorithm.val_ttt_ppo_update=False +algorithm.val_ttt_sft_update=False custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py data.train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet data.val_files=/n/fs/xw-hh/tttrl_data/data/longbench/2wikimqa_16384.parquet data.prompt_key=prompt +data.answer_key=answers +data.data_source_key=task data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py data.custom_cls.name=TTTRLHFDataset data.train_batch_size=128 data.val_batch_size=8 data.max_prompt_length=16352 data.max_response_length=32 actor_rollout_ref.model.path=/n/fs/xw-hh/lact_llm/lact-sftrl-argmin-embedding-16k-c8n1k5-100 +actor_rollout_ref.actor.ttt_n_chunks=8 +actor_rollout_ref.actor.ttt_n=1 +actor_rollout_ref.actor.ttt_reward=binary +actor_rollout_ref.actor.ttt_sft_loss_coef=1.0 +actor_rollout_ref.actor.ttt_ppo_loss_coef=0.4 +actor_rollout_ref.actor.ttt_ppo_mini_batch_size=4 +actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.actor.ppo_mini_batch_size=32 actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_temperature=1.0 +actor_rollout_ref.rollout.ttt_response_length=5 actor_rollout_ref.rollout.name=hf actor_rollout_ref.rollout.gpu_memory_utilization=0.9 trainer.balance_batch=False trainer.val_before_train=True trainer.val_only=True trainer.n_gpus_per_node=2 trainer.nnodes=1 trainer.save_freq= trainer.test_freq=-1 trainer.project_name=lact_rl trainer.experiment_name=lact_sftrl_k5_argmin-_longbench_2wikimqa_16384_32 trainer.logger=console trainer.total_epochs=1
+2026-01-24 11:41:47,887	INFO worker.py:1942 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
+[36m(TaskRunner pid=1197982)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/jieba/_compat.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+[36m(TaskRunner pid=1197982)[0m   import pkg_resources
+[36m(TaskRunner pid=1197982)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+[36m(TaskRunner pid=1197982)[0m   warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[36m(TaskRunner pid=1197982)[0m DeprecationWarning: `ray.state.available_resources_per_node` is a private attribute and access will be removed in a future Ray version.
+[36m(TaskRunner pid=1197982)[0m WARNING:2026-01-24 11:42:02,099:Waiting for register center actor G6dy7j_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
+[36m(WorkerDict pid=1201424)[0m `generation_config` default values have been modified to match model-specific defaults: {'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[36m(WorkerDict pid=1201424)[0m [rank0]:W0124 11:47:26.188000 1201424 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] torch._dynamo hit config.cache_size_limit (8)
+[36m(WorkerDict pid=1201424)[0m [rank0]:W0124 11:47:26.188000 1201424 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    function: 'block_causal_lact_swiglu' (/n/fs/xw-hh/tttrl/verl/models/lact_model/ttt_operation.py:69)
+[36m(WorkerDict pid=1201424)[0m [rank0]:W0124 11:47:26.188000 1201424 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    last reason: 1/0: tensor 'L['k']' size mismatch at index 1. expected 16352, actual 16360
+[36m(WorkerDict pid=1201424)[0m [rank0]:W0124 11:47:26.188000 1201424 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To log all recompilation reasons, use TORCH_LOGS="recompiles".
+[36m(WorkerDict pid=1201424)[0m [rank0]:W0124 11:47:26.188000 1201424 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To diagnose recompilation issues, see https://pytorch.org/docs/main/torch.compiler_troubleshooting.html.
+[36m(WorkerDict pid=1201583)[0m `generation_config` default values have been modified to match model-specific defaults: {'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.
+[36m(WorkerDict pid=1201583)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[36m(WorkerDict pid=1201583)[0m [rank1]:W0124 11:47:26.188000 1201583 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] torch._dynamo hit config.cache_size_limit (8)
+[36m(WorkerDict pid=1201583)[0m [rank1]:W0124 11:47:26.188000 1201583 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    function: 'block_causal_lact_swiglu' (/n/fs/xw-hh/tttrl/verl/models/lact_model/ttt_operation.py:69)
+[36m(WorkerDict pid=1201583)[0m [rank1]:W0124 11:47:26.188000 1201583 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    last reason: 1/0: tensor 'L['k']' size mismatch at index 1. expected 16352, actual 16360
+[36m(WorkerDict pid=1201583)[0m [rank1]:W0124 11:47:26.188000 1201583 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To log all recompilation reasons, use TORCH_LOGS="recompiles".
+[36m(WorkerDict pid=1201583)[0m [rank1]:W0124 11:47:26.188000 1201583 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To diagnose recompilation issues, see https://pytorch.org/docs/main/torch.compiler_troubleshooting.html.
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201583)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201424)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 2x across cluster][0m
+[36m(WorkerDict pid=1201583)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
++ echo 'Experiment name: lact_sftrl_k5_argmin-_longbench_2wikimqa_16384_32'
++ echo 'Done!'

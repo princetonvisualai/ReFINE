@@ -21,6 +21,7 @@ from collections import Counter
 from typing import Union
 
 def compute_score(response: str, answers: list[str], **kwargs):
+    response = response.split("\n")[0]
     response = postprocess_response(response)
     output = 0.0
     for ground_truth in answers:

@@ -352,6 +352,10 @@ class DeltaNetForCausalLM(DeltaNetPreTrainedModel, FLAGenerationMixin):
                 criterion = self.criterion
             labels = labels.to(hidden_states.device)
             labels = torch.cat((labels[..., 1:], torch.full_like(labels[:, :1], criterion.ignore_index)), 1)
+            
+            # ours
+            if attention_mask is not None:
+                labels = labels.masked_fill(attention_mask == 0, criterion.ignore_index) 
             if self.config.fuse_linear_cross_entropy:
                 loss = criterion(hidden_states, labels, self.lm_head.weight, self.lm_head.bias)
             else:

@@ -150,18 +150,6 @@ class TaskRunner:
             )
             ray_worker_group_cls = RayWorkerGroup
 
-        elif config.actor_rollout_ref.actor.strategy == "megatron":
-            assert config.actor_rollout_ref.actor.strategy == config.critic.strategy
-            from verl.single_controller.ray.megatron import NVMegatronRayWorkerGroup
-            from verl.workers.megatron_workers import ActorRolloutRefWorker, AsyncActorRolloutRefWorker, CriticWorker
-
-            actor_rollout_cls = (
-                AsyncActorRolloutRefWorker
-                if config.actor_rollout_ref.rollout.mode == "async"
-                else ActorRolloutRefWorker
-            )
-            ray_worker_group_cls = NVMegatronRayWorkerGroup
-
         else:
             raise NotImplementedError
 
@@ -169,8 +157,7 @@ class TaskRunner:
 
         # Map roles to their corresponding remote worker classes.
         role_worker_mapping = {
-            Role.ActorRollout: ray.remote(actor_rollout_cls),
-            #Role.Critic: ray.remote(CriticWorker),
+            Role.ActorRollout: ray.remote(actor_rollout_cls)
         }
 
         # Define the resource pool specification.
@@ -180,8 +167,7 @@ class TaskRunner:
             global_pool_id: [config.trainer.n_gpus_per_node] * config.trainer.nnodes,
         }
         mapping = {
-            Role.ActorRollout: global_pool_id,
-            #Role.Critic: global_pool_id,
+            Role.ActorRollout: global_pool_id 
         }
 
         # We should adopt a multi-source reward function here:
@@ -206,12 +192,19 @@ class TaskRunner:
             mapping[Role.RefPolicy] = global_pool_id
 
         # Load the reward manager for training and validation.
-        reward_fn = load_reward_manager(
-            config, tokenizer, num_examine=0, **config.reward_model.get("reward_kwargs", {})
-        )
-        val_reward_fn = load_reward_manager(
-            config, tokenizer, num_examine=1, **config.reward_model.get("reward_kwargs", {})
-        )
+        if (
+            config.algorithm.get("task_ppo_update", False)
+            or not config.algorithm.get("val_get_loss", False)
+        ):
+            reward_fn = load_reward_manager(
+                config, tokenizer, num_examine=0, **config.reward_model.get("reward_kwargs", {})
+            )
+            val_reward_fn = load_reward_manager(
+                config, tokenizer, num_examine=1, **config.reward_model.get("reward_kwargs", {})
+            )
+        else:
+            reward_fn = None
+            val_reward_fn = None
         resource_pool_manager = ResourcePoolManager(resource_pool_spec=resource_pool_spec, mapping=mapping)
 
         from verl.utils.dataset.rl_dataset import collate_fn
@@ -220,7 +213,7 @@ class TaskRunner:
         train_dataset = create_rl_dataset(config.data.train_files, config.data, tokenizer, processor, is_train=True)
         val_dataset = create_rl_dataset(config.data.val_files, config.data, tokenizer, processor, is_train=False)
         train_sampler = create_rl_sampler(config.data, train_dataset)
-        val_sampler = create_rl_sampler(config.data, val_dataset)
+        #val_sampler = create_rl_sampler(config.data, val_dataset)
 
         # Initialize the PPO trainer.
         trainer = RayPPOTrainer(
@@ -270,13 +263,6 @@ def create_rl_dataset(data_paths, data_config, tokenizer, processor, is_train=Tr
                 f"The custom dataset class '{data_config.custom_cls.name}' from "
                 f"'{data_config.custom_cls.path}' must inherit from torch.utils.data.Dataset"
             )
-    elif "datagen" in data_config and data_config.datagen.get("path", None) is not None and is_train:
-        # If a data generation strategy is specified, use the DynamicGenDataset class
-        from verl.utils.dataset.dynamicgen_dataset import DynamicGenDataset
-
-        dataset_cls = DynamicGenDataset
-        print("Using DynamicGenDataset for data generation.")
-
     else:
         # Use the default RLHFDataset class if no custom class is specified
         dataset_cls = RLHFDataset

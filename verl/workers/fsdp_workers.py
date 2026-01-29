@@ -314,38 +314,21 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 trust_remote_code=trust_remote_code,
             )
 
-            '''
-            if type(actor_model_config) in AutoModelForVision2Seq._model_mapping.keys():
-                actor_module_class = AutoModelForVision2Seq
-            else:
-                actor_module_class = AutoModelForCausalLM
-
-            actor_module = actor_module_class.from_pretrained(
-                pretrained_model_name_or_path=local_path,
-                torch_dtype=torch_dtype,
-                config=actor_model_config,
-                trust_remote_code=trust_remote_code,
-            )
-
-            # Apply Liger kernel to the model if use_liger is set to True
-            if use_liger:
-                from liger_kernel.transformers.monkey_patch import _apply_liger_kernel_to_instance
-
-                _apply_liger_kernel_to_instance(model=actor_module)
-
-            fused_kernel_options = self.config.model.get("fused_kernel_options", None)
-            fused_kernels_backend = (
-                fused_kernel_options.get("impl_backend", None) if fused_kernel_options is not None else None
-            )
-
-            apply_monkey_patch(
-                model=actor_module,
-                use_remove_padding=use_remove_padding,
-                ulysses_sp_size=self.ulysses_sequence_parallel_size,
-                use_fused_kernels=use_fused_kernels,
-                fused_kernels_backend=fused_kernels_backend,
-            )
-            '''
+            if self.config.model.get("update_fast_only", False):
+                for name, param in actor_module.named_parameters():
+                    # lact
+                    if "w0" in name or "w1" in name or "w2" in name:
+                        if dist.get_rank() == 0:
+                            print(f"Unfreezing {name}")
+                        param.requires_grad = True
+                    # delta_net
+                    if "attn" in name:
+                        if dist.get_rank() == 0:
+                            print(f"Unfreezing {name}")
+                        param.requires_grad = True
+                    else:
+                        param.requires_grad = False
+                        
 
             # some parameters may not in torch_dtype. TODO(zhangchi.usc1992) remove this after we switch to fsdp2
             actor_module.to(torch_dtype)
@@ -513,89 +496,11 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         rollout_name = self.config.rollout.name
         if rollout_name == "hf":
             from verl.workers.rollout import HFRollout
-            from verl.workers.sharding_manager.base import BaseShardingManager, HFRolloutShardingManager
+            from verl.workers.sharding_manager.base import BaseShardingManager
             
             rollout = HFRollout(module=self.actor_module_fsdp, config=self.config.rollout)
             rollout_sharding_manager = BaseShardingManager()
             # TODO: a sharding manager that do nothing?
-            #rollout_sharding_manager = HFRolloutShardingManager()
-
-        elif rollout_name == "vllm":
-            from verl.workers.rollout.vllm_rollout import vLLMRollout
-            from verl.workers.sharding_manager.fsdp_vllm import FSDPVLLMShardingManager
-
-            log_gpu_memory_usage(f"Before building {rollout_name} rollout", logger=logger)
-            local_path = copy_to_local(self.config.model.path, use_shm=self.config.model.get("use_shm", False))
-            lora_kwargs = (
-                {"lora_kwargs": {"enable_lora": True, "max_loras": 1, "max_lora_rank": self._lora_rank}}
-                if self._is_lora
-                else {}
-            )
-            # lora_kwargs = {}
-            from verl.workers.rollout.vllm_rollout import vLLMAsyncRollout
-
-            vllm_rollout_cls = vLLMRollout if self.config.rollout.mode == "sync" else vLLMAsyncRollout
-            rollout = vllm_rollout_cls(
-                model_path=local_path,
-                config=self.config.rollout,
-                tokenizer=self.tokenizer,
-                model_hf_config=self.actor_model_config,
-                device_mesh=rollout_device_mesh,
-                trust_remote_code=trust_remote_code,
-                **lora_kwargs,
-            )
-
-            log_gpu_memory_usage(f"After building {rollout_name} rollout", logger=logger)
-            full_params = torch.distributed.get_world_size() == 1
-            rollout_sharding_manager = FSDPVLLMShardingManager(
-                module=self.actor_module_fsdp,
-                inference_engine=rollout.inference_engine,
-                model_config=self.actor_model_config,
-                rollout_config=self.config.rollout,
-                full_params=full_params,
-                device_mesh=rollout_device_mesh,
-                offload_param=self._is_offload_param,
-                load_format=self.config.rollout.load_format,
-                layered_summon=self.config.rollout.get("layered_summon", False),
-            )
-            log_gpu_memory_usage("After building sharding manager", logger=logger)
-
-        elif rollout_name == "sglang":
-            from verl.workers.rollout.sglang_rollout import SGLangRollout
-
-            # NOTE(linjunrong): Due to recent fp8 support in SGLang. Now importing any symbol relate to
-            # SGLang's model_runner would check CUDA device capability. However, due to verl's setting,
-            # the main process of ray can not find any CUDA device, which would potentially lead to:
-            # "RuntimeError: No CUDA GPUs are available".
-            # For this reason, sharding_manager.__init__ should not import FSDPSGLangShardingManager and
-            # we import it here use the abs path.
-            # check: https://github.com/sgl-project/sglang/blob/00f42707eaddfc2c0528e5b1e0094025c640b7a0/python/sglang/srt/layers/quantization/fp8_utils.py#L76
-            from verl.workers.sharding_manager.fsdp_sglang import FSDPSGLangShardingManager
-
-            local_path = copy_to_local(self.config.model.path)
-            log_gpu_memory_usage(f"Before building {rollout_name} rollout", logger=logger)
-            rollout = SGLangRollout(
-                actor_module=local_path,
-                config=self.config.rollout,
-                processing_class=self.processor if self.processor is not None else self.tokenizer,
-                model_hf_config=self.actor_model_config,
-                trust_remote_code=trust_remote_code,
-            )
-            log_gpu_memory_usage(f"After building {rollout_name} rollout", logger=logger)
-
-            if torch.distributed.get_world_size() == 1:
-                self.config.rollout.load_format = "dummy_hf"
-            rollout_sharding_manager = FSDPSGLangShardingManager(
-                module=self.actor_module_fsdp,
-                inference_engine=rollout._engine,
-                model_config=self.actor_model_config,
-                rollout_config=self.config.rollout,
-                full_params="hf" in self.config.rollout.load_format,
-                device_mesh=rollout_device_mesh,
-                offload_param=self._is_offload_param,
-                multi_stage_wake_up=self.config.rollout.multi_stage_wake_up,
-            )
-            log_gpu_memory_usage("After building sharding manager", logger=logger)
 
         else:
             raise NotImplementedError(f"Rollout name: {self.config.rollout.name} is not supported")
@@ -986,6 +891,47 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="blue", role="actor_compute_log_prob_ttt")
+    def compute_log_prob_for_ttt(self, data: DataProto):
+
+        assert self._is_actor
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+
+        # Support all hardwares
+        from contextlib import nullcontext
+        adapter_ctx = nullcontext()
+
+        data.meta_info["micro_batch_size"] = self.config.rollout.ttt_log_prob_micro_batch_size_per_gpu
+        temperature = self.config.rollout.ttt_temperature  # don't change this 
+        data.meta_info["temperature"] = temperature
+
+        with adapter_ctx:
+            hidden_states, log_probs = self.actor.compute_log_prob_for_ttt(data=data)
+        tensors = {
+            "old_log_probs": log_probs,
+            "response_hidden_states": hidden_states,
+        }
+        meta_info = {
+            "temperature": temperature,
+        }
+        output = DataProto.from_dict(
+            tensors=tensors,
+            meta_info=meta_info
+        )
+
+        # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
+        # unshard the root FSDP module
+        if self.world_size > 1 and fsdp_version(self.actor.actor_module) == 1:
+            self.actor.actor_module._handle.reshard(True)
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+            log_gpu_memory_usage("After offload actor model during compute_log_prob", logger=logger)
+
+        return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="blue", role="actor_process_input_for_ttt")
     def process_input_for_ttt(self, data: DataProto):
 
@@ -1021,7 +967,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="blue", role="actor_process_input_for_ttt")
-    def process_sequence_for_validation(self, data: DataProto):
+    def process_input_for_validation(self, data: DataProto):
         # when is_lora is True, we use the actor without lora applied to calculate the log_prob
         # which is mostly used for ref log_prob calculation
         assert self._is_actor
@@ -1031,22 +977,19 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         # Support all hardwares
         from contextlib import nullcontext
         adapter_ctx = nullcontext()
-        data.meta_info["micro_batch_size"] = self.config.actor.ttt_micro_batch_size_per_gpu
+        data.meta_info["micro_batch_size"] = self.config.rollout.ttt_log_prob_micro_batch_size_per_gpu
 
         # perform recompute log_prob
         with self.ulysses_sharding_manager:
-            data = self.ulysses_sharding_manager.preprocess_data(data)
             with adapter_ctx:
-                response_ids, loss = self.actor.process_sequence_for_validation(data=data)
+                response_ids, loss = self.actor.process_input_for_validation(data=data)
+
             output = DataProto.from_dict(
                 tensors={
                     "responses": response_ids,
+                    "loss": loss, # B, 1
                 },
-                meta_info={
-                    "loss": loss,
-                }
             )
-            output = self.ulysses_sharding_manager.postprocess_data(output)
 
         output = output.to("cpu")
 
@@ -1109,48 +1052,6 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    @DistProfiler.annotate(color="blue", role="actor_compute_log_prob_ttt")
-    def compute_log_prob_for_ttt(self, data: DataProto):
-
-        assert self._is_actor
-        if self._is_offload_param:
-            load_fsdp_model_to_gpu(self.actor_module_fsdp)
-
-        # Support all hardwares
-        from contextlib import nullcontext
-        adapter_ctx = nullcontext()
-
-        data.meta_info["micro_batch_size"] = self.config.rollout.ttt_log_prob_micro_batch_size_per_gpu
-        temperature = self.config.rollout.ttt_temperature  # don't change this 
-        data.meta_info["temperature"] = temperature
-
-
-        with adapter_ctx:
-            hidden_states, log_probs = self.actor.compute_log_prob_for_ttt(data=data)
-        tensors = {
-            "old_log_probs": log_probs,
-            "response_hidden_states": hidden_states,
-        }
-        meta_info = {
-            "temperature": temperature,
-        }
-        output = DataProto.from_dict(
-            tensors=tensors,
-            meta_info=meta_info
-        )
-
-        # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
-        # unshard the root FSDP module
-        if self.world_size > 1 and fsdp_version(self.actor.actor_module) == 1:
-            self.actor.actor_module._handle.reshard(True)
-
-        if self._is_offload_param:
-            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
-            log_gpu_memory_usage("After offload actor model during compute_log_prob", logger=logger)
-
-        return output
-
-    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     @DistProfiler.annotate(color="olive", role="ref_compute_log_prob")
     def compute_ref_log_prob(self, data: DataProto):
         if self._is_lora:
@@ -1178,6 +1079,26 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             output = self.ulysses_sharding_manager.postprocess_data(output)
 
         output = output.to("cpu")
+
+        # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
+        # unshard the root FSDP module
+        if self.world_size > 1 and fsdp_version(self.ref_policy.actor_module) == 1:
+            self.ref_policy.actor_module._handle.reshard(True)
+
+        return output
+
+    @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
+    @DistProfiler.annotate(color="olive", role="ref_compute_log_prob")
+    def compute_ref_log_prob_for_ttt(self, data: DataProto):
+        
+        assert self._is_ref
+ 
+        micro_batch_size = self.config.ref.ttt_log_prob_micro_batch_size_per_gpu
+        data.meta_info["micro_batch_size"] = micro_batch_size
+        data.meta_info["temperature"] = self.config.rollout.ttt_temperature
+
+        output = self.ref_policy.compute_ref_log_prob_for_ttt(data=data)
+        output = DataProto.from_dict(tensors={"ref_log_prob": output.to("cpu")})
 
         # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
         # unshard the root FSDP module

@@ -347,12 +347,11 @@ class TTTRLHFDataset(RLHFDataset):
         config: DictConfig,
         processor: Optional[ProcessorMixin] = None,
     ):
-        self.max_response_length = config.get("max_response_length", 32)
-        self.answer_key = config.get("answer_key", "answer")
-        self.data_source_key = config.get("data_source_key", "task")
+        self.max_response_length = config.get("max_response_length", 0)
+        self.answer_key = config.get("answer_key", None)
+        self.data_source_key = config.get("data_source_key", None)
         self.answer_split_str = "|"
         super().__init__(data_files, tokenizer, config, processor)
-
 
     def _read_files_and_tokenize(self):
         dataframes = []
@@ -409,44 +408,59 @@ class TTTRLHFDataset(RLHFDataset):
         Note that we also return the raw_input_ids so that it can be combined with other chat template
         """
         row_dict: dict = self.dataframe[item]
-        messages = self._build_messages(row_dict)
-        answers, sample_answer = self._build_answers(row_dict)
-        data_source = self._build_data_source(row_dict)
+        return_dict = {}
 
-        model_inputs = self.tokenizer(messages, return_tensors="pt", add_special_tokens=False)
-        input_ids = model_inputs.pop("input_ids")
-        attention_mask = model_inputs.pop("attention_mask")
+        # build prompt or context
+        if self.prompt_key is not None:
+            messages = self._build_messages(row_dict) 
+            model_inputs = self.tokenizer(messages, return_tensors="pt", add_special_tokens=False)
+            input_ids = model_inputs.pop("input_ids")
+            attention_mask = model_inputs.pop("attention_mask")
 
-        input_ids, attention_mask = verl_F.postprocess_data(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            max_length=self.max_prompt_length,
-            pad_token_id=self.tokenizer.pad_token_id,
-            left_pad=True,
-            truncation=self.truncation,
-        )
+            if input_ids.shape[1] > self.max_prompt_length:
+                input_ids = input_ids[:, :self.max_prompt_length]
+                attention_mask = attention_mask[:, :self.max_prompt_length]
 
-        sample_ground_truth = self.tokenizer(sample_answer, return_tensors="pt", add_special_tokens=False)
-        ground_truth_ids = sample_ground_truth.pop("input_ids")
-        ground_truth_attention_mask = sample_ground_truth.pop("attention_mask")
+            input_ids, attention_mask = verl_F.postprocess_data(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                max_length=self.max_prompt_length,
+                pad_token_id=self.tokenizer.pad_token_id,
+                left_pad=True,
+                truncation=self.truncation,
+            )
 
-        ground_truth_ids, ground_truth_attention_mask = verl_F.postprocess_data(
-            input_ids=ground_truth_ids,
-            attention_mask=ground_truth_attention_mask,
-            max_length=self.max_response_length,
-            pad_token_id=self.tokenizer.pad_token_id,
-            left_pad=False,
-            truncation=self.truncation,
-        )
+            return_dict["input_ids"] = input_ids[0]
+            return_dict["attention_mask"] = attention_mask[0]
 
-        row_dict = {}
-        row_dict["input_ids"] = input_ids[0]
-        row_dict["attention_mask"] = attention_mask[0]
-        row_dict["ground_truth_ids"] = ground_truth_ids[0]
-        row_dict["ground_truth_attention_mask"] = ground_truth_attention_mask[0]
-        row_dict["answers"] = answers # string
-        row_dict["data_source"] = data_source # string
-
-        return row_dict
+        # build answer
+        if self.answer_key is not None:
+            answers, sample_answer = self._build_answers(row_dict)
+            sample_ground_truth = self.tokenizer(sample_answer, return_tensors="pt", add_special_tokens=False)
+            ground_truth_ids = sample_ground_truth.pop("input_ids")
+            ground_truth_attention_mask = sample_ground_truth.pop("attention_mask")
+            
+            if ground_truth_ids.shape[1] > self.max_response_length:
+                ground_truth_ids = ground_truth_ids[:, :self.max_response_length]
+                ground_truth_attention_mask = ground_truth_attention_mask[:, :self.max_response_length]
+            
+            ground_truth_ids, ground_truth_attention_mask = verl_F.postprocess_data(
+                input_ids=ground_truth_ids,
+                attention_mask=ground_truth_attention_mask,
+                max_length=self.max_response_length,
+                pad_token_id=self.tokenizer.pad_token_id,
+                left_pad=False,
+                truncation=self.truncation,
+            )
+            return_dict["answers"] = answers # string
+            return_dict["ground_truth_ids"] = ground_truth_ids[0]
+            return_dict["ground_truth_attention_mask"] = ground_truth_attention_mask[0]
+            
+        # build data source
+        if self.data_source_key is not None:
+            data_source = self._build_data_source(row_dict)
+            return_dict["data_source"] = data_source # string
+        
+        return return_dict
 
 

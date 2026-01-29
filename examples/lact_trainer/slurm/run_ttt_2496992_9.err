@@ -1,0 +1,192 @@
+[2026-01-27T00:37:55.901] error: execve(): ray: No such file or directory
+srun: error: neu302: task 0: Exited with exit code 2
++ unset ROCR_VISIBLE_DEVICES
++ unset HIP_VISIBLE_DEVICES
++ export CUDA_VISIBLE_DEVICES=0,1,2,3
++ CUDA_VISIBLE_DEVICES=0,1,2,3
++ longbench_datasets=("narrativeqa" "qasper" "multifieldqa_en" "hotpotqa" "2wikimqa" "qmsum" "multi_news" "samsum" "trec" "triviaqa" "lcc" "repobench-p")
++ longbench_maxlens=(128 128 64 32 32 512 512 128 64 32 64 64)
++ dataset_idx=9
++ MODEL=delta_net_sftrl
++ VAL_TTT_RL=1
++ VAL_TTT_SFT=1
++ TTT_REWARD=cosine_similarity
++ '[' delta_net_sftrl == lact ']'
++ '[' delta_net_sftrl == lact_sft ']'
++ '[' delta_net_sftrl == lact_sftrl ']'
++ '[' delta_net_sftrl == lact_sftrl_binary ']'
++ '[' delta_net_sftrl == delta_net ']'
++ '[' delta_net_sftrl == delta_net_sft ']'
++ '[' delta_net_sftrl == delta_net_sftrl ']'
++ model_path=/n/fs/xw-hh/delta_net_llm/delta_net-sftrl-embedding-16k-c8n1k5-100
++ model_tag=delta_net_sftrl_k5
++ export TRITON_CACHE_DIR=/n/fs/xw-hh/triton/cache_
++ TRITON_CACHE_DIR=/n/fs/xw-hh/triton/cache_
++ dataset=triviaqa
++ max_response_length=32
++ max_seq_length=16384
++ max_prompt_length=16352
++ train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet
++ val_files=/n/fs/xw-hh/tttrl_data/data/longbench/triviaqa_16384.parquet
++ custom_reward_function_path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py
++ NGPU=4
++ test_freq=-1
++ total_epochs=1
++ train_batch_size=128
++ task_ppo_mini_batch_size=32
++ task_ppo_micro_batch_size_per_gpu=2
++ val_batch_size=8
++ task_log_prob_micro_batch_size_per_gpu=2
++ '[' 1 == 0 ']'
++ '[' 1 == 1 ']'
++ val_ttt_sft_update=True
++ '[' 1 == 1 ']'
++ val_ttt_ppo_update=True
++ ttt_ppo_mini_batch_size=4
++ ttt_ppo_micro_batch_size_per_gpu=2
++ ttt_log_prob_micro_batch_size_per_gpu=2
++ ttt_reward=cosine_similarity
++ ttt_n_chunks=8
++ ttt_k=5
++ ttt_n=1
++ ttt_temperature=1.0
++ ttt_sft_loss_coef=1.0
++ ttt_ppo_loss_coef=0.4
++ '[' 1 == 1 ']'
++ ttt_tag=_tttrl_b8_mb4_pg_c8n1k5_cosine_similarity
++ project_name=lact_rl
++ experiment_name=delta_net_sftrl_k5_longbench_triviaqa_16384_32_tttrl_b8_mb4_pg_c8n1k5_cosine_similarity
++ logger=console
++ cd /n/fs/xw-hh/tttrl/
++ source /n/fs/wh-vlm/miniforge3/etc/profile.d/conda.sh
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ '[' -z '' ']'
+++ export CONDA_SHLVL=0
+++ CONDA_SHLVL=0
+++ '[' -n '' ']'
+++++ dirname /n/fs/wh-vlm/miniforge3/bin/conda
++++ dirname /n/fs/wh-vlm/miniforge3/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export PATH
+++ '[' -z '' ']'
+++ PS1=
++ conda activate lact_rl
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate lact_rl
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate lact_rl
+++ /n/fs/wh-vlm/miniforge3/bin/conda shell.posix activate lact_rl
++ ask_conda='PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
++ eval 'PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
+++ PS1='(lact_rl) '
+++ export PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ export CONDA_SHLVL=1
+++ CONDA_SHLVL=1
+++ export CONDA_DEFAULT_ENV=lact_rl
+++ CONDA_DEFAULT_ENV=lact_rl
+++ export 'CONDA_PROMPT_MODIFIER=(lact_rl) '
+++ CONDA_PROMPT_MODIFIER='(lact_rl) '
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ PYTHONUNBUFFERED=1
++ srun --overlap --nodes=1 --ntasks=1 -w neu302 python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo +algorithm.val_ttt_ppo_update=True +algorithm.val_ttt_sft_update=True custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py data.train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet data.val_files=/n/fs/xw-hh/tttrl_data/data/longbench/triviaqa_16384.parquet data.prompt_key=prompt +data.answer_key=answers +data.data_source_key=task data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py data.custom_cls.name=TTTRLHFDataset data.train_batch_size=128 data.val_batch_size=8 data.max_prompt_length=16352 data.max_response_length=32 actor_rollout_ref.model.path=/n/fs/xw-hh/delta_net_llm/delta_net-sftrl-embedding-16k-c8n1k5-100 +actor_rollout_ref.actor.ttt_n_chunks=8 +actor_rollout_ref.actor.ttt_n=1 +actor_rollout_ref.actor.ttt_reward=cosine_similarity +actor_rollout_ref.actor.ttt_sft_loss_coef=1.0 +actor_rollout_ref.actor.ttt_ppo_loss_coef=0.4 +actor_rollout_ref.actor.ttt_ppo_mini_batch_size=4 +actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.actor.ppo_mini_batch_size=32 actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_temperature=1.0 +actor_rollout_ref.rollout.ttt_response_length=5 actor_rollout_ref.rollout.name=hf actor_rollout_ref.rollout.gpu_memory_utilization=0.9 trainer.balance_batch=False trainer.val_before_train=True trainer.val_only=True trainer.n_gpus_per_node=4 trainer.nnodes=1 trainer.save_freq= trainer.test_freq=-1 trainer.project_name=lact_rl trainer.experiment_name=delta_net_sftrl_k5_longbench_triviaqa_16384_32_tttrl_b8_mb4_pg_c8n1k5_cosine_similarity trainer.logger=console trainer.total_epochs=1
+2026-01-27 00:52:51,737	ERROR services.py:1357 -- Failed to start the dashboard 
+2026-01-27 00:52:51,737	ERROR services.py:1382 -- Error should be written to 'dashboard.log' or 'dashboard.err'. We are printing the last 20 lines for you. See 'https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#logging-directory-structure' to find where the log file is.
+2026-01-27 00:52:51,737	ERROR services.py:1392 -- Couldn't read dashboard.log file. Error: [Errno 2] No such file or directory: '/tmp/ray/session_2026-01-27_00-52-13_203994_3601865/logs/dashboard.log'. It means the dashboard is broken even before it initializes the logger (mostly dependency issues). Reading the dashboard.err file which contains stdout/stderr.
+2026-01-27 00:52:51,737	ERROR services.py:1426 -- Failed to read dashboard.err file: [Errno 2] No such file or directory: '/tmp/ray/session_2026-01-27_00-52-13_203994_3601865/logs/dashboard.err'. It is unexpected. Please report an issue to Ray github. https://github.com/ray-project/ray/issues
+2026-01-27 00:52:53,678	INFO worker.py:1951 -- Started a local Ray instance.
+[36m(TaskRunner pid=3609219)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/jieba/_compat.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+[36m(TaskRunner pid=3609219)[0m   import pkg_resources
+[36m(TaskRunner pid=3609219)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+[36m(TaskRunner pid=3609219)[0m   warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[36m(TaskRunner pid=3609219)[0m DeprecationWarning: `ray.state.available_resources_per_node` is a private attribute and access will be removed in a future Ray version.
+[33m(raylet)[0m [2026-01-27 01:05:12,774 E 3602856 3602856] (raylet) worker_pool.cc:592: Some workers of the worker process(3610627) have not registered within the timeout. The process is still alive, probably it's hanging during start.
+[33m(raylet)[0m [2026-01-27 01:06:12,819 E 3602856 3602856] (raylet) worker_pool.cc:592: Some workers of the worker process(3610690) have not registered within the timeout. The process is still alive, probably it's hanging during start.
+[33m(raylet)[0m [2026-01-27 01:07:12,828 E 3602856 3602856] (raylet) worker_pool.cc:592: Some workers of the worker process(3610710) have not registered within the timeout. The process is still alive, probably it's hanging during start.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:07:56,822:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:08:26,835:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 30 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:08:56,848:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 60 seconds out of 300 seconds.
+[33m(raylet)[0m [2026-01-27 01:08:56,830 E 3602856 3602856] (raylet) worker_pool.cc:592: Some workers of the worker process(3610834) have not registered within the timeout. The process is still alive, probably it's hanging during start.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:09:26,861:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 90 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:09:56,874:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 120 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:10:26,888:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 150 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:10:56,901:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 180 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:11:26,914:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 210 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:11:56,928:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 240 seconds out of 300 seconds.
+[36m(TaskRunner pid=3609219)[0m WARNING:2026-01-27 01:12:26,941:Waiting for register center actor CCnfUb_register_center to be ready. Elapsed time: 270 seconds out of 300 seconds.
+Error executing job with overrides: ['algorithm.adv_estimator=grpo', '+algorithm.val_ttt_ppo_update=True', '+algorithm.val_ttt_sft_update=True', 'custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/longbench.py', 'data.train_files=/n/fs/xw-hh/tttrl_data/data/longbench/qasper_16384.parquet', 'data.val_files=/n/fs/xw-hh/tttrl_data/data/longbench/triviaqa_16384.parquet', 'data.prompt_key=prompt', '+data.answer_key=answers', '+data.data_source_key=task', 'data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py', 'data.custom_cls.name=TTTRLHFDataset', 'data.train_batch_size=128', 'data.val_batch_size=8', 'data.max_prompt_length=16352', 'data.max_response_length=32', 'actor_rollout_ref.model.path=/n/fs/xw-hh/delta_net_llm/delta_net-sftrl-embedding-16k-c8n1k5-100', '+actor_rollout_ref.actor.ttt_n_chunks=8', '+actor_rollout_ref.actor.ttt_n=1', '+actor_rollout_ref.actor.ttt_reward=cosine_similarity', '+actor_rollout_ref.actor.ttt_sft_loss_coef=1.0', '+actor_rollout_ref.actor.ttt_ppo_loss_coef=0.4', '+actor_rollout_ref.actor.ttt_ppo_mini_batch_size=4', '+actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.actor.ppo_mini_batch_size=32', 'actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_temperature=1.0', '+actor_rollout_ref.rollout.ttt_response_length=5', 'actor_rollout_ref.rollout.name=hf', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.9', 'trainer.balance_batch=False', 'trainer.val_before_train=True', 'trainer.val_only=True', 'trainer.n_gpus_per_node=4', 'trainer.nnodes=1', 'trainer.save_freq=', 'trainer.test_freq=-1', 'trainer.project_name=lact_rl', 'trainer.experiment_name=delta_net_sftrl_k5_longbench_triviaqa_16384_32_tttrl_b8_mb4_pg_c8n1k5_cosine_similarity', 'trainer.logger=console', 'trainer.total_epochs=1']
+Traceback (most recent call last):
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 40, in main
+    run_ppo(config)
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 74, in run_ppo
+    ray.get(runner.run.remote(config))
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/auto_init_hook.py", line 22, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/client_mode_hook.py", line 104, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 2882, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 968, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TimeoutError): [36mray::TaskRunner.run()[39m (pid=3609219, ip=172.17.32.102, actor_id=04f71378c74490b64e7cedfd01000000, repr=<main_ppo.TaskRunner object at 0x7f2fe2350bf0>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 234, in run
+    trainer.init_workers()
+  File "/n/fs/xw-hh/tttrl/verl/trainer/ppo/ray_trainer.py", line 978, in init_workers
+    wg_dict = self.ray_worker_group_cls(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 309, in __init__
+    self._init_with_resource_pool(
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 436, in _init_with_resource_pool
+    raise TimeoutError(
+TimeoutError: Failed to get register_center_actor CCnfUb_register_center in [{'name': 'CCnfUbWorkerDict_0:0', 'namespace': '8644abb5-1f78-4d8c-b9dc-5a21b93f362a'}] for 300 seconds. Ensure that any lingering Ray resources from previous runs are cleaned up (e.g., by restarting the Ray cluster), or adjust the waiting time by modifying the config `trainer.ray_wait_register_center_timeout`.
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
+srun: error: neu302: task 0: Exited with exit code 1
++ echo 'Experiment name: delta_net_sftrl_k5_longbench_triviaqa_16384_32_tttrl_b8_mb4_pg_c8n1k5_cosine_similarity'
++ echo 'Done!'

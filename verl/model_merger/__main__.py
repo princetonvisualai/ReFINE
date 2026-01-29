@@ -70,4 +70,5 @@ def main():
 
 
 if __name__ == "__main__":
+    from verl.models import lact_model
     main()

@@ -1,0 +1,202 @@
+[2026-01-21T13:00:17.584] error: execve(): ray: No such file or directory
+srun: error: neu303: task 0: Exited with exit code 2
++ unset ROCR_VISIBLE_DEVICES
++ unset HIP_VISIBLE_DEVICES
++ export CUDA_VISIBLE_DEVICES=0,1,2,3
++ CUDA_VISIBLE_DEVICES=0,1,2,3
++ export HF_HOME=/n/fs/wh-vlm/cache/huggingface
++ HF_HOME=/n/fs/wh-vlm/cache/huggingface
++ max_lengths=(4096 8192 16384)
++ TTT_RL=0
++ TTT_SFT=0
++ TASK_RL=0
++ TASK_SFT=0
++ VAL_TTT_RL=0
++ VAL_TTT_SFT=0
++ dataset=hotpotqa
++ MODEL=lact_sftrl_ptsft
++ VAL_BEFORE_TRAIN=1
++ VAL_ONLY=1
++ max_seq_length=16384
++ '[' lact_sftrl_ptsft == lact ']'
++ '[' lact_sftrl_ptsft == lact_sft ']'
++ '[' lact_sftrl_ptsft == lact_sftrl ']'
++ '[' lact_sftrl_ptsft == lact_sftrl_pt ']'
++ '[' lact_sftrl_ptsft == lact_sftrl_ptsft ']'
++ model_name=lact
++ model_tag=lact_sftrl_ptsft
++ model_path=/n/fs/visualai-scr/Models/will/tttrl/lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft/global_step_24/actor/huggingface
++ train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_1600_train.parquet
++ val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_200_test.parquet
++ custom_reward_function_path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py
++ max_response_length=32
++ max_prompt_length=16352
++ NGPU=4
++ save_freq=24
++ test_freq=24
++ total_epochs=1
++ train_batch_size=64
++ val_batch_size=8
++ task_ppo_mini_batch_size=16
++ task_ppo_micro_batch_size_per_gpu=2
++ task_log_prob_micro_batch_size_per_gpu=2
++ n=1
++ '[' 0 == 1 ']'
++ '[' 0 == 0 ']'
++ task_sft_update=False
++ '[' 0 == 1 ']'
++ '[' 0 == 0 ']'
++ task_update=True
++ task_ppo_update=False
++ '[' 0 == 0 ']'
++ ttt_sft_update=False
++ ttt_ppo_update=False
++ '[' lact_sftrl_ptsft == lact_sftrl_ptsftrl ']'
++ '[' lact_sftrl_ptsft == delta_net_sftrl_ptsftrl ']'
++ ttt_ppo_mini_batch_size=16
++ ttt_reward=hybrid
++ ttt_ppo_loss_coef=0.2
++ ttt_ppo_micro_batch_size_per_gpu=2
++ ttt_log_prob_micro_batch_size_per_gpu=2
++ ttt_k=5
++ ttt_n=1
++ ttt_temperature=1.0
++ ttt_sft_loss_coef=1.0
++ ttt_n_chunks=8
++ '[' 1 == 1 ']'
++ val_only=True
++ '[' 1 == 1 ']'
++ val_before_train=True
++ '[' 0 == 0 ']'
++ val_ttt_sft_update=False
++ val_ttt_ppo_update=False
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ task_tag=
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ ttt_tag=
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ val_ttt_tag=
++ project_name=lact_rl
++ experiment_name=lact_sftrl_ptsft_ruler_hotpotqa_16384_32
++ ckpt_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_ptsft_ruler_hotpotqa_16384_32
++ logger=console
++ cd /n/fs/xw-hh/tttrl/
++ source /n/fs/wh-vlm/miniforge3/etc/profile.d/conda.sh
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ '[' -z '' ']'
+++ export CONDA_SHLVL=0
+++ CONDA_SHLVL=0
+++ '[' -n '' ']'
+++++ dirname /n/fs/wh-vlm/miniforge3/bin/conda
++++ dirname /n/fs/wh-vlm/miniforge3/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export PATH
+++ '[' -z '' ']'
+++ PS1=
++ conda activate lact_rl
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate lact_rl
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate lact_rl
+++ /n/fs/wh-vlm/miniforge3/bin/conda shell.posix activate lact_rl
++ ask_conda='PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
++ eval 'PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
+++ PS1='(lact_rl) '
+++ export PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ export CONDA_SHLVL=1
+++ CONDA_SHLVL=1
+++ export CONDA_DEFAULT_ENV=lact_rl
+++ CONDA_DEFAULT_ENV=lact_rl
+++ export 'CONDA_PROMPT_MODIFIER=(lact_rl) '
+++ CONDA_PROMPT_MODIFIER='(lact_rl) '
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ PYTHONUNBUFFERED=1
++ srun --overlap --nodes=1 --ntasks=1 -w neu303 python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo +algorithm.task_sft_update=False +algorithm.task_ppo_update=False +algorithm.ttt_sft_update=False +algorithm.ttt_ppo_update=False +algorithm.val_ttt_ppo_update=False +algorithm.val_ttt_sft_update=False custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py data.train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_1600_train.parquet data.val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_200_test.parquet data.prompt_key=prompt +data.answer_key=answer +data.data_source_key=task data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py data.custom_cls.name=TTTRLHFDataset data.train_batch_size=64 data.val_batch_size=8 data.max_prompt_length=16352 data.max_response_length=32 actor_rollout_ref.model.path=/n/fs/visualai-scr/Models/will/tttrl/lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft/global_step_24/actor/huggingface +actor_rollout_ref.actor.ttt_n_chunks=8 +actor_rollout_ref.actor.ttt_n=1 +actor_rollout_ref.actor.ttt_reward=hybrid +actor_rollout_ref.actor.ttt_sft_loss_coef=1.0 +actor_rollout_ref.actor.ttt_ppo_loss_coef=0.2 +actor_rollout_ref.actor.ttt_ppo_mini_batch_size=16 +actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.actor.ppo_mini_batch_size=16 actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_temperature=1.0 +actor_rollout_ref.rollout.ttt_response_length=5 actor_rollout_ref.rollout.name=hf actor_rollout_ref.rollout.gpu_memory_utilization=0.9 actor_rollout_ref.rollout.n=1 trainer.balance_batch=False trainer.default_local_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_ptsft_ruler_hotpotqa_16384_32 trainer.val_before_train=True trainer.val_only=True trainer.n_gpus_per_node=4 trainer.nnodes=1 trainer.save_freq=24 trainer.test_freq=24 trainer.project_name=lact_rl trainer.experiment_name=lact_sftrl_ptsft_ruler_hotpotqa_16384_32 trainer.logger=console trainer.total_epochs=1
+2026-01-21 13:00:40,047	INFO worker.py:1942 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
+[36m(TaskRunner pid=71447)[0m DeprecationWarning: `ray.state.available_resources_per_node` is a private attribute and access will be removed in a future Ray version.
+[36m(TaskRunner pid=71447)[0m WARNING:2026-01-21 13:00:50,549:Waiting for register center actor k5r4LM_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
+[36m(WorkerDict pid=71897)[0m `generation_config` default values have been modified to match model-specific defaults: {'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[36m(WorkerDict pid=71897)[0m [rank0]:W0121 13:05:38.657000 71897 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] torch._dynamo hit config.cache_size_limit (8)
+[36m(WorkerDict pid=71897)[0m [rank0]:W0121 13:05:38.657000 71897 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    function: 'block_causal_lact_swiglu' (/n/fs/xw-hh/tttrl/verl/models/lact_model/ttt_operation.py:69)
+[36m(WorkerDict pid=71897)[0m [rank0]:W0121 13:05:38.657000 71897 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    last reason: 1/0: tensor 'L['k']' size mismatch at index 1. expected 16352, actual 16360
+[36m(WorkerDict pid=71897)[0m [rank0]:W0121 13:05:38.657000 71897 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To log all recompilation reasons, use TORCH_LOGS="recompiles".
+[36m(WorkerDict pid=71897)[0m [rank0]:W0121 13:05:38.657000 71897 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To diagnose recompilation issues, see https://pytorch.org/docs/main/torch.compiler_troubleshooting.html.
+[36m(WorkerDict pid=74677)[0m `generation_config` default values have been modified to match model-specific defaults: {'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=74677)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=74677)[0m [rank2]:W0121 13:05:38.657000 74677 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] torch._dynamo hit config.cache_size_limit (8)[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=74677)[0m [rank2]:W0121 13:05:38.657000 74677 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    function: 'block_causal_lact_swiglu' (/n/fs/xw-hh/tttrl/verl/models/lact_model/ttt_operation.py:69)[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=74677)[0m [rank2]:W0121 13:05:38.657000 74677 site-packages/torch/_dynamo/convert_frame.py:906] [1/8]    last reason: 1/0: tensor 'L['k']' size mismatch at index 1. expected 16352, actual 16360[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=74677)[0m [rank2]:W0121 13:05:38.657000 74677 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To log all recompilation reasons, use TORCH_LOGS="recompiles".[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=74677)[0m [rank2]:W0121 13:05:38.657000 74677 site-packages/torch/_dynamo/convert_frame.py:906] [1/8] To diagnose recompilation issues, see https://pytorch.org/docs/main/torch.compiler_troubleshooting.html.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[36m(WorkerDict pid=74676)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=71897)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 4x across cluster][0m
+[36m(WorkerDict pid=74677)[0m Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.[32m [repeated 3x across cluster][0m

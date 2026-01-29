@@ -1,0 +1,215 @@
+srun: error: node401: task 0: Exited with exit code 2
+[2026-01-20T22:50:25.634] error: execve(): ray: No such file or directory
++ unset ROCR_VISIBLE_DEVICES
++ unset HIP_VISIBLE_DEVICES
++ export HF_HOME=/n/fs/wh-vlm/cache/huggingface
++ HF_HOME=/n/fs/wh-vlm/cache/huggingface
++ max_lengths=(4096 8192 16384)
++ TTT_RL=0
++ TTT_SFT=1
++ TASK_RL=0
++ TASK_SFT=1
++ VAL_TTT_RL=0
++ VAL_TTT_SFT=0
++ dataset=hotpotqa
++ MODEL=lact_sftrl
++ VAL_BEFORE_TRAIN=0
++ VAL_ONLY=0
++ max_seq_length=16384
++ '[' lact_sftrl == lact ']'
++ '[' lact_sftrl == lact_sft ']'
++ '[' lact_sftrl == lact_sftrl ']'
++ model_name=lact
++ model_tag=lact_sftrl_k5
++ model_path=/n/fs/xw-hh/lact_llm/lact-sftrl-embedding-16k-c8n1k5-100
++ train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_1600_train.parquet
++ val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_200_test.parquet
++ custom_reward_function_path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py
++ max_response_length=32
++ max_prompt_length=16352
++ NGPU=4
++ save_freq=24
++ test_freq=24
++ total_epochs=1
++ train_batch_size=64
++ val_batch_size=8
++ task_ppo_mini_batch_size=16
++ task_ppo_micro_batch_size_per_gpu=2
++ task_log_prob_micro_batch_size_per_gpu=2
++ n=1
++ '[' 1 == 1 ']'
++ task_sft_update=True
++ task_ppo_update=False
++ '[' 1 == 0 ']'
++ '[' 1 == 1 ']'
++ ttt_sft_update=True
++ '[' 0 == 1 ']'
++ '[' 0 == 0 ']'
++ ttt_ppo_update=False
++ '[' lact_sftrl == lact_sftrl_ptsftrl ']'
++ '[' lact_sftrl == delta_net_sftrl_ptsftrl ']'
++ ttt_ppo_mini_batch_size=16
++ ttt_reward=hybrid
++ ttt_ppo_loss_coef=0.2
++ ttt_ppo_micro_batch_size_per_gpu=2
++ ttt_log_prob_micro_batch_size_per_gpu=2
++ ttt_k=5
++ ttt_n=1
++ ttt_temperature=1.0
++ ttt_sft_loss_coef=1.0
++ ttt_n_chunks=8
++ '[' 0 == 1 ']'
++ '[' 0 == 0 ']'
++ val_only=False
++ '[' 0 == 1 ']'
++ '[' 0 == 0 ']'
++ val_before_train=False
++ '[' 0 == 0 ']'
++ val_ttt_sft_update=False
++ val_ttt_ppo_update=False
++ '[' 1 == 1 ']'
++ task_tag=_tasksft
++ '[' 0 == 1 ']'
++ '[' 1 == 1 ']'
++ ttt_tag=_tttsft
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ val_ttt_tag=
++ project_name=lact_rl
++ experiment_name=lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft
++ ckpt_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft
++ logger=console
++ cd /n/fs/xw-hh/tttrl/
++ source /n/fs/wh-vlm/miniforge3/etc/profile.d/conda.sh
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ '[' -z x ']'
++ conda activate lact_rl
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate lact_rl
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate lact_rl
+++ /n/fs/wh-vlm/miniforge3/bin/conda shell.posix activate lact_rl
++ ask_conda='. "/n/fs/wh-vlm/miniforge3/etc/conda/deactivate.d/libxml2_deactivate.sh"
+PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/n/fs/grad/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/u/hh2605/.cursor-server/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_PREFIX_1='\''/n/fs/wh-vlm/miniforge3'\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
++ eval '. "/n/fs/wh-vlm/miniforge3/etc/conda/deactivate.d/libxml2_deactivate.sh"
+PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/n/fs/grad/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/u/hh2605/.cursor-server/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_PREFIX_1='\''/n/fs/wh-vlm/miniforge3'\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
+++ . /n/fs/wh-vlm/miniforge3/etc/conda/deactivate.d/libxml2_deactivate.sh
++++ test -n ''
++++ unset XML_CATALOG_FILES
++++ unset xml_catalog_files_libxml2
+++ PS1='(lact_rl) '
+++ export PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/n/fs/grad/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/u/hh2605/.cursor-server/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts
+++ PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/n/fs/grad/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/u/hh2605/.cursor-server/extensions/ms-python.debugpy-2025.18.0-linux-x64/bundled/scripts/noConfigScripts
+++ export CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ export CONDA_SHLVL=2
+++ CONDA_SHLVL=2
+++ export CONDA_DEFAULT_ENV=lact_rl
+++ CONDA_DEFAULT_ENV=lact_rl
+++ export 'CONDA_PROMPT_MODIFIER=(lact_rl) '
+++ CONDA_PROMPT_MODIFIER='(lact_rl) '
+++ export CONDA_PREFIX_1=/n/fs/wh-vlm/miniforge3
+++ CONDA_PREFIX_1=/n/fs/wh-vlm/miniforge3
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ PYTHONUNBUFFERED=1
++ srun --overlap --nodes=1 --ntasks=1 -w node401 python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo +algorithm.task_sft_update=True +algorithm.task_ppo_update=False +algorithm.ttt_sft_update=True +algorithm.ttt_ppo_update=False +algorithm.val_ttt_ppo_update=False +algorithm.val_ttt_sft_update=False custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py data.train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_1600_train.parquet data.val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_200_test.parquet data.prompt_key=prompt +data.answer_key=answer +data.data_source_key=task data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py data.custom_cls.name=TTTRLHFDataset data.train_batch_size=64 data.val_batch_size=8 data.max_prompt_length=16352 data.max_response_length=32 actor_rollout_ref.model.path=/n/fs/xw-hh/lact_llm/lact-sftrl-embedding-16k-c8n1k5-100 +actor_rollout_ref.actor.ttt_n_chunks=8 +actor_rollout_ref.actor.ttt_n=1 +actor_rollout_ref.actor.ttt_reward=hybrid +actor_rollout_ref.actor.ttt_sft_loss_coef=1.0 +actor_rollout_ref.actor.ttt_ppo_loss_coef=0.2 +actor_rollout_ref.actor.ttt_ppo_mini_batch_size=16 +actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.actor.ppo_mini_batch_size=16 actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_temperature=1.0 +actor_rollout_ref.rollout.ttt_response_length=5 actor_rollout_ref.rollout.name=hf actor_rollout_ref.rollout.gpu_memory_utilization=0.9 actor_rollout_ref.rollout.n=1 trainer.balance_batch=False trainer.default_local_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft trainer.val_before_train=False trainer.val_only=False trainer.n_gpus_per_node=4 trainer.nnodes=1 trainer.save_freq=24 trainer.test_freq=24 trainer.project_name=lact_rl trainer.experiment_name=lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft trainer.logger=console trainer.total_epochs=1
+[2026-01-20 22:51:44,528 W 2448773 2448773] gcs_rpc_client.h:155: Failed to connect to GCS at address 172.17.26.41:38923 within 5 seconds.
+2026-01-20 22:52:04,998	INFO worker.py:1942 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
+[36m(TaskRunner pid=2455820)[0m DeprecationWarning: `ray.state.available_resources_per_node` is a private attribute and access will be removed in a future Ray version.
+[36m(TaskRunner pid=2455820)[0m WARNING:2026-01-20 22:52:32,239:Waiting for register center actor 7OsnFR_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
+[36m(WorkerDict pid=2458836)[0m Exception raised in creation task: The actor died because of an error raised in its creation task, [36mray::7OsnFRWorkerDict_0:0:WorkerDict.__init__()[39m (pid=2458836, ip=172.17.26.41, actor_id=ff398dfbabe0d80eb23026a801000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f86402006b0>)
+[36m(WorkerDict pid=2458836)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(WorkerDict pid=2458836)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(WorkerDict pid=2458836)[0m   File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 776, in __init__
+[36m(WorkerDict pid=2458836)[0m     super().__init__()
+[36m(WorkerDict pid=2458836)[0m   File "/n/fs/xw-hh/tttrl/verl/single_controller/base/worker.py", line 148, in __init__
+[36m(WorkerDict pid=2458836)[0m     self._setup_env_cuda_visible_devices()
+[36m(WorkerDict pid=2458836)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(WorkerDict pid=2458836)[0m   File "/n/fs/xw-hh/tttrl/verl/single_controller/base/worker.py", line 221, in _setup_env_cuda_visible_devices
+[36m(WorkerDict pid=2458836)[0m     raise ValueError("Please don't set ROCR_VISIBLE_DEVICES when HIP/CUDA_VISIBLE_DEVICES is set.")
+[36m(WorkerDict pid=2458836)[0m ValueError: Please don't set ROCR_VISIBLE_DEVICES when HIP/CUDA_VISIBLE_DEVICES is set.
+Error executing job with overrides: ['algorithm.adv_estimator=grpo', '+algorithm.task_sft_update=True', '+algorithm.task_ppo_update=False', '+algorithm.ttt_sft_update=True', '+algorithm.ttt_ppo_update=False', '+algorithm.val_ttt_ppo_update=False', '+algorithm.val_ttt_sft_update=False', 'custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py', 'data.train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_1600_train.parquet', 'data.val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_hotpotqa_lact_16384_200_test.parquet', 'data.prompt_key=prompt', '+data.answer_key=answer', '+data.data_source_key=task', 'data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py', 'data.custom_cls.name=TTTRLHFDataset', 'data.train_batch_size=64', 'data.val_batch_size=8', 'data.max_prompt_length=16352', 'data.max_response_length=32', 'actor_rollout_ref.model.path=/n/fs/xw-hh/lact_llm/lact-sftrl-embedding-16k-c8n1k5-100', '+actor_rollout_ref.actor.ttt_n_chunks=8', '+actor_rollout_ref.actor.ttt_n=1', '+actor_rollout_ref.actor.ttt_reward=hybrid', '+actor_rollout_ref.actor.ttt_sft_loss_coef=1.0', '+actor_rollout_ref.actor.ttt_ppo_loss_coef=0.2', '+actor_rollout_ref.actor.ttt_ppo_mini_batch_size=16', '+actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.actor.ppo_mini_batch_size=16', 'actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_temperature=1.0', '+actor_rollout_ref.rollout.ttt_response_length=5', 'actor_rollout_ref.rollout.name=hf', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.9', 'actor_rollout_ref.rollout.n=1', 'trainer.balance_batch=False', 'trainer.default_local_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft', 'trainer.val_before_train=False', 'trainer.val_only=False', 'trainer.n_gpus_per_node=4', 'trainer.nnodes=1', 'trainer.save_freq=24', 'trainer.test_freq=24', 'trainer.project_name=lact_rl', 'trainer.experiment_name=lact_sftrl_k5_ruler_hotpotqa_16384_32_tttsft_tasksft', 'trainer.logger=console', 'trainer.total_epochs=1']
+Traceback (most recent call last):
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 40, in main
+    run_ppo(config)
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 74, in run_ppo
+    ray.get(runner.run.remote(config))
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/auto_init_hook.py", line 22, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/client_mode_hook.py", line 104, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 2882, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 968, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(ActorDiedError): [36mray::TaskRunner.run()[39m (pid=2455820, ip=172.17.26.41, actor_id=679795651b7a33e753cf32d101000000, repr=<main_ppo.TaskRunner object at 0x7f7e9d1b8c20>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 234, in run
+    trainer.init_workers()
+  File "/n/fs/xw-hh/tttrl/verl/trainer/ppo/ray_trainer.py", line 1077, in init_workers
+    self.actor_rollout_wg.init_model()
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 50, in __call__
+    output = ray.get(output)
+             ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ray.exceptions.ActorDiedError: The actor died because of an error raised in its creation task, [36mray::7OsnFRWorkerDict_0:0:WorkerDict.__init__()[39m (pid=2458836, ip=172.17.26.41, actor_id=ff398dfbabe0d80eb23026a801000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f86402006b0>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 776, in __init__
+    super().__init__()
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/base/worker.py", line 148, in __init__
+    self._setup_env_cuda_visible_devices()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/base/worker.py", line 221, in _setup_env_cuda_visible_devices
+    raise ValueError("Please don't set ROCR_VISIBLE_DEVICES when HIP/CUDA_VISIBLE_DEVICES is set.")
+ValueError: Please don't set ROCR_VISIBLE_DEVICES when HIP/CUDA_VISIBLE_DEVICES is set.
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
+srun: error: node401: task 0: Exited with exit code 1

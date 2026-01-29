@@ -183,10 +183,10 @@ class HFRollout(BaseRollout):
     @torch.no_grad()
     def _generate_minibatch_for_ttt(self, prompts: DataProto) -> DataProto:
 
-        temperature = prompts.meta_info.get("temperature", self.config.ttt_temperature)
-        response_length = prompts.meta_info.get("ttt_response_length", self.config.ttt_response_length)
-        top_p = prompts.meta_info.get("ttt_top_p", self.config.get("ttt_top_p", 1.0))
-        top_k = max(0, prompts.meta_info.get("ttt_top_k", self.config.get("ttt_top_k", 0)))  # to be compatible with vllm
+        temperature = self.config.ttt_temperature
+        response_length = self.config.ttt_response_length
+        top_p = self.config.get("ttt_top_p", 1.0)
+        top_k = self.config.get("ttt_top_k", 0)  # to be compatible with vllm
 
         kwargs = {
             "do_sample": True,

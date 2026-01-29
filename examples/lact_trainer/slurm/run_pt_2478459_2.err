@@ -1,0 +1,327 @@
+[2026-01-21T06:43:52.696] error: execve(): ray: No such file or directory
+srun: error: neu301: task 0: Exited with exit code 2
++ unset ROCR_VISIBLE_DEVICES
++ unset HIP_VISIBLE_DEVICES
++ export CUDA_VISIBLE_DEVICES=0,1,2,3
++ CUDA_VISIBLE_DEVICES=0,1,2,3
++ export HF_HOME=/n/fs/wh-vlm/cache/huggingface
++ HF_HOME=/n/fs/wh-vlm/cache/huggingface
++ max_lengths=(4096 8192 16384)
++ TTT_RL=0
++ TTT_SFT=0
++ TASK_RL=0
++ TASK_SFT=0
++ VAL_TTT_RL=1
++ VAL_TTT_SFT=1
++ dataset=squadqa
++ MODEL=lact_sftrl_ptsftrl
++ VAL_BEFORE_TRAIN=1
++ VAL_ONLY=1
++ max_seq_length=16384
++ '[' lact_sftrl_ptsftrl == lact ']'
++ '[' lact_sftrl_ptsftrl == lact_sft ']'
++ '[' lact_sftrl_ptsftrl == lact_sftrl ']'
++ '[' lact_sftrl_ptsftrl == lact_sftrl_pt ']'
++ '[' lact_sftrl_ptsftrl == lact_sftrl_ptsft ']'
++ '[' lact_sftrl_ptsftrl == lact_sftrl_ptsftrl ']'
++ model_name=lact
++ model_tag=lact_sftrl_ptsftrl
++ model_path=/n/fs/visualai-scr/Models/will/tttrl/lact_sftrl_k5_ruler_squadqa_16384_32_tttrl_c8n1k5_hybrid_tasksft/global_step_24/actor/huggingface
++ train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_lact_16384_1600_train.parquet
++ val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_lact_16384_200_test.parquet
++ custom_reward_function_path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py
++ max_response_length=32
++ max_prompt_length=16352
++ NGPU=4
++ save_freq=24
++ test_freq=24
++ total_epochs=1
++ train_batch_size=64
++ val_batch_size=8
++ task_ppo_mini_batch_size=16
++ task_ppo_micro_batch_size_per_gpu=2
++ task_log_prob_micro_batch_size_per_gpu=2
++ n=1
++ '[' 0 == 1 ']'
++ '[' 0 == 0 ']'
++ task_sft_update=False
++ '[' 0 == 1 ']'
++ '[' 0 == 0 ']'
++ task_update=True
++ task_ppo_update=False
++ '[' 0 == 0 ']'
++ ttt_sft_update=False
++ ttt_ppo_update=False
++ '[' lact_sftrl_ptsftrl == lact_sftrl_ptsftrl ']'
++ ttt_ppo_mini_batch_size=8
++ ttt_reward=binary
++ ttt_ppo_loss_coef=0.4
++ ttt_ppo_micro_batch_size_per_gpu=2
++ ttt_log_prob_micro_batch_size_per_gpu=2
++ ttt_k=5
++ ttt_n=1
++ ttt_temperature=1.0
++ ttt_sft_loss_coef=1.0
++ ttt_n_chunks=8
++ '[' 1 == 1 ']'
++ val_only=True
++ '[' 1 == 1 ']'
++ val_before_train=True
++ '[' 1 == 0 ']'
++ '[' 1 == 1 ']'
++ val_ttt_sft_update=True
++ '[' 1 == 1 ']'
++ val_ttt_ppo_update=True
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ task_tag=
++ '[' 0 == 1 ']'
++ '[' 0 == 1 ']'
++ ttt_tag=
++ '[' 1 == 1 ']'
++ val_ttt_tag=_valtttrl
++ project_name=lact_rl
++ experiment_name=lact_sftrl_ptsftrl_ruler_squadqa_16384_32_valtttrl
++ ckpt_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_ptsftrl_ruler_squadqa_16384_32_valtttrl
++ logger=console
++ cd /n/fs/xw-hh/tttrl/
++ source /n/fs/wh-vlm/miniforge3/etc/profile.d/conda.sh
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ '[' -z '' ']'
+++ export CONDA_SHLVL=0
+++ CONDA_SHLVL=0
+++ '[' -n '' ']'
+++++ dirname /n/fs/wh-vlm/miniforge3/bin/conda
++++ dirname /n/fs/wh-vlm/miniforge3/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export PATH
+++ '[' -z '' ']'
+++ PS1=
++ conda activate lact_rl
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate lact_rl
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate lact_rl
+++ /n/fs/wh-vlm/miniforge3/bin/conda shell.posix activate lact_rl
++ ask_conda='PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
++ eval 'PS1='\''(lact_rl) '\''
+export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
+export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''lact_rl'\''
+export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
+export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
+++ PS1='(lact_rl) '
+++ export PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
+++ export CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
+++ export CONDA_SHLVL=1
+++ CONDA_SHLVL=1
+++ export CONDA_DEFAULT_ENV=lact_rl
+++ CONDA_DEFAULT_ENV=lact_rl
+++ export 'CONDA_PROMPT_MODIFIER=(lact_rl) '
+++ CONDA_PROMPT_MODIFIER='(lact_rl) '
+++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ PYTHONUNBUFFERED=1
++ srun --overlap --nodes=1 --ntasks=1 -w neu301 python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo +algorithm.task_sft_update=False +algorithm.task_ppo_update=False +algorithm.ttt_sft_update=False +algorithm.ttt_ppo_update=False +algorithm.val_ttt_ppo_update=True +algorithm.val_ttt_sft_update=True custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py data.train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_lact_16384_1600_train.parquet data.val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_lact_16384_200_test.parquet data.prompt_key=prompt +data.answer_key=answer +data.data_source_key=task data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py data.custom_cls.name=TTTRLHFDataset data.train_batch_size=64 data.val_batch_size=8 data.max_prompt_length=16352 data.max_response_length=32 actor_rollout_ref.model.path=/n/fs/visualai-scr/Models/will/tttrl/lact_sftrl_k5_ruler_squadqa_16384_32_tttrl_c8n1k5_hybrid_tasksft/global_step_24/actor/huggingface +actor_rollout_ref.actor.ttt_n_chunks=8 +actor_rollout_ref.actor.ttt_n=1 +actor_rollout_ref.actor.ttt_reward=binary +actor_rollout_ref.actor.ttt_sft_loss_coef=1.0 +actor_rollout_ref.actor.ttt_ppo_loss_coef=0.4 +actor_rollout_ref.actor.ttt_ppo_mini_batch_size=8 +actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.actor.ppo_mini_batch_size=16 actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_temperature=1.0 +actor_rollout_ref.rollout.ttt_response_length=5 actor_rollout_ref.rollout.name=hf actor_rollout_ref.rollout.gpu_memory_utilization=0.9 actor_rollout_ref.rollout.n=1 trainer.balance_batch=False trainer.default_local_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_ptsftrl_ruler_squadqa_16384_32_valtttrl trainer.val_before_train=True trainer.val_only=True trainer.n_gpus_per_node=4 trainer.nnodes=1 trainer.save_freq=24 trainer.test_freq=24 trainer.project_name=lact_rl trainer.experiment_name=lact_sftrl_ptsftrl_ruler_squadqa_16384_32_valtttrl trainer.logger=console trainer.total_epochs=1
+2026-01-21 06:44:14,654	INFO worker.py:1942 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
+[36m(TaskRunner pid=3663182)[0m DeprecationWarning: `ray.state.available_resources_per_node` is a private attribute and access will be removed in a future Ray version.
+[36m(TaskRunner pid=3663182)[0m WARNING:2026-01-21 06:44:24,578:Waiting for register center actor ls6zcG_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
+[36m(WorkerDict pid=3663633)[0m [rank0]:[E121 07:15:21.849691354 ProcessGroupNCCL.cpp:629] [Rank 0] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=BROADCAST, NumelIn=65708180, NumelOut=65708180, Timeout(ms)=1800000) ran for 1800020 milliseconds before timing out.
+[36m(WorkerDict pid=3663633)[0m [rank0]:[E121 07:15:21.850144992 ProcessGroupNCCL.cpp:2168] [PG ID 0 PG GUID 0(default_pg) Rank 0]  failure detected by watchdog at work sequence id: 1 PG status: last enqueued work: 12, last completed work: -1
+[36m(WorkerDict pid=3663633)[0m [rank0]:[E121 07:15:21.850158585 ProcessGroupNCCL.cpp:667] Stack trace of the failed collective not found, potentially because FlightRecorder is disabled. You can enable it by setting TORCH_NCCL_TRACE_BUFFER_SIZE to a non-zero value.
+[36m(WorkerDict pid=3663633)[0m [rank0]:[E121 07:15:21.850163356 ProcessGroupNCCL.cpp:681] [Rank 0] Some NCCL operations have failed or timed out. Due to the asynchronous nature of CUDA kernels, subsequent GPU operations might run on corrupted/incomplete data.
+[36m(WorkerDict pid=3663633)[0m [rank0]:[E121 07:15:21.850167576 ProcessGroupNCCL.cpp:695] [Rank 0] To avoid data inconsistency, we are taking the entire process down.
+[36m(WorkerDict pid=3663633)[0m [rank0]:[E121 07:15:21.851599227 ProcessGroupNCCL.cpp:1895] [PG ID 0 PG GUID 0(default_pg) Rank 0] Process group watchdog thread terminated with exception: [Rank 0] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=BROADCAST, NumelIn=65708180, NumelOut=65708180, Timeout(ms)=1800000) ran for 1800020 milliseconds before timing out.
+[36m(WorkerDict pid=3663633)[0m Exception raised from checkTimeout at /pytorch/torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:632 (most recent call first):
+[36m(WorkerDict pid=3663633)[0m frame #0: c10::Error::Error(c10::SourceLocation, std::string) + 0x96 (0x7fc2142cf1b6 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libc10.so)
+[36m(WorkerDict pid=3663633)[0m frame #1: c10d::ProcessGroupNCCL::WorkNCCL::checkTimeout(std::optional<std::chrono::duration<long, std::ratio<1l, 1000l> > >) + 0x2b4 (0x7f9cf2f9ac74 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+[36m(WorkerDict pid=3663633)[0m frame #2: c10d::ProcessGroupNCCL::watchdogHandler() + 0x890 (0x7f9cf2f9c7d0 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+[36m(WorkerDict pid=3663633)[0m frame #3: c10d::ProcessGroupNCCL::ncclCommWatchdog() + 0x14d (0x7f9cf2f9d6ed in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+[36m(WorkerDict pid=3663633)[0m frame #4: <unknown function> + 0xdbae4 (0x7fc28ccdbae4 in /lib64/libstdc++.so.6)
+[36m(WorkerDict pid=3663633)[0m frame #5: <unknown function> + 0x8b2ea (0x7fc28f08b2ea in /lib64/libc.so.6)
+[36m(WorkerDict pid=3663633)[0m frame #6: <unknown function> + 0x1103c0 (0x7fc28f1103c0 in /lib64/libc.so.6)
+[36m(WorkerDict pid=3663633)[0m 
+[36m(WorkerDict pid=3663633)[0m [2026-01-21 07:15:21,942 E 3663633 3666658] logging.cc:118: Unhandled exception: N3c1016DistBackendErrorE. what(): [PG ID 0 PG GUID 0(default_pg) Rank 0] Process group watchdog thread terminated with exception: [Rank 0] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=BROADCAST, NumelIn=65708180, NumelOut=65708180, Timeout(ms)=1800000) ran for 1800020 milliseconds before timing out.
+[36m(WorkerDict pid=3663633)[0m Exception raised from checkTimeout at /pytorch/torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:632 (most recent call first):
+[36m(WorkerDict pid=3663633)[0m frame #0: c10::Error::Error(c10::SourceLocation, std::string) + 0x96 (0x7fc2142cf1b6 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libc10.so)
+[36m(WorkerDict pid=3663633)[0m frame #1: c10d::ProcessGroupNCCL::WorkNCCL::checkTimeout(std::optional<std::chrono::duration<long, std::ratio<1l, 1000l> > >) + 0x2b4 (0x7f9cf2f9ac74 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+[36m(WorkerDict pid=3663633)[0m frame #2: c10d::ProcessGroupNCCL::watchdogHandler() + 0x890 (0x7f9cf2f9c7d0 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+[36m(WorkerDict pid=3663633)[0m frame #3: c10d::ProcessGroupNCCL::ncclCommWatchdog() + 0x14d (0x7f9cf2f9d6ed in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+[36m(WorkerDict pid=3663633)[0m frame #4: <unknown function> + 0xdbae4 (0x7fc28ccdbae4 in /lib64/libstdc++.so.6)
+[36m(WorkerDict pid=3663633)[0m frame #5: <unknown function> + 0x8b2ea (0x7fc28f08b2ea in /lib64/libc.so.6)
+[36m(WorkerDict pid=3663633)[0m frame #6: <unknown function> + 0x1103c0 (0x7fc28f1103c0 in /lib64/libc.so.6)
+[36m(WorkerDict pid=3663633)[0m 
+[36m(WorkerDict pid=3663633)[0m Exception raised from ncclCommWatchdog at /pytorch/torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:1901 (most recent call first):
+[36m(WorkerDict pid=3663633)[0m frame #0: c10::Error::Error(c10::SourceLocation, std::string) + 0x96 (0x7fc2142cf1b6 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libc10.so)
+[36m(WorkerDict pid=3663633)[0m frame #1: <unknown function> + 0xe5c6fc (0x7f9cf2bf86fc in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+[36m(WorkerDict pid=3663633)[0m frame #2: <unknown function> + 0xdbae4 (0x7fc28ccdbae4 in /lib64/libstdc++.so.6)
+[36m(WorkerDict pid=3663633)[0m frame #3: <unknown function> + 0x8b2ea (0x7fc28f08b2ea in /lib64/libc.so.6)
+[36m(WorkerDict pid=3663633)[0m frame #4: <unknown function> + 0x1103c0 (0x7fc28f1103c0 in /lib64/libc.so.6)
+[36m(WorkerDict pid=3663633)[0m 
+[36m(WorkerDict pid=3663633)[0m [2026-01-21 07:15:21,952 E 3663633 3666658] logging.cc:125: Stack trace: 
+[36m(WorkerDict pid=3663633)[0m  /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_raylet.so(+0x152da9a) [0x7fc28e539a9a] ray::operator<<()
+[36m(WorkerDict pid=3663633)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_raylet.so(+0x15309a2) [0x7fc28e53c9a2] ray::TerminateHandler()
+[36m(WorkerDict pid=3663633)[0m /lib64/libstdc++.so.6(+0xad53c) [0x7fc28ccad53c]
+[36m(WorkerDict pid=3663633)[0m /lib64/libstdc++.so.6(+0xad5a7) [0x7fc28ccad5a7]
+[36m(WorkerDict pid=3663633)[0m /lib64/libstdc++.so.6(+0xad52f) [0x7fc28ccad52f]
+[36m(WorkerDict pid=3663633)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so(+0xe5c7aa) [0x7f9cf2bf87aa] c10d::ProcessGroupNCCL::ncclCommWatchdog()
+[36m(WorkerDict pid=3663633)[0m /lib64/libstdc++.so.6(+0xdbae4) [0x7fc28ccdbae4]
+[36m(WorkerDict pid=3663633)[0m /lib64/libc.so.6(+0x8b2ea) [0x7fc28f08b2ea] start_thread
+[36m(WorkerDict pid=3663633)[0m /lib64/libc.so.6(+0x1103c0) [0x7fc28f1103c0] __GI___clone3
+[36m(WorkerDict pid=3663633)[0m 
+[36m(WorkerDict pid=3663633)[0m *** SIGABRT received at time=1768997721 on cpu 84 ***
+[36m(WorkerDict pid=3663633)[0m PC: @     0x7fc28f08d02c  (unknown)  __pthread_kill_implementation
+[36m(WorkerDict pid=3663633)[0m     @     0x7fc28f03fc30  (unknown)  (unknown)
+[36m(WorkerDict pid=3663633)[0m [2026-01-21 07:15:21,952 E 3663633 3666658] logging.cc:474: *** SIGABRT received at time=1768997721 on cpu 84 ***
+[36m(WorkerDict pid=3663633)[0m [2026-01-21 07:15:21,952 E 3663633 3666658] logging.cc:474: PC: @     0x7fc28f08d02c  (unknown)  __pthread_kill_implementation
+[36m(WorkerDict pid=3663633)[0m [2026-01-21 07:15:21,953 E 3663633 3666658] logging.cc:474:     @     0x7fc28f03fc30  (unknown)  (unknown)
+[36m(WorkerDict pid=3663633)[0m Fatal Python error: Aborted
+[36m(WorkerDict pid=3663633)[0m 
+[36m(WorkerDict pid=3663633)[0m 
+[36m(WorkerDict pid=3663633)[0m Extension modules: msgpack._cmsgpack, google._upb._message, psutil._psutil_linux, psutil._psutil_posix, yaml._yaml, charset_normalizer.md, requests.packages.charset_normalizer.md, requests.packages.chardet.md, ray._raylet, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, pyarrow.lib, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._mt19937, numpy.random.mtrand, numpy.random._philox, numpy.random._pcg64, numpy.random._sfc64, numpy.random._generator, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.properties, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pyarrow._compute, pandas._libs.ops, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, torch._C, torch._C._dynamo.autograd_compiler, torch._C._dynamo.eval_frame, torch._C._dynamo.guards, torch._C._dynamo.utils, torch._C._fft, torch._C._linalg, torch._C._nested, torch._C._nn, torch._C._sparse, torch._C._special, regex._regex, markupsafe._speedups, PIL._imaging, PIL._imagingft, av._core, av.logging, av.bytesource, av.buffer, av.audio.format, av.error, av.dictionary, av.container.pyio, av.utils, av.option, av.descriptor, av.format, av.stream, av.container.streams, av.sidedata.motionvectors, av.sidedata.sidedata, av.opaque, av.packet, av.container.input, av.container.output, av.container.core, av.codec.context, av.video.format, av.video.reformatter, av.plane, av.video.plane, av.video.frame, av.video.stream, av.codec.hwaccel, av.codec.codec, av.frame, av.audio.layout, av.audio.plane, av.audio.frame, av.audio.stream, av.filter.pad, av.filter.link, av.filter.context, av.filter.graph, av.filter.filter, av.filter.loudnorm, av.audio.resampler, av.audio.codeccontext, av.audio.fifo, av.bitstream, av.video.codeccontext, pyarrow._json, cuda_utils, sentencepiece._sentencepiece (total: 126)
+[36m(WorkerDict pid=3666452)[0m 
+[36m(WorkerDict pid=3666452)[0m 
+[36m(WorkerDict pid=3666452)[0m 
+[36m(WorkerDict pid=3666452)[0m /lib64/libstdc++.so.6(+0xad53c) [0x7f7d3f0ad53c]
+[36m(WorkerDict pid=3666452)[0m /lib64/libstdc++.so.6(+0xad5a7) [0x7f7d3f0ad5a7]
+[36m(WorkerDict pid=3666452)[0m /lib64/libstdc++.so.6(+0xad52f) [0x7f7d3f0ad52f]
+[36m(WorkerDict pid=3666452)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so(+0xe5c7aa) [0x7f57a2bf87aa] c10d::ProcessGroupNCCL::ncclCommWatchdog()
+[36m(WorkerDict pid=3666452)[0m /lib64/libstdc++.so.6(+0xdbae4) [0x7f7d3f0dbae4]
+[36m(WorkerDict pid=3666452)[0m /lib64/libc.so.6(+0x1103c0) [0x7f7d413103c0] __GI___clone3
+[36m(WorkerDict pid=3666452)[0m 
+[36m(WorkerDict pid=3666452)[0m 
+[36m(WorkerDict pid=3666452)[0m 
+[36m(WorkerDict pid=3666451)[0m 
+[36m(WorkerDict pid=3666451)[0m 
+[36m(WorkerDict pid=3666451)[0m 
+[36m(WorkerDict pid=3666451)[0m /lib64/libstdc++.so.6(+0xad53c) [0x7fce8eead53c]
+[36m(WorkerDict pid=3666451)[0m /lib64/libstdc++.so.6(+0xad5a7) [0x7fce8eead5a7]
+[36m(WorkerDict pid=3666451)[0m /lib64/libstdc++.so.6(+0xad52f) [0x7fce8eead52f]
+[36m(WorkerDict pid=3666451)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so(+0xe5c7aa) [0x7fa8f2bf87aa] c10d::ProcessGroupNCCL::ncclCommWatchdog()
+[36m(WorkerDict pid=3666451)[0m /lib64/libstdc++.so.6(+0xdbae4) [0x7fce8eedbae4]
+[36m(WorkerDict pid=3666451)[0m /lib64/libc.so.6(+0x1103c0) [0x7fce911103c0] __GI___clone3
+[36m(WorkerDict pid=3666451)[0m 
+[36m(WorkerDict pid=3666451)[0m 
+[36m(WorkerDict pid=3666451)[0m 
+[36m(WorkerDict pid=3666451)[0m Extension modules: msgpack._cmsgpack, google._upb._message, psutil._psutil_linux, psutil._psutil_posix, yaml._yaml, charset_normalizer.md, requests.packages.charset_normalizer.md, requests.packages.chardet.md, ray._raylet, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, pyarrow.lib, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._mt19937, numpy.random.mtrand, numpy.random._philox, numpy.random._pcg64, numpy.random._sfc64, numpy.random._generator, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.properties, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pyarrow._compute
+[36m(WorkerDict pid=3666450)[0m 
+[36m(WorkerDict pid=3666450)[0m 
+[36m(WorkerDict pid=3666450)[0m 
+[36m(WorkerDict pid=3666450)[0m /lib64/libstdc++.so.6(+0xad53c) [0x7fc9fb2ad53c]
+[36m(WorkerDict pid=3666450)[0m /lib64/libstdc++.so.6(+0xad5a7) [0x7fc9fb2ad5a7]
+[36m(WorkerDict pid=3666450)[0m /lib64/libstdc++.so.6(+0xad52f) [0x7fc9fb2ad52f]
+[36m(WorkerDict pid=3666450)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so(+0xe5c7aa) [0x7fa45ebf87aa] c10d::ProcessGroupNCCL::ncclCommWatchdog()
+[36m(WorkerDict pid=3666450)[0m /lib64/libstdc++.so.6(+0xdbae4) [0x7fc9fb2dbae4]
+[36m(WorkerDict pid=3666450)[0m /lib64/libc.so.6(+0x1103c0) [0x7fc9fd5103c0] __GI___clone3
+[36m(WorkerDict pid=3666450)[0m 
+[36m(WorkerDict pid=3666450)[0m 
+[36m(WorkerDict pid=3666450)[0m 
+[36m(WorkerDict pid=3666451)[0m , pandas._libs.ops, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, torch._C, torch._C._dynamo.autograd_compiler, torch._C._dynamo.eval_frame, torch._C._dynamo.guards, torch._C._dynamo.utils, torch._C._fft, torch._C._linalg, torch._C._nested, torch._C._nn, torch._C._sparse, torch._C._special, regex._regex, markupsafe._speedups, PIL._imaging, PIL._imagingft, av._core, av.logging, av.bytesource, av.buffer, av.audio.format, av.error, av.dictionary, av.container.pyio, av.utils, av.option, av.descriptor, av.format, av.stream, av.container.streams, av.sidedata.motionvectors, av.sidedata.sidedata, av.opaque, av.packet, av.container.input, av.container.output, av.container.core, av.codec.context, av.video.format, av.video.reformatter, av.plane, av.video.plane, av.video.frame, av.video.stream, av.codec.hwaccel, av.codec.codec, av.frame, av.audio.layout, av.audio.plane, av.audio.frame, av.audio.stream, av.filter.pad, av.filter.link, av.filter.context, av.filter.graph, av.filter.filter, av.filter.loudnorm, av.audio.resampler, av.audio.codeccontext, av.audio.fifo, av.bitstream, av.video.codeccontext, pyarrow._json, cuda_utils
+[36m(WorkerDict pid=3666451)[0m , sentencepiece._sentencepiece (total: 126)
+Error executing job with overrides: ['algorithm.adv_estimator=grpo', '+algorithm.task_sft_update=False', '+algorithm.task_ppo_update=False', '+algorithm.ttt_sft_update=False', '+algorithm.ttt_ppo_update=False', '+algorithm.val_ttt_ppo_update=True', '+algorithm.val_ttt_sft_update=True', 'custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py', 'data.train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_lact_16384_1600_train.parquet', 'data.val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_lact_16384_200_test.parquet', 'data.prompt_key=prompt', '+data.answer_key=answer', '+data.data_source_key=task', 'data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py', 'data.custom_cls.name=TTTRLHFDataset', 'data.train_batch_size=64', 'data.val_batch_size=8', 'data.max_prompt_length=16352', 'data.max_response_length=32', 'actor_rollout_ref.model.path=/n/fs/visualai-scr/Models/will/tttrl/lact_sftrl_k5_ruler_squadqa_16384_32_tttrl_c8n1k5_hybrid_tasksft/global_step_24/actor/huggingface', '+actor_rollout_ref.actor.ttt_n_chunks=8', '+actor_rollout_ref.actor.ttt_n=1', '+actor_rollout_ref.actor.ttt_reward=binary', '+actor_rollout_ref.actor.ttt_sft_loss_coef=1.0', '+actor_rollout_ref.actor.ttt_ppo_loss_coef=0.4', '+actor_rollout_ref.actor.ttt_ppo_mini_batch_size=8', '+actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.actor.ppo_mini_batch_size=16', 'actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2', 'actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2', '+actor_rollout_ref.rollout.ttt_temperature=1.0', '+actor_rollout_ref.rollout.ttt_response_length=5', 'actor_rollout_ref.rollout.name=hf', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.9', 'actor_rollout_ref.rollout.n=1', 'trainer.balance_batch=False', 'trainer.default_local_dir=/n/fs/xw-hh/checkpoints/lact_rl/lact_sftrl_ptsftrl_ruler_squadqa_16384_32_valtttrl', 'trainer.val_before_train=True', 'trainer.val_only=True', 'trainer.n_gpus_per_node=4', 'trainer.nnodes=1', 'trainer.save_freq=24', 'trainer.test_freq=24', 'trainer.project_name=lact_rl', 'trainer.experiment_name=lact_sftrl_ptsftrl_ruler_squadqa_16384_32_valtttrl', 'trainer.logger=console', 'trainer.total_epochs=1']
+Traceback (most recent call last):
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 40, in main
+    run_ppo(config)
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 74, in run_ppo
+    ray.get(runner.run.remote(config))
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/auto_init_hook.py", line 22, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/client_mode_hook.py", line 104, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 2882, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_private/worker.py", line 968, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(ActorDiedError): [36mray::TaskRunner.run()[39m (pid=3663182, ip=172.17.32.101, actor_id=c4a190fcc2d2c4bea2696ab101000000, repr=<main_ppo.TaskRunner object at 0x7f0cf9be4b30>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/trainer/main_ppo.py", line 236, in run
+    trainer.fit()
+  File "/n/fs/xw-hh/tttrl/verl/trainer/ppo/ray_trainer.py", line 1444, in fit
+    val_metrics = self._validate()
+                  ^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/trainer/ppo/ray_trainer.py", line 992, in _validate
+    self._inner_training_loop(ttt_batch, validation=True)
+  File "/n/fs/xw-hh/tttrl/verl/trainer/ppo/ray_trainer.py", line 1270, in _inner_training_loop
+    outputs = self.actor_rollout_wg.process_input_for_ttt(ppo_batch) # hidden_states, responses, entropys
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/n/fs/xw-hh/tttrl/verl/single_controller/ray/base.py", line 50, in __call__
+    output = ray.get(output)
+             ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ray.exceptions.ActorDiedError: The actor died unexpectedly before finishing this task.
+	class_name: create_colocated_worker_cls.<locals>.WorkerDict
+	actor_id: 5f4284b34007e5494aab8ce901000000
+	pid: 3666451
+	name: ls6zcGWorkerDict_0:2
+	namespace: 874eac71-84ed-4509-adbd-33f61ebd129e
+	ip: 172.17.32.101
+The actor is dead because its worker process has died. Worker exit type: SYSTEM_ERROR Worker exit detail: Worker unexpectedly exits with a connection error code 2. End of file. There are some potential root causes. (1) The process is killed by SIGKILL by OOM killer due to high memory usage. (2) ray stop --force is called. (3) The worker is crashed unexpectedly due to SIGSEGV or other unexpected errors.
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
+[36m(WorkerDict pid=3666450)[0m [rank1]:[E121 07:15:21.838650242 ProcessGroupNCCL.cpp:629] [Rank 1] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=BROADCAST, NumelIn=65708180, NumelOut=65708180, Timeout(ms)=1800000) ran for 1800010 milliseconds before timing out.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [rank1]:[E121 07:15:21.839153297 ProcessGroupNCCL.cpp:2168] [PG ID 0 PG GUID 0(default_pg) Rank 1]  failure detected by watchdog at work sequence id: 1 PG status: last enqueued work: 12, last completed work: -1[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [rank1]:[E121 07:15:21.839167621 ProcessGroupNCCL.cpp:667] Stack trace of the failed collective not found, potentially because FlightRecorder is disabled. You can enable it by setting TORCH_NCCL_TRACE_BUFFER_SIZE to a non-zero value.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [rank1]:[E121 07:15:21.839172427 ProcessGroupNCCL.cpp:681] [Rank 1] Some NCCL operations have failed or timed out. Due to the asynchronous nature of CUDA kernels, subsequent GPU operations might run on corrupted/incomplete data.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [rank1]:[E121 07:15:21.839177542 ProcessGroupNCCL.cpp:695] [Rank 1] To avoid data inconsistency, we are taking the entire process down.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [rank1]:[E121 07:15:21.840646557 ProcessGroupNCCL.cpp:1895] [PG ID 0 PG GUID 0(default_pg) Rank 1] Process group watchdog thread terminated with exception: [Rank 1] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=BROADCAST, NumelIn=65708180, NumelOut=65708180, Timeout(ms)=1800000) ran for 1800010 milliseconds before timing out.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m Exception raised from checkTimeout at /pytorch/torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:632 (most recent call first):[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m frame #0: c10::Error::Error(c10::SourceLocation, std::string) + 0x96 (0x7fc994d141b6 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libc10.so)[32m [repeated 9x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m frame #1: c10d::ProcessGroupNCCL::WorkNCCL::checkTimeout(std::optional<std::chrono::duration<long, std::ratio<1l, 1000l> > >) + 0x2b4 (0x7fa45ef9ac74 in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m frame #3: c10d::ProcessGroupNCCL::ncclCommWatchdog() + 0x14d (0x7fa45ef9d6ed in /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)[32m [repeated 12x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m frame #4: <unknown function> + 0x1103c0 (0x7fc9fd5103c0 in /lib64/libc.so.6)[32m [repeated 30x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [2026-01-21 07:15:21,931 E 3666450 3666661] logging.cc:118: Unhandled exception: N3c1016DistBackendErrorE. what(): [PG ID 0 PG GUID 0(default_pg) Rank 1] Process group watchdog thread terminated with exception: [Rank 1] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=BROADCAST, NumelIn=65708180, NumelOut=65708180, Timeout(ms)=1800000) ran for 1800010 milliseconds before timing out.[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m Exception raised from ncclCommWatchdog at /pytorch/torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:1901 (most recent call first):[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [2026-01-21 07:15:21,942 E 3666450 3666661] logging.cc:125: Stack trace: [32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m  /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_raylet.so(+0x152da9a) [0x7fc9fca15a9a] ray::operator<<()[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m /n/fs/wh-vlm/miniforge3/envs/lact_rl/lib/python3.12/site-packages/ray/_raylet.so(+0x15309a2) [0x7fc9fca189a2] ray::TerminateHandler()[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m /lib64/libc.so.6(+0x8b2ea) [0x7fc9fd48b2ea] start_thread[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m *** SIGABRT received at time=1768997721 on cpu 88 ***[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m PC: @     0x7fc9fd48d02c  (unknown)  __pthread_kill_implementation[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m     @     0x7fc9fd43fc30  (unknown)  (unknown)[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [2026-01-21 07:15:21,942 E 3666450 3666661] logging.cc:474: *** SIGABRT received at time=1768997721 on cpu 88 ***[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [2026-01-21 07:15:21,942 E 3666450 3666661] logging.cc:474: PC: @     0x7fc9fd48d02c  (unknown)  __pthread_kill_implementation[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m [2026-01-21 07:15:21,942 E 3666450 3666661] logging.cc:474:     @     0x7fc9fd43fc30  (unknown)  (unknown)[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m Fatal Python error: Aborted[32m [repeated 3x across cluster][0m
+[36m(WorkerDict pid=3666450)[0m Extension modules: msgpack._cmsgpack, google._upb._message, psutil._psutil_linux, psutil._psutil_posix, yaml._yaml, charset_normalizer.md, requests.packages.charset_normalizer.md, requests.packages.chardet.md, ray._raylet, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, pyarrow.lib, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._mt19937, numpy.random.mtrand, numpy.random._philox, numpy.random._pcg64, numpy.random._sfc64, numpy.random._generator, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.properties, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pyarrow._compute, pandas._libs.ops, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, torch._C, torch._C._dynamo.autograd_compiler, torch._C._dynamo.eval_frame, torch._C._dynamo.guards, torch._C._dynamo.utils, torch._C._fft, torch._C._linalg, torch._C._nested, torch._C._nn, torch._C._sparse, torch._C._special, regex._regex, markupsafe._speedups, PIL._imaging, PIL._imagingft, av._core, av.logging, av.bytesource, av.buffer, av.audio.format, av.error, av.dictionary, av.container.pyio, av.utils, av.option, av.descriptor, av.format, av.stream, av.container.streams, av.sidedata.motionvectors, av.sidedata.sidedata, av.opaque, av.packet, av.container.input, av.container.output, av.container.core, av.codec.context, av.video.format, av.video.reformatter, av.plane, av.video.plane, av.video.frame, av.video.stream, av.codec.hwaccel, av.codec.codec, av.frame, av.audio.layout, av.audio.plane, av.audio.frame, av.audio.stream, av.filter.pad, av.filter.link, av.filter.context, av.filter.graph, av.filter.filter, av.filter.loudnorm, av.audio.resampler, av.audio.codeccontext, av.audio.fifo, av.bitstream, av.video.codeccontext, pyarrow._json, cuda_utils, sentencepiece._sentencepiece (total: 126)[32m [repeated 2x across cluster][0m
+srun: error: neu301: task 0: Exited with exit code 1

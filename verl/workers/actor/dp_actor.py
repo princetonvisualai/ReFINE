@@ -527,7 +527,7 @@ class DataParallelPPOActor(BasePPOActor):
         return hidden_states, entropys
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
-    def process_sequence_for_validation(self, data: DataProto):
+    def process_input_for_validation(self, data: DataProto):
         """Compute the log probability of the responses given input_ids, attention_mask and position_ids
 
         Args:
@@ -545,8 +545,10 @@ class DataParallelPPOActor(BasePPOActor):
         self.actor_module.eval()
         micro_batch_size = data.meta_info["micro_batch_size"]
         
-        select_keys = ["input_ids", "attention_mask"]
-        data = data.select(batch_keys=select_keys)
+        data = data.select(
+            batch_keys=["input_ids", "attention_mask"],
+            non_tensor_batch_keys=[],
+        )
         micro_batches = data.split(micro_batch_size)
 
         response_ids_lst = []
@@ -560,7 +562,7 @@ class DataParallelPPOActor(BasePPOActor):
             loss_lst.append(loss.detach().to("cpu").item())
 
         response_ids = torch.concat(response_ids_lst, dim=0)
-        loss = loss_lst
+        loss = torch.Tensor(loss_lst).mean(-1, keepdim=True).repeat(len(data), 1)
 
         return response_ids, loss
 
@@ -625,6 +627,31 @@ class DataParallelPPOActor(BasePPOActor):
         hidden_states = torch.concat(hidden_states_lst, dim=0)
         log_probs = torch.concat(log_probs_lst, dim=0)
         return hidden_states, log_probs
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def compute_ref_log_prob_for_ttt(self, data: DataProto):
+        # set to eval
+        self.actor_module.eval()
+        micro_batch_size = min(len(data), data.meta_info["micro_batch_size"])
+        temperature = data.meta_info["temperature"]
+
+        batch = data.select(
+            batch_keys=["input_ids", "attention_mask", "responses"],
+            non_tensor_batch_keys=[],
+        )
+        micro_batches = batch.split(micro_batch_size)
+
+        log_probs_lst = []
+        for micro_batch in micro_batches:
+            micro_batch = micro_batch.to(get_device_id())
+            model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
+            with torch.no_grad():
+                _, log_probs = self._forward_micro_batch_for_ttt(model_inputs, temperature=temperature, get_hidden_states=False)
+                log_probs = log_probs.to("cpu")
+            log_probs_lst.append(log_probs)
+        
+        log_probs = torch.concat(log_probs_lst, dim=0)
+        return log_probs
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
     def update_policy(self, data: DataProto):
@@ -805,10 +832,9 @@ class DataParallelPPOActor(BasePPOActor):
 
         temperature = ppo_data.meta_info["temperature"]  # temperature must be in the data.meta_info to avoid silent error
 
-        #if self.config.use_kl_loss:
-        #    ppo_select_keys.append("ref_log_prob")
+        ppo_batch_select_keys = ["responses", "response_mask", "input_ids", "attention_mask", "old_log_probs", "advantages"]
         ppo_data = ppo_data.select(
-            batch_keys=["responses", "response_mask", "input_ids", "attention_mask", "old_log_probs", "advantages"],
+            batch_keys=ppo_batch_select_keys,
             non_tensor_batch_keys=[],
         )
         sft_data = sft_data.select(
@@ -845,11 +871,10 @@ class DataParallelPPOActor(BasePPOActor):
                 sft_loss = sft_loss * self.config.ttt_sft_loss_coef / self.sft_gradient_accumulation
                 sft_loss.backward() 
                 
-                sft_metrics = {
+                sft_micro_batch_metrics = {
                     "actor/sft_loss_ttt": sft_loss.detach().item(),
                 }
-                print(sft_metrics)
-                append_to_dict(metrics, sft_metrics)
+                append_to_dict(metrics, sft_micro_batch_metrics)
             
             #sft_grad_norm = self._optimizer_step()
             #if get_rank() == 0:
@@ -858,6 +883,7 @@ class DataParallelPPOActor(BasePPOActor):
             if get_rank() == 0:
                 print(f"ppo gradient accumulation")
             for ppo_micro_batch in ppo_micro_batches:
+                ppo_micro_batch_metrics = {}
                 ppo_micro_batch = ppo_micro_batch.to(get_device_id())
                 
                 ppo_inputs = {**ppo_micro_batch.batch, **ppo_micro_batch.non_tensor_batch}
@@ -873,72 +899,43 @@ class DataParallelPPOActor(BasePPOActor):
                     self.config.clip_ratio_high if self.config.clip_ratio_high is not None else clip_ratio
                 )
                 clip_ratio_c = self.config.get("clip_ratio_c", 3.0)
-                entropy_coeff = self.config.entropy_coeff
+                #entropy_coeff = self.config.entropy_coeff
                 loss_agg_mode = self.config.loss_agg_mode
 
                 _, log_prob = self._forward_micro_batch_for_ttt(
                     ppo_inputs, temperature=temperature, get_hidden_states=False
                 )
 
-                loss_mode = self.config.policy_loss.get("loss_mode", "vanilla")
+                pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower = compute_policy_loss(
+                    old_log_prob=old_log_prob,
+                    log_prob=log_prob,
+                    advantages=advantages,
+                    response_mask=response_mask,
+                    cliprange=clip_ratio,
+                    cliprange_low=clip_ratio_low,
+                    cliprange_high=clip_ratio_high,
+                    clip_ratio_c=clip_ratio_c,
+                    loss_agg_mode=loss_agg_mode,
+                )
 
-                if self.config.policy_loss.loss_mode == "vanilla":
-                    pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower = compute_policy_loss(
-                        old_log_prob=old_log_prob,
-                        log_prob=log_prob,
-                        advantages=advantages,
-                        response_mask=response_mask,
-                        cliprange=clip_ratio,
-                        cliprange_low=clip_ratio_low,
-                        cliprange_high=clip_ratio_high,
-                        clip_ratio_c=clip_ratio_c,
-                        loss_agg_mode=loss_agg_mode,
-                    )
-
-                else:
-                    policy_loss_fn = get_policy_loss_fn(loss_mode)
-                    pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower = policy_loss_fn(
-                        old_log_prob=old_log_prob,
-                        log_prob=log_prob,
-                        advantages=advantages,
-                        response_mask=response_mask,
-                        loss_agg_mode=loss_agg_mode,
-                        config=self.config,
-                    )
-
-                '''
-                if entropy_coeff != 0:
-                    entropy_loss = agg_loss(loss_mat=entropy, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
-                    # compute policy loss
-                    policy_loss = pg_loss - entropy_loss * entropy_coeff
-                else:
-                    policy_loss = pg_loss
-                '''
+                #if entropy_coeff != 0:
+                #    entropy_loss = agg_loss(loss_mat=entropy, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
+                #    # compute policy loss
+                #    policy_loss = pg_loss - entropy_loss * entropy_coeff
+                #else:
+                #    policy_loss = pg_loss
                 policy_loss = pg_loss
-                '''
-                if self.config.use_kl_loss:
-                    ref_log_prob = model_inputs["ref_log_prob"]
-                    # compute kl loss
-                    kld = kl_penalty(
-                        logprob=log_prob, ref_logprob=ref_log_prob, kl_penalty=self.config.kl_loss_type
-                    )
-                    kl_loss = agg_loss(loss_mat=kld, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
-
-                    policy_loss = policy_loss + kl_loss * self.config.kl_loss_coef
-                    micro_batch_metrics["actor/kl_loss"] = kl_loss.detach().item()
-                    micro_batch_metrics["actor/kl_coef"] = self.config.kl_loss_coef
-                '''
+                
                 policy_loss = policy_loss * self.config.ttt_ppo_loss_coef / self.ppo_gradient_accumulation 
                 policy_loss.backward()
 
-                ppo_metrics = {
+                ppo_micro_batch_metrics.update({
                             "actor/pg_loss_ttt": policy_loss.detach().item(),
-                            #"actor/pg_clipfrac": pg_clipfrac.detach().item(),
-                            #"actor/ppo_kl": ppo_kl.detach().item(),
-                            #"actor/pg_clipfrac_lower": pg_clipfrac_lower.detach().item(),
-                            }
-                print(ppo_metrics)
-                append_to_dict(metrics, ppo_metrics)
+                            "actor/pg_clipfrac_ttt": pg_clipfrac.detach().item(),
+                            "actor/ppo_kl_ttt": ppo_kl.detach().item(),
+                            "actor/pg_clipfrac_lower_ttt": pg_clipfrac_lower.detach().item(),
+                            })
+                append_to_dict(metrics, ppo_micro_batch_metrics)
 
             #if get_rank() == 0:
             #    print(f"optimizer step")
