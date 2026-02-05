@@ -1,208 +1,0 @@
-[2026-01-20T11:51:40.483] error: execve(): ray: No such file or directory
-srun: error: neu317: task 0: Exited with exit code 2
-+ unset ROCR_VISIBLE_DEVICES
-+ unset HIP_VISIBLE_DEVICES
-+ export CUDA_VISIBLE_DEVICES=0,1,2,3
-+ CUDA_VISIBLE_DEVICES=0,1,2,3
-+ export HF_HOME=/n/fs/wh-vlm/cache/huggingface
-+ HF_HOME=/n/fs/wh-vlm/cache/huggingface
-+ max_lengths=(4096 8192 16384)
-+ TTT_RL=0
-+ TTT_SFT=1
-+ TASK_RL=0
-+ TASK_SFT=1
-+ VAL_TTT_RL=0
-+ VAL_TTT_SFT=0
-+ dataset=squadqa
-+ MODEL=delta_net_sftrl
-+ VAL_BEFORE_TRAIN=0
-+ VAL_ONLY=0
-+ max_seq_length=8192
-+ '[' delta_net_sftrl == lact ']'
-+ '[' delta_net_sftrl == lact_sft ']'
-+ '[' delta_net_sftrl == lact_sftrl ']'
-+ '[' delta_net_sftrl == lact_sftrl_pt ']'
-+ '[' delta_net_sftrl == delta_net ']'
-+ '[' delta_net_sftrl == delta_net_sft ']'
-+ '[' delta_net_sftrl == delta_net_sftrl ']'
-+ model_name=delta_net
-+ model_tag=delta_net_sftrl_k5
-+ model_path=/n/fs/xw-hh/delta_net_llm/delta_net-sftrl-embedding-16k-c8n1k5-100
-+ export TRITON_CACHE_DIR=/n/fs/xw-hh/triton/cache
-+ TRITON_CACHE_DIR=/n/fs/xw-hh/triton/cache
-+ train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_delta_net_8192_1600_train.parquet
-+ val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_delta_net_8192_200_test.parquet
-+ custom_reward_function_path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py
-+ max_response_length=32
-+ max_prompt_length=8160
-+ NGPU=4
-+ save_freq=24
-+ test_freq=24
-+ total_epochs=1
-+ train_batch_size=64
-+ '[' delta_net_sftrl == lact_sftrl_pt
-/var/spool/slurmd/job2477570/slurm_script: line 152: [: missing `]'
-+ delta_net_sftrl == delta_net_sftrl_pt ']'
-/var/spool/slurmd/job2477570/slurm_script: line 152: delta_net_sftrl: command not found
-+ val_batch_size=32
-+ task_ppo_mini_batch_size=16
-+ task_ppo_micro_batch_size_per_gpu=2
-+ task_log_prob_micro_batch_size_per_gpu=2
-+ n=1
-+ '[' 1 == 1 ']'
-+ task_sft_update=True
-+ task_ppo_update=False
-+ '[' 1 == 0 ']'
-+ '[' 1 == 1 ']'
-+ ttt_sft_update=True
-+ '[' 0 == 1 ']'
-+ '[' 0 == 0 ']'
-+ ttt_ppo_update=False
-+ '[' delta_net_sftrl == lact_sftrl_pt
-/var/spool/slurmd/job2477570/slurm_script: line 190: [: missing `]'
-+ delta_net_sftrl == delta_net_sftrl_pt ']'
-/var/spool/slurmd/job2477570/slurm_script: line 190: delta_net_sftrl: command not found
-+ ttt_ppo_mini_batch_size=16
-+ ttt_reward=hybrid
-+ ttt_ppo_loss_coef=0.2
-+ ttt_ppo_micro_batch_size_per_gpu=2
-+ ttt_log_prob_micro_batch_size_per_gpu=2
-+ ttt_k=5
-+ ttt_n=1
-+ ttt_temperature=1.0
-+ ttt_sft_loss_coef=1.0
-+ ttt_n_chunks=8
-+ '[' 0 == 1 ']'
-+ '[' 0 == 0 ']'
-+ val_only=False
-+ '[' 0 == 1 ']'
-+ '[' 0 == 0 ']'
-+ val_before_train=False
-+ '[' 0 == 0 ']'
-+ val_ttt_sft_update=False
-+ val_ttt_ppo_update=False
-+ '[' 1 == 1 ']'
-+ task_tag=_tasksft
-+ '[' 0 == 1 ']'
-+ '[' 1 == 1 ']'
-+ ttt_tag=_tttsft
-+ '[' 0 == 1 ']'
-+ '[' 0 == 1 ']'
-+ val_ttt_tag=
-+ project_name=lact_rl
-+ experiment_name=delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft
-+ ckpt_dir=/n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft
-+ logger=console
-+ cd /n/fs/xw-hh/tttrl/
-+ source /n/fs/wh-vlm/miniforge3/etc/profile.d/conda.sh
-++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
-++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
-++ export _CE_M=
-++ _CE_M=
-++ export _CE_CONDA=
-++ _CE_CONDA=
-++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
-++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
-++ '[' -z '' ']'
-++ export CONDA_SHLVL=0
-++ CONDA_SHLVL=0
-++ '[' -n '' ']'
-++++ dirname /n/fs/wh-vlm/miniforge3/bin/conda
-+++ dirname /n/fs/wh-vlm/miniforge3/bin
-++ PATH=/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
-++ export PATH
-++ '[' -z '' ']'
-++ PS1=
-+ conda activate lact_rl
-+ local cmd=activate
-+ case "$cmd" in
-+ __conda_activate activate lact_rl
-+ '[' -n '' ']'
-+ local ask_conda
-++ PS1=
-++ __conda_exe shell.posix activate lact_rl
-++ /n/fs/wh-vlm/miniforge3/bin/conda shell.posix activate lact_rl
-+ ask_conda='PS1='\''(lact_rl) '\''
-export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
-export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
-export CONDA_SHLVL='\''1'\''
-export CONDA_DEFAULT_ENV='\''lact_rl'\''
-export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
-export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
-export _CE_M='\'''\''
-export _CE_CONDA='\'''\''
-export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
-+ eval 'PS1='\''(lact_rl) '\''
-export PATH='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin'\''
-export CONDA_PREFIX='\''/n/fs/wh-vlm/miniforge3/envs/lact_rl'\''
-export CONDA_SHLVL='\''1'\''
-export CONDA_DEFAULT_ENV='\''lact_rl'\''
-export CONDA_PROMPT_MODIFIER='\''(lact_rl) '\''
-export CONDA_EXE='\''/n/fs/wh-vlm/miniforge3/bin/conda'\''
-export _CE_M='\'''\''
-export _CE_CONDA='\'''\''
-export CONDA_PYTHON_EXE='\''/n/fs/wh-vlm/miniforge3/bin/python'\'''
-++ PS1='(lact_rl) '
-++ export PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
-++ PATH=/n/fs/wh-vlm/miniforge3/envs/lact_rl/bin:/n/fs/wh-vlm/miniforge3/condabin:/u/hh2605/bin:/auto/u/hh2605/.cursor-server/cli/servers/Stable-cf858ca030e9c9a99ea444ec6efcbcfc40bfda70/server/bin/remote-cli:/u/hh2605/.local/bin:/u/hh2605/bin:/usr/share/Modules/bin:/u/hh2605/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin
-++ export CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
-++ CONDA_PREFIX=/n/fs/wh-vlm/miniforge3/envs/lact_rl
-++ export CONDA_SHLVL=1
-++ CONDA_SHLVL=1
-++ export CONDA_DEFAULT_ENV=lact_rl
-++ CONDA_DEFAULT_ENV=lact_rl
-++ export 'CONDA_PROMPT_MODIFIER=(lact_rl) '
-++ CONDA_PROMPT_MODIFIER='(lact_rl) '
-++ export CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
-++ CONDA_EXE=/n/fs/wh-vlm/miniforge3/bin/conda
-++ export _CE_M=
-++ _CE_M=
-++ export _CE_CONDA=
-++ _CE_CONDA=
-++ export CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
-++ CONDA_PYTHON_EXE=/n/fs/wh-vlm/miniforge3/bin/python
-+ __conda_hashr
-+ '[' -n '' ']'
-+ '[' -n '' ']'
-+ hash -r
-+ PYTHONUNBUFFERED=1
-+ srun --overlap --nodes=1 --ntasks=1 -w neu317 python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo +algorithm.task_sft_update=True +algorithm.task_ppo_update=False +algorithm.ttt_sft_update=True +algorithm.ttt_ppo_update=False +algorithm.val_ttt_ppo_update=False +algorithm.val_ttt_sft_update=False custom_reward_function.path=/n/fs/xw-hh/tttrl/verl/utils/reward_score/ruler.py data.train_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_delta_net_8192_1600_train.parquet data.val_files=/n/fs/xw-hh/tttrl_data/data/ruler/ruler_squadqa_delta_net_8192_200_test.parquet data.prompt_key=prompt +data.answer_key=answer +data.data_source_key=task data.custom_cls.path=/n/fs/xw-hh/tttrl/verl/utils/dataset/rl_dataset.py data.custom_cls.name=TTTRLHFDataset data.train_batch_size=64 data.val_batch_size=32 data.max_prompt_length=8160 data.max_response_length=32 actor_rollout_ref.model.path=/n/fs/xw-hh/delta_net_llm/delta_net-sftrl-embedding-16k-c8n1k5-100 +actor_rollout_ref.actor.ttt_n_chunks=8 +actor_rollout_ref.actor.ttt_n=1 +actor_rollout_ref.actor.ttt_reward=hybrid +actor_rollout_ref.actor.ttt_sft_loss_coef=1.0 +actor_rollout_ref.actor.ttt_ppo_loss_coef=0.2 +actor_rollout_ref.actor.ttt_ppo_mini_batch_size=16 +actor_rollout_ref.actor.ttt_ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.actor.ppo_mini_batch_size=16 actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_log_prob_micro_batch_size_per_gpu=2 +actor_rollout_ref.rollout.ttt_temperature=1.0 +actor_rollout_ref.rollout.ttt_response_length=5 actor_rollout_ref.rollout.name=hf actor_rollout_ref.rollout.gpu_memory_utilization=0.9 actor_rollout_ref.rollout.n=1 trainer.balance_batch=False trainer.default_local_dir=/n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft trainer.val_before_train=False trainer.val_only=False trainer.n_gpus_per_node=4 trainer.nnodes=1 trainer.save_freq=24 trainer.test_freq=24 trainer.project_name=lact_rl trainer.experiment_name=delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft trainer.logger=console trainer.total_epochs=1
-2026-01-20 11:52:02,942	INFO worker.py:1942 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
-[36m(TaskRunner pid=2554949)[0m DeprecationWarning: `ray.state.available_resources_per_node` is a private attribute and access will be removed in a future Ray version.
-[36m(TaskRunner pid=2554949)[0m WARNING:2026-01-20 11:52:14,170:Waiting for register center actor IqrxhS_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
-[36m(TaskRunner pid=2554949)[0m Training Progress:   0%|          | 0/24 [00:00<?, ?it/s]
-[36m(TaskRunner pid=2554949)[0m Training Progress:   4%|▍         | 1/24 [06:00<2:18:22, 360.99s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:   8%|▊         | 2/24 [10:15<1:49:17, 298.08s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  12%|█▎        | 3/24 [15:26<1:46:29, 304.28s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  17%|█▋        | 4/24 [18:22<1:24:29, 253.47s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  21%|██        | 5/24 [22:43<1:21:12, 256.45s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  25%|██▌       | 6/24 [24:49<1:03:36, 212.03s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  29%|██▉       | 7/24 [28:00<58:05, 205.05s/it]  
-[36m(TaskRunner pid=2554949)[0m Training Progress:  33%|███▎      | 8/24 [30:26<49:42, 186.41s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  38%|███▊      | 9/24 [32:49<43:12, 172.84s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  42%|████▏     | 10/24 [35:34<39:44, 170.29s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  46%|████▌     | 11/24 [38:07<35:44, 164.97s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  50%|█████     | 12/24 [40:51<32:56, 164.71s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  54%|█████▍    | 13/24 [42:21<26:03, 142.13s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  58%|█████▊    | 14/24 [43:43<20:37, 123.78s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  62%|██████▎   | 15/24 [45:04<16:40, 111.13s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  67%|██████▋   | 16/24 [45:51<12:14, 91.80s/it] 
-[36m(TaskRunner pid=2554949)[0m Training Progress:  71%|███████   | 17/24 [47:02<09:59, 85.58s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  75%|███████▌  | 18/24 [48:34<08:43, 87.32s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  79%|███████▉  | 19/24 [50:33<08:04, 96.86s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  83%|████████▎ | 20/24 [51:18<05:24, 81.18s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  88%|████████▊ | 21/24 [52:38<04:02, 80.82s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  92%|█████████▏| 22/24 [53:49<02:35, 77.87s/it]
-[36m(TaskRunner pid=2554949)[0m Training Progress:  96%|█████████▌| 23/24 [54:57<01:15, 75.17s/it]
-[36m(WorkerDict pid=2556157)[0m `generation_config` default values have been modified to match model-specific defaults: {'pad_token_id': 2, 'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.
-[36m(WorkerDict pid=2556157)[0m This is a friendly reminder - the current text generation call will exceed the model's predefined maximum length (2048). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
-[36m(WorkerDict pid=2561715)[0m `generation_config` default values have been modified to match model-specific defaults: {'pad_token_id': 2, 'bos_token_id': 1, 'eos_token_id': 2}. If this is not desired, please set these values explicitly.[32m [repeated 3x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)[0m
-[36m(WorkerDict pid=2556157)[0m INFO:2026-01-20 12:51:27,582:[Rank 0] Saved model to /n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft/global_step_24/actor/model_world_size_4_rank_0.pt
-[36m(WorkerDict pid=2561688)[0m This is a friendly reminder - the current text generation call will exceed the model's predefined maximum length (2048). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.[32m [repeated 3x across cluster][0m
-[36m(WorkerDict pid=2556157)[0m INFO:2026-01-20 12:51:39,341:[Rank 0] Saved optim to /n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft/global_step_24/actor/optim_world_size_4_rank_0.pt
-[36m(WorkerDict pid=2556157)[0m INFO:2026-01-20 12:51:39,345:[Rank 0] Saved extra_state to /n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft/global_step_24/actor/extra_state_world_size_4_rank_0.pt
-[36m(WorkerDict pid=2556157)[0m INFO:2026-01-20 12:51:39,421:[Rank 0] Saved model config and tokenizer class to /n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft/global_step_24/actor/huggingface
-[36m(WorkerDict pid=2561717)[0m INFO:2026-01-20 12:51:27,941:[Rank 3] Saved model to /n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft/global_step_24/actor/model_world_size_4_rank_3.pt[32m [repeated 3x across cluster][0m
-[36m(TaskRunner pid=2554949)[0m Training Progress: 100%|██████████| 24/24 [58:07<00:00, 109.58s/it]Training Progress: 100%|██████████| 24/24 [58:07<00:00, 145.32s/it]
-[36m(WorkerDict pid=2561717)[0m INFO:2026-01-20 12:51:39,690:[Rank 3] Saved optim to /n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft/global_step_24/actor/optim_world_size_4_rank_3.pt[32m [repeated 3x across cluster][0m
-[36m(WorkerDict pid=2561717)[0m INFO:2026-01-20 12:51:39,693:[Rank 3] Saved extra_state to /n/fs/xw-hh/checkpoints/lact_rl/delta_net_sftrl_k5_ruler_squadqa_8192_32_tttsft_tasksft/global_step_24/actor/extra_state_world_size_4_rank_3.pt[32m [repeated 3x across cluster][0m
