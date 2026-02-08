@@ -1,39 +1,39 @@
-# REFINE: Reinforced Fast Weights with Next Sequence Prediction
+# ReFINE: Reinforced Fast Weights with Next Sequence Prediction
 
-This repository contains the official implementation of **REFINE**, introduced in the paper:
+This repository contains the official implementation of **ReFINE**, introduced in the paper:
 
 > **Reinforced Fast Weights with Next Sequence Prediction**  
 > Anonymous Authors  
 > *Under review at ICML 2026*
 
-
-
+---
 
 ## 🔍 Overview
 
-Fast weight architectures (e.g., LaCT, DeltaNet) are typically trained with next-token prediction (NTP), which provides only token-level supervision. REFINE addresses this limitation by optimizing Next-Sequence Prediction (NSP) via reinforcement learning. REFINE is **phase-agnostic** and can be applied during *mid-training, post-training, and test-time training*.
+Fast weight architectures (e.g., LaCT, DeltaNet, GatedDeltaNet) are typically pre-trained with **next-token prediction (NTP)**, which provides only token-level supervision. **ReFINE** addresses this limitation by optimizing for **Next-Sequence Prediction (NSP)** via reinforcement learning. 
+
+ReFINE is **phase-agnostic** and can be applied during:
+- **Mid-training** - Training on long-context corpora
+- **Post-training** - Task-specific fine-tuning
+- **Test-time training** - Adaptation at inference time
 
 <p align="center">
-  <img src="assets/teaser.png" width="85%">
+  <img src="assets/teaser.png" width="75%">
 </p>
 
 
 
 ## 🧠 Method Summary
 
-REFINE consists of four main steps:
+ReFINE improves sequence-level understanding through four key steps:
 
-1. **Entropy-Based Token Selection**  
-   Select informative positions based on NTP entropy.
+1. **Entropy-Based Token Selection** → Select informative positions based on NTP entropy
 
-2. **Rollout Generation**  
-   Generate multi-token continuations from truncated prefixes.
+2. **Rollout Generation** → Generate multi-token continuations from truncated prefixes
 
-3. **Reward Assignment**  
-   Compute sequence-level rewards using cosine similarity (or exact match).
+3. **Reward Assignment** → Compute sequence-level rewards using cosine similarity (or exact match)
 
-4. **Optimization with RL**  
-   Optimize NSP using GRPO, combined with standard NTP loss.
+4. **Optimization with RL** → Optimize NSP using GRPO, combined with standard NTP loss
 
 <p align="center">
   <img src="assets/main_method.png" width="85%">
@@ -44,68 +44,150 @@ REFINE consists of four main steps:
 
 REFINE consistently improves long-context performance over supervised fine-tuning (SFT):
 
-- **Needle-in-a-Haystack (RULER)**
-- **Multi-document QA**
-- **LongBench (12 tasks, up to 16K context)**
+### Needle-in-a-Haystack (RULER)
 
 <p align="center">
-  <img src="assets/ruler.png" width="85%">
+  <img src="assets/ruler_niah.png" width="85%">
 </p>
 
-See the paper for detailed tables and ablations.
+### Multi-Document QA (RULER)
+
+<p align="center">
+  <img src="assets/ruler_qa.png" width="85%">
+</p>
+
+### LongBench
+
+Results on 12 tasks with up to 16K context length:
+
+<p align="center">
+  <img src="assets/longbench.png" width="85%">
+</p>
+
+*See the paper for detailed tables and ablations.*
 
 
 ## 🚀 Getting Started
 
 ### Installation
 
-Create a conda environment and install the required dependencies:
+1. **Create conda environment**:
 
 ```bash
-# Create conda environment
 conda create -n refine python=3.12 -y
 conda activate refine
+```
 
-# Install dependencies
+2. **Install dependencies**:
+
+```bash
 pip install -r requirements.txt
+```
 
-# Install the verl package
+3. **Install verl**:
+
+```bash
 cd verl
 pip install -e .
 ```
 
+### Models
+
+Download the pre-trained fast weight models and copy the model code to `verl/models/`:
+
+| Model | Parameters | Code | Checkpoints |
+|-------|------------|------|-------------|
+| LaCT | 760M | [GitHub](https://github.com/a1600012888/LaCT/tree/main/lact_llm) | [HuggingFace](https://huggingface.co/YunjinZhang/lact_llm/tree/main) |
+| DeltaNet-1.3B | 1.3B | [GitHub](https://github.com/fla-org/flash-linear-attention/tree/main/fla/models/delta_net) | [HuggingFace](https://huggingface.co/fla-hub/delta_net-1.3B-100B) |
+
+
+
+
+
 ### Mid-Training
 
-1. Download the [Long-Data-Collections](https://huggingface.co/datasets/togethercomputer/Long-Data-Collections) dataset. Filter for train samples with at least 16K tokens. Save the training dataset in parquet. 
-2. Fill in the variables in `examples/refine_trainer/demo/run_midtrain_demo.sh`.
-3. Run `examples/refine/demo/run_midtrain_demo.sh`
+Train REFINE on long-context data:
+
+1. **Prepare Dataset**: The original [Long-Data-Collections](https://huggingface.co/datasets/togethercomputer/Long-Data-Collections) dataset is no longer available. We recommend using the [Books](https://huggingface.co/datasets/EleutherAI/pile) subset from The Pile:
+   - Filter for training samples with at least 16K tokens
+   - Save the dataset in `.parquet` format
+   
+2. **Configure Script**: Update the variables in `verl/examples/refine_trainer/demo/run_midtrain_demo.sh`
+   
+3. **Run Training**:
+   ```bash
+   cd verl/examples/refine_trainer/demo
+   bash run_midtrain_demo.sh
+   ```
 
 
 ### Post-Training
 
-1. See [RULER](https://github.com/NVIDIA/RULER) for SQuADQA and HotpotQA multi-doc QA dataset generation. The raw training corpus can be found here: [SQuADQA](https://rajpurkar.github.io/SQuAD-explorer/), [HotpotQA](https://hotpotqa.github.io/). Save the train and test files in parquet format. We provide a sample training dataset in `ReFINE/data/ruler`.
-2. Fill in the variables in `run_posttrain_demo.sh`.
-3. Run `run_posttrain_demo.sh`
+Fine-tune on task-specific long-context data:
+
+1. **Use Provided Datasets**: Post-training datasets are available in `data/ruler/`
+   - For custom data generation, see [RULER](https://github.com/NVIDIA/RULER)
+   - Raw training corpora: [SQuADQA](https://rajpurkar.github.io/SQuAD-explorer/), [HotpotQA](https://hotpotqa.github.io/)
+   
+2. **Configure Script**: Update the variables in `verl/examples/refine_trainer/demo/run_posttrain_demo.sh`
+   
+3. **Run Training**:
+   ```bash
+   cd verl/examples/refine_trainer/demo
+   bash run_posttrain_demo.sh
+   ```
 
 
 ### Test-Time Training
 
-1. Download the raw [LongBench](https://huggingface.co/datasets/yanbingzheng/LongBench/tree/main) dataset. Filter for samples with at most 16K tokens and save as parquet file.
-2. Fill in the variables in `run_testtimetrain_demo.sh`.
-3. Run `run_testtimetrain_demo.sh`
-```
+Adapt the model at test time for specific tasks:
 
----
+1. **Use Provided Dataset**: LongBench dataset (filtered for <16K tokens) is included
+   - Raw dataset: [LongBench on HuggingFace](https://huggingface.co/datasets/yanbingzheng/LongBench)
+   
+2. **Configure Script**: Update the variables in `verl/examples/refine_trainer/demo/run_testtimetrain_demo.sh`
+   
+3. **Run Training**:
+   ```bash
+   cd verl/examples/refine_trainer/demo
+   bash run_testtimetrain_demo.sh
+   ```
+
 
 ## 📝 Citation
 
 If you find this work helpful, please cite our paper:
 
-bibtex tbd 
+```bibtex
+@article{refine2026,
+  title={Reinforced Fast Weights with Next Sequence Prediction},
+  author={Anonymous Authors},
+  journal={Under review at ICML 2026},
+  year={2026}
+}
+```
 
----
+*(BibTeX will be updated upon publication)*
+
+
 
 ## 🙏 Acknowledgments
 
 This project builds upon [verl](https://github.com/volcengine/verl) for distributed RL training infrastructure.
+
+
+
+## 📚 References
+
+- Zhang, Tianyuan, et al. "Test-time training done right." *arXiv preprint arXiv:2505.23884* (2025).
+
+- Yang, Songlin, et al. "Parallelizing linear transformers with the delta rule over sequence length." *Advances in Neural Information Processing Systems* 37 (2024): 115491-115522.
+
+- Yang, Songlin, Jan Kautz, and Ali Hatamizadeh. "Gated delta networks: Improving mamba2 with delta rule." *arXiv preprint arXiv:2412.06464* (2024).
+
+- Gao, Leo, et al. "The pile: An 800gb dataset of diverse text for language modeling." *arXiv preprint arXiv:2101.00027* (2020).
+
+- Hsieh, Cheng-Ping, et al. "RULER: What's the Real Context Size of Your Long-Context Language Models?." *arXiv preprint arXiv:2404.06654* (2024).
+
+- Bai, Yushi, et al. "Longbench: A bilingual, multitask benchmark for long context understanding." *arXiv preprint arXiv:2308.14508* (2023).
 

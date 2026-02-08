@@ -3,13 +3,13 @@
 set -x
 
 ######### Change here #########
-HF_HOME="<path-to-hf-cache-dir>"
-TRITON_CACHE_DIR="<path-to-triton-cache-dir>"
-MODEL_PATH="<path-to-model-dir>"
-TRAIN_FILES="<path-to-train-data-file(s)>"
-VAL_FILES="<path-to-val-data-file(s)>"
-PROMPT_KEY="<prompt-key>"
-CKPT_DIR="<path-to-ckpt-dir>"
+HF_HOME="<path-to-hf-cache-dir>"              # for huggingface cache
+TRITON_CACHE_DIR="<path-to-triton-cache-dir>" # for DeltaNet
+MODEL_PATH="<path-to-model-dir>"              # model download path
+TRAIN_FILES="<path-to-train-data-file(s)>"    # training dataset path
+VAL_FILES="<path-to-val-data-file(s)>"        # validation dataset path
+PROMPT_KEY="<prompt-key>"                     # column name of the text in the parquet file
+CKPT_DIR="<path-to-ckpt-dir>"                 # checkpoint save path
 
 PROJECT_NAME='ReFINE'
 EXPERIMENT_NAME="midtrain_16k_tttrl" 

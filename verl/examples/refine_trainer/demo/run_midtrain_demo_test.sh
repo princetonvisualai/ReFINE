@@ -6,10 +6,10 @@ set -x
 HF_HOME="/n/fs/wh-vlm/cache/huggingface"
 TRITON_CACHE_DIR="/n/fs/xw-hh/triton/cache"
 MODEL_PATH="/n/fs/visualai-scr/Models/will/delta_net-1.3B-100B"
-TRAIN_FILES="/n/fs/xw-hh/ReFINE/data/long-data-collections/pile_sub_subset_delta_net_16384.parquet"
+TRAIN_FILES="/n/fs/visualai-scr/Data/Long-Data-Collections/pretrain/pile_sub_subset_delta_net_16384.parquet"
 VAL_FILES="/n/fs/visualai-scr/Data/Long-Data-Collections/fine-tune/booksum_subset.parquet"
 PROMPT_KEY="text"
-CKPT_DIR="/n/fs/xw-hh/checkpoints"
+CKPT_DIR="/n/fs/xw-hh/ReFINE/checkpoints"
 
 PROJECT_NAME='ReFINE'
 EXPERIMENT_NAME="midtrain_16k_tttrl" 
