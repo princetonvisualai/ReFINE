@@ -170,10 +170,6 @@ If you find this work helpful, please cite our paper:
 }
 ```
 
-*(BibTeX will be updated upon publication)*
-
-
-
 ## 🙏 Acknowledgments
 
 This project builds upon [verl](https://github.com/volcengine/verl) for distributed RL training infrastructure.
