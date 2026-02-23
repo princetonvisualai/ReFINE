@@ -162,10 +162,10 @@ We recommend using the demo scripts for validation (e.g. Ruler SQuADQA, HotpotQA
 If you find this work helpful, please cite our paper:
 
 ```bibtex
-@article{refine2026,
-  title={Reinforced Fast Weights with Next Sequence Prediction},
-  author={TBD},
-  journal={TBD},
+@article{hwang2026reinforced,
+  title={Reinforced Fast Weights with Next-Sequence Prediction},
+  author={Hwang, Hee Seung and Wu, Xindi and Chun, Sanghyuk and Russakovsky, Olga},
+  journal={arXiv preprint arXiv:2602.16704},
   year={2026}
 }
 ```
