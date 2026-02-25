@@ -374,47 +374,6 @@ class DataParallelPPOActor(BasePPOActor):
                 hidden_states = hidden_states[:, -response_length:, :]
             return hidden_states, log_probs
 
-    def _forward_micro_batch_for_ttt_ppo(self, micro_batch, temperature):
-        """Optimized PPO forward for TTT: splits prompt (no_grad) and response (with grad)
-        to avoid storing activations for the prompt during backprop.
-        Exploits delta-net's recurrent state as the only interface between prompt and response.
-        """
-        with torch.autocast(device_type=self.device_name, dtype=torch.bfloat16):
-            input_ids = micro_batch["input_ids"]
-            attention_mask = micro_batch["attention_mask"]
-            response_ids = micro_batch["responses"]
-            response_length = response_ids.size(-1)
-            prompt_length = input_ids.shape[1] - response_length
-
-            # Forward prompt (excluding last token) without grad to get recurrent state.
-            # The last prompt token is included in the response forward so its logit
-            # (which predicts the first response token) retains gradients.
-            past_key_values = None
-            if prompt_length > 1:
-                with torch.no_grad():
-                    prompt_output = self.actor_module(
-                        input_ids=input_ids[:, :prompt_length - 1],
-                        attention_mask=attention_mask[:, :prompt_length - 1],
-                        use_cache=True,
-                    )
-                    past_key_values = prompt_output.past_key_values
-
-            # Forward last prompt token + response tokens with gradients
-            response_start = max(0, prompt_length - 1)
-            output = self.actor_module(
-                input_ids=input_ids[:, response_start:],
-                attention_mask=attention_mask[:, response_start:],
-                past_key_values=past_key_values,
-                use_cache=False,
-            )
-
-            logits = output.logits  # (bsz, response_length + 1, vocab_size)
-            logits.div_(temperature)
-            logits = logits[:, :-1, :]  # (bsz, response_length, vocab_size)
-            log_probs = logprobs_from_logits(logits, response_ids)
-
-            return log_probs
-
     def _optimizer_step(self):
         assert self.config.grad_clip is not None
 
@@ -880,9 +839,7 @@ class DataParallelPPOActor(BasePPOActor):
                 #entropy_coeff = self.config.entropy_coeff
                 loss_agg_mode = self.config.loss_agg_mode
 
-                log_prob = self._forward_micro_batch_for_ttt_ppo(
-                    ppo_inputs, temperature=temperature
-                )
+                _, log_prob = self._forward_micro_batch_for_ttt(ppo_inputs, temperature=temperature, get_hidden_states=False)
 
                 pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower = compute_policy_loss(
                     old_log_prob=old_log_prob,
