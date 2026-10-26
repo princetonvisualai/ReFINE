@@ -1,9 +1,9 @@
-# ReFINE: Reinforced Fast Weights with Next Sequence Prediction
+# ReFINE: Reinforced Fast Weights with Next Sequence Prediction (NeurIPS 2026 Spotlight)
 
 This repository contains the official implementation of **ReFINE**, introduced in the paper:
 
 > **Reinforced Fast Weights with Next Sequence Prediction**  
-> Hee Seung Hwang*, Xindi Wu*, Sanghyuk Chun, Olga Russakovsky  
+> Hee Seung Hwang*, Xindi Wu*, Sanghyuk Chun, Olga Russakovsky, Zhiwei Deng  
 
 
 
